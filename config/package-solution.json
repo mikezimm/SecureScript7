@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "secure-script-7-client-side-solution",
+    "id": "33d96e71-539e-4e73-bdeb-4e83a49b5d00",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.14.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "secure-script-7 description"
+      },
+      "longDescription": {
+        "default": "secure-script-7 description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "secure-script-7 Feature",
+        "description": "The feature that activates elements of the secure-script-7 solution.",
+        "id": "6d2999f1-ceed-4ad9-a48f-4037d79cac97",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/secure-script-7.sppkg"
+  }
+}

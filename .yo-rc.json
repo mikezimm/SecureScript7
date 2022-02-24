@@ -1,0 +1,16 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "version": "1.14.0",
+    "libraryName": "secure-script-7",
+    "libraryId": "33d96e71-539e-4e73-bdeb-4e83a49b5d00",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "secure-script-7",
+    "solutionShortDescription": "secure-script-7 description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
