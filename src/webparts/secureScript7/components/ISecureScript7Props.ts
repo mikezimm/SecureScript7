@@ -14,7 +14,7 @@ export interface ISecureScript7Props {
   userDisplayName: string;
 
   //Environement props
-  pageContext: PageContext;
+  // pageContext: PageContext;
   context: WebPartContext;
   urlVars: {};
 

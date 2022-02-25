@@ -9,8 +9,12 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 
-
 import { createFPSWindowProps, initializeFPSSection, initializeFPSPage, webpartInstance, initializeMinimalStyle } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSDocument';
+
+import { FPSOptionsGroupBasic, FPSBanner2Group, FPSOptionsGroupAdvanced } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup2';
+import { FPSOptionsExpando } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando';
+
+import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
 
 import * as links from '@mikezimm/npmfunctions/dist/Links/LinksRepos';
 
@@ -27,6 +31,8 @@ import * as strings from 'SecureScript7WebPartStrings';
 import SecureScript7 from './components/SecureScript7';
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
 import { ISecureScript7Props } from './components/ISecureScript7Props';
+
+require('../../services/propPane/GrayPropPaneAccordions.css');
 
 export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureScript7WebPartProps> {
 
@@ -128,7 +134,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       exportProps: buildExportProps( this.properties, this.wpInstanceID ),
   
       //Webpart related info
-      panelTitle: 'Pivot Tiles webpart - Automated links and tiles',
+      panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
       modifyBannerTitle: this.modifyBannerTitle,
       repoLinks: links.gitRepoPivotTilesSmall,
   
@@ -152,8 +158,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   let expandoErrorObj = bannerSetup.errorObjArray;
 
 
-
-
     const element: React.ReactElement<ISecureScript7Props> = React.createElement(
       SecureScript7,
       {
@@ -165,15 +169,13 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         userDisplayName: this.context.pageContext.user.displayName,
 
         //Environement props
-        pageContext: this.context.pageContext,
+        // pageContext: this.context.pageContext, //This can be found in the bannerProps now
         context: this.context,
         urlVars: getUrlVars(),
 
         //Banner related props
         errMessage: 'any',
         bannerProps: bannerProps,
-
-
 
       }
     );
@@ -219,7 +221,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           header: {
             description: strings.PropertyPaneDescription
           },
+          displayGroupsAsAccordion: true, //DONT FORGET THIS IF PROP PANE GROUPS DO NOT EXPAND
           groups: [
+            WebPartInfoGroup( links.gitRepoPivotTiles, 'Swiss Army Knife of tiles' ),
             {
               groupName: strings.BasicGroupName,
               groupFields: [
@@ -227,7 +231,20 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   label: strings.DescriptionFieldLabel
                 })
               ]
-            }
+            },
+            FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
+            FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
+            FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),
+            { groupName: 'Import Props',
+            isCollapsed: true ,
+            groupFields: [
+              PropertyPaneTextField('fpsImportProps', {
+                label: 'Import settings from another Pivot Tiles webpart',
+                description: 'For complex settings, use the link below to edit as JSON Object',
+                multiline: true,
+              }),
+              JSON_Edit_Link,
+            ]}, // this group
           ]
         }
       ]

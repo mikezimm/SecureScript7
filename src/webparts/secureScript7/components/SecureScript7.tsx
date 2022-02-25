@@ -11,7 +11,7 @@ import { defaultBannerCommandStyles, } from "./HelpPanel/banner/onNpm/defaults";
 
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
 
-  private currentPageUrl = this.props.pageContext.web.absoluteUrl + this.props.pageContext.site.serverRequestPath;
+  private currentPageUrl = this.props.bannerProps.pageContext.web.absoluteUrl + this.props.bannerProps.pageContext.site.serverRequestPath;
     
     /***
      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b.      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
