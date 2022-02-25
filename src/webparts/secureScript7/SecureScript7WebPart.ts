@@ -21,63 +21,12 @@ import { IBuildBannerSettings , buildBannerProps, IMinWPBannerProps } from './Ba
 import { buildExportProps } from './BuildExportProps';
 
 import { setExpandoRamicMode } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSExpandoramic';
+import { getUrlVars } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunctions';
 
 import * as strings from 'SecureScript7WebPartStrings';
 import SecureScript7 from './components/SecureScript7';
+import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
 import { ISecureScript7Props } from './components/ISecureScript7Props';
-
-
-
-
-
-export interface ISecureScript7WebPartProps {
-  description: string;
-
-  uniqueId: string;
-  showBannerGear: boolean; // Not in Prop Pane
-  
-	//2022-02-17:  Added these for expandoramic mode
-	enableExpandoramic: boolean;
-	expandoDefault: boolean;
-	expandoStyle: any;
-  expandoPadding: number;
-  
-	// expandAlert: boolean;
-	// expandConsole: boolean;
-	//2022-02-17:  END additions for expandoramic mode
-
-  // Section 15
-  //General settings for Banner Options group
-  // export interface IWebpartBannerProps {
-    bannerTitle: string;
-    bannerStyle: string;
-    showBanner: boolean;
-
-    showGoToHome: boolean;  //defaults to true
-    showGoToParent: boolean;  //defaults to true
-
-    bannerHoverEffect: boolean;
-    showTricks: boolean;
-  // }
-
-  //Section 16 - FPS Options group
-  searchShow: boolean;
-  fpsPageStyle: string;
-  fpsContainerMaxWidth: string;
-  quickLaunchHide: boolean;
-
-  //FPS Options part II
-  pageHeaderHide: boolean;
-  allSectionMaxWidthEnable: boolean;
-  allSectionMaxWidth: number;
-  allSectionMarginEnable: boolean;
-  allSectionMargin: number;
-  toolBarHide: boolean;
-
-
-
-
-}
 
 export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureScript7WebPartProps> {
 
@@ -86,7 +35,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
 
 
-  private wpInstanceID: any = webpartInstance( 'PT' );
+  private wpInstanceID: any = webpartInstance( 'SS7' );
 
   //For FPS options
   private fpsPageDone: boolean = false;
@@ -107,8 +56,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private  expandoDefault = false;
 
   private expandoErrorObj = {
-    
-  }
+
+  };
 
 
 
@@ -121,9 +70,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
         //https://stackoverflow.com/questions/52010321/sharepoint-online-full-width-page
         console.log('location',window.location.href);
-        if ( window.location.href && 
+        if ( window.location.href &&
            window.location.href.indexOf("layouts/15/workbench.aspx") > 0  ) {
-            
+
           if (document.getElementById("workbenchPageContent")) {
             document.getElementById("workbenchPageContent").style.maxWidth = "none";
           }
@@ -138,8 +87,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       //   spfxContext: this.context
       // });
 
-      this.urlParameters = this.getUrlVars();
-
+      this.urlParameters = getUrlVars();
 
       this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true ? true : false;
       if ( this.urlParameters.Mode === 'Edit' ) { this.expandoDefault = false; }
@@ -161,6 +109,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     let errMessage = '';
     let errorObjArray :  any[] =[];
 
+
+    /***
+      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
+      *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D 
+      *    88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY' 
+      *    88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b   
+      *    88   8D 88   88 88  V888 88  V888 88.     88 `88. 
+      *    Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD 
+      *                                                      
+      *                                                      
+      */
     let buildBannerSettings : IBuildBannerSettings = {
 
       //this. related info
@@ -185,7 +144,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       errorObjArray: errorObjArray, //In the case of Pivot Tiles, this is manualLinks[],
       expandoErrorObj: this.expandoErrorObj,
   
-  }
+  };
 
   let bannerSetup = buildBannerProps( this.properties , buildBannerSettings );
   errMessage = bannerSetup.errMessage;
@@ -195,28 +154,27 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     const element: React.ReactElement<ISecureScript7Props> = React.createElement(
       SecureScript7,
       {
+        //OOTB Default Props
         description: this.properties.description,
         isDarkTheme: this._isDarkTheme,
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        userDisplayName: this.context.pageContext.user.displayName
+        userDisplayName: this.context.pageContext.user.displayName,
+
+        //Environement props
+        pageContext: this.context.pageContext,
+        context: this.context,
+        urlVars: getUrlVars(),
+
+        //Banner related props
+        errMessage: 'any',
+        bannerProps: bannerProps,
+
+
+
       }
     );
 

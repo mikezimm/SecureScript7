@@ -13,6 +13,7 @@
   },
   "externals": {},
   "localizedResources": {
-    "SecureScript7WebPartStrings": "lib/webparts/secureScript7/loc/{locale}.js"
+    "SecureScript7WebPartStrings": "lib/webparts/secureScript7/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
   }
 }

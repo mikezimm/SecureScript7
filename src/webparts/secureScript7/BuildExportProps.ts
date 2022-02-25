@@ -42,15 +42,17 @@
   *                                                                                                                                               
   */
 
- import * as strings from 'Pivottiles7WebPartStrings';
+ import * as strings from 'SecureScript7WebPartStrings';
 
- import { IPivottiles7WebPartProps, changeCols1, changeCols2, 
-   changeHubs, changeSubs, changeGroups, changeLists, changeLibs, changeStyles, changeSizes, changeHeros, changeItems, changeCats, changeFilters, 
-   changePermissions, changefpsOptions1, changefpsOptions2, 
-   changeNews, changePages, changeBox, changeExpando, changeManual, changeBanner, changeSetup, changeBasic, changeExtraInfo,
-   PowerBIManualLinks, PowerBIManualLinksHref,
-   exportIgnoreProps, importBlockPropsDev, importBlockPropsTeam, importBlockPropsCorp,
-   } from './IPivottiles7WebPartProps';
+//  import { IPivottiles7WebPartProps, changeCols1, changeCols2, 
+//    changeHubs, changeSubs, changeGroups, changeLists, changeLibs, changeStyles, changeSizes, changeHeros, changeItems, changeCats, changeFilters, 
+//    changePermissions, changefpsOptions1, changefpsOptions2, 
+//    changeNews, changePages, changeBox, changeExpando, changeManual, changeBanner, changeSetup, changeBasic, changeExtraInfo,
+//    PowerBIManualLinks, PowerBIManualLinksHref,
+//    exportIgnoreProps, importBlockPropsDev, importBlockPropsTeam, importBlockPropsCorp,
+//    } from './IPivottiles7WebPartProps';
+
+import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
 
 
 /***
@@ -68,51 +70,52 @@
  * buildExportProps builds up an object of specific webpart properties that can be exported via the help panel
  * @returns exportObject
  */
- export function buildExportProps( wpProps : IPivottiles7WebPartProps, wpInstanceID: string ) {
+ export function buildExportProps( wpProps : ISecureScript7WebPartProps, wpInstanceID: string ) {
     let exportStructure :any = {};
     let wpInstanceIDSplit = wpInstanceID.split('|');
     exportStructure.wpID = [ wpInstanceIDSplit[0], wpInstanceIDSplit[1], wpInstanceIDSplit[3]].join(' ~ ');
 
-    exportStructure.items = changeItems;
+    // exportStructure.items = changeItems;
 
-    exportStructure.cats = changeCats;
-    exportStructure.filters = changeFilters;
+    // exportStructure.cats = changeCats;
+    // exportStructure.filters = changeFilters;
 
-    exportStructure.hubs = changeHubs;
-    exportStructure.subs = changeSubs;
+    // exportStructure.hubs = changeHubs;
+    // exportStructure.subs = changeSubs;
 
-    exportStructure.lists = changeLists;
-    exportStructure.libs = changeLibs;
+    // exportStructure.lists = changeLists;
+    // exportStructure.libs = changeLibs;
 
-    exportStructure.pages = changePages;
-    exportStructure.news = changeNews;
+    // exportStructure.pages = changePages;
+    // exportStructure.news = changeNews;
 
-    exportStructure.groups = changeGroups;
-    exportStructure.permissions = changePermissions;
+    // exportStructure.groups = changeGroups;
+    // exportStructure.permissions = changePermissions;
 
-    exportStructure.expando = changeExpando;
+    // exportStructure.expando = changeExpando;
 
-    exportStructure.manual = changeManual;
-    exportStructure.fpsOptions1 = changefpsOptions1;
+    // exportStructure.manual = changeManual;
+    // exportStructure.fpsOptions1 = changefpsOptions1;
 
-    exportStructure.banner = changeBanner;
+    // exportStructure.banner = changeBanner;
 
-    exportStructure.styles = changeStyles;
-    exportStructure.sizes = changeSizes;
+    // exportStructure.styles = changeStyles;
+    // exportStructure.sizes = changeSizes;
 
-    exportStructure.heros = changeHeros;
-    exportStructure.box = changeBox;
+    // exportStructure.heros = changeHeros;
+    // exportStructure.box = changeBox;
 
-    exportStructure.setup = changeSetup;
-    exportStructure.basic = changeBasic;
+    // exportStructure.setup = changeSetup;
+    // exportStructure.basic = changeBasic;
 
-    exportStructure.cols1 = changeCols1;
-    exportStructure.cols2 = changeCols2;
+    // exportStructure.cols1 = changeCols1;
+    // exportStructure.cols2 = changeCols2;
 
-    exportStructure.extraInfo = changeExtraInfo;
-    exportStructure.fpsOptions2 = changefpsOptions2;
+    // exportStructure.extraInfo = changeExtraInfo;
+    // exportStructure.fpsOptions2 = changefpsOptions2;
 
-    let exportObject = createExportObject( exportStructure, wpProps, exportIgnoreProps, false );
+    // let exportObject = createExportObject( exportStructure, wpProps, exportIgnoreProps, false );
+    let exportObject = {"key1": "Value1"};
 
     console.log('Exportable Props:', exportObject );
     return exportObject;

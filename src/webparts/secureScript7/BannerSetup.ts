@@ -107,7 +107,7 @@
       links.trickyEmails.map( getsTricks => {
         if ( bbs.context.pageContext.user.loginName && bbs.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
   
-      let bannerTitle = bbs.modifyBannerTitle === true && wpProps.bannerTitle && wpProps.bannerTitle.length > 0 ? wpProps.bannerTitle : `Pivot Tiles`;
+      let bannerTitle = bbs.modifyBannerTitle === true && wpProps.bannerTitle && wpProps.bannerTitle.length > 0 ? wpProps.bannerTitle : `Secure Script 7`;
       let bannerStyle: ICurleyBraceCheck = getReactCSSFromString( 'bannerStyle', wpProps.bannerStyle, {background: "#7777",fontWeight:600, fontSize: 'larger', height: '43px'} );
       let showBannerGear = wpProps.showBannerGear === false ? false : true;
  
