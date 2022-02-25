@@ -3,7 +3,9 @@ import * as ReactDom from 'react-dom';
 import { Version } from '@microsoft/sp-core-library';
 import {
   IPropertyPaneConfiguration,
-  PropertyPaneTextField
+  PropertyPaneTextField,
+  IPropertyPaneDropdownOption,
+  PropertyPaneDropdown,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
@@ -32,14 +34,21 @@ import SecureScript7 from './components/SecureScript7';
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
 import { ISecureScript7Props } from './components/ISecureScript7Props';
 
+
+import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import { approvedLibraries } from './components/ApprovedLibraries';
+
+// import { fetchSnippet } from './loadDangerous';
+import { fetchSnippetMike } from './components/FetchCode';
+import { executeScript } from './components/EvalScripts';
+
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
 export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureScript7WebPartProps> {
 
+
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
-
-
 
   private wpInstanceID: any = webpartInstance( 'SS7' );
 
@@ -65,7 +74,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   };
 
-
+  // Only content from the approved libraries can be selected
+  // Copied from CherryPickedCE
+  private approvedLibraries = approvedLibraries;
+  private snippet: string = '';
 
 
   protected onInit(): Promise<void> {
@@ -177,6 +189,14 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         errMessage: 'any',
         bannerProps: bannerProps,
 
+        //SecureScript props
+        libraryPicker: this.properties.libraryPicker,
+        libraryItemPicker: this.properties.libraryItemPicker,
+        approvedLibraries: this.approvedLibraries,
+        domElement: this.domElement,
+        snippet: this.snippet,
+
+
       }
     );
 
@@ -214,6 +234,77 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     return Version.parse('1.0');
   }
 
+
+
+  // Dropdown gets disabled while retrieving items asynchronously
+  // Copied from CherryPickedCE
+  private itemsDropdownDisabled: boolean = true;
+
+  // Files in the selected library
+  // Copied from CherryPickedCE
+  private libraryItemsList: IPropertyPaneDropdownOption[];
+
+  // Asynchronous library query
+  // Copied from CherryPickedCE
+  private getLibraryItemsList = (library) => {
+    // Validate approved location
+    const filesLocation = this.approvedLibraries.filter(loc => loc.key == library)[0];
+    const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "/_api/web/lists/getbytitle('" + filesLocation.library + "')/files?$select=Name";
+
+    return this.context.spHttpClient.get(filesQuery, SPHttpClient.configurations.v1)
+      .then((response: SPHttpClientResponse) => response.json())
+      .then(data => data.value);
+  }
+
+
+  // Runs before getting the Property Pane configuration
+  // Copied from CherryPickedCE
+  protected onPropertyPaneConfigurationStart(): void {
+
+    this.itemsDropdownDisabled = true;
+
+    if (this.properties.libraryPicker)
+      this.getLibraryItemsList(this.properties.libraryPicker)
+        .then((files): void => {
+          // store items
+          this.libraryItemsList = files.map(file => { return { key: file.Name, text: file.Name }; });
+          this.itemsDropdownDisabled = false;
+        })
+        .then(() => this.context.propertyPane.refresh());
+  }
+
+  // This API is invoked after updating the new value of the property in the property bag (Reactive mode). 
+  protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
+    super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
+    if ((propertyPath === 'libraryPicker') && (newValue)) {
+      // get previously selected item
+      const previousItem: string = this.properties.libraryItemPicker;
+      // reset selected item
+      this.properties.libraryItemPicker = "";
+      // disable item selector until new items are loaded
+      this.itemsDropdownDisabled = true;
+      // push new item value
+      this.onPropertyPaneFieldChanged('libraryItemPicker', previousItem, this.properties.libraryItemPicker);
+      // this.render();
+      // refresh the item selector control by repainting the property pane
+      this.context.propertyPane.refresh();
+
+      this.getLibraryItemsList(newValue)
+        .then((files): void => {
+
+          if (files.length) {
+          // store items
+          this.libraryItemsList = files.map(file => { return { key: file.Name, text: file.Name }; });
+          // enable item selector
+          this.itemsDropdownDisabled = false;
+          // this.render();
+          // refresh the item selector control by repainting the property pane
+          this.context.propertyPane.refresh();
+          }
+        });
+    }
+  }
+
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     return {
       pages: [
@@ -224,14 +315,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           displayGroupsAsAccordion: true, //DONT FORGET THIS IF PROP PANE GROUPS DO NOT EXPAND
           groups: [
             WebPartInfoGroup( links.gitRepoPivotTiles, 'Swiss Army Knife of tiles' ),
-            {
-              groupName: strings.BasicGroupName,
-              groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
-                })
-              ]
-            },
             FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
             FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
             FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),
@@ -245,6 +328,31 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
               }),
               JSON_Edit_Link,
             ]}, // this group
+
+            {
+              groupName: 'Script Editor Properties',
+              groupFields: [
+                // // Web Part title
+                // PropertyPaneTextField('description', {
+                //   label: strings.DescriptionFieldLabel
+                // }),
+                // Library Picker (approved libraries only)
+                PropertyPaneDropdown('libraryPicker', {
+                  label: strings.LibraryPickerLabel,
+                  options: this.approvedLibraries,
+                  selectedKey: this.properties.libraryPicker,
+
+                }),
+                // Cascading Library Item Picker
+                PropertyPaneDropdown('libraryItemPicker', {
+                  label: strings.LibraryItemPickerLabel,
+                  options: this.libraryItemsList,
+                  selectedKey: this.properties.libraryItemPicker,
+                  disabled: this.itemsDropdownDisabled
+                })
+              ]
+            }
+
           ]
         }
       ]

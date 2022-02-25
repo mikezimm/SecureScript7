@@ -22,6 +22,16 @@ export interface ISecureScript7Props {
   errMessage: any;
   bannerProps: IWebpartBannerProps;
 
+  //Secure Script Props
+
+  libraryPicker: string;
+  libraryItemPicker: string;
+  approvedLibraries: any[];
+  // context: WebPartContext;
+
+  domElement: any;
+  snippet: any;
+
 }
 
 export interface ISecureScript7State {

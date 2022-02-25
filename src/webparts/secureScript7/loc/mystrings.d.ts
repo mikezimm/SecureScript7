@@ -6,6 +6,10 @@ declare interface ISecureScript7WebPartStrings {
   AppLocalEnvironmentTeams: string;
   AppSharePointEnvironment: string;
   AppTeamsTabEnvironment: string;
+
+  LibraryPickerLabel: string;
+  LibraryItemPickerLabel: string;
+  
 }
 
 declare module 'SecureScript7WebPartStrings' {

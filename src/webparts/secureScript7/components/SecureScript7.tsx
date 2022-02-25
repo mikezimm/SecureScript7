@@ -9,6 +9,10 @@ import WebpartBanner from "./HelpPanel/banner/component";
 import { IWebpartBannerProps, } from "./HelpPanel/banner/onNpm/bannerProps";
 import { defaultBannerCommandStyles, } from "./HelpPanel/banner/onNpm/defaults";
 
+
+const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>'
+
+
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
 
   private currentPageUrl = this.props.bannerProps.pageContext.web.absoluteUrl + this.props.bannerProps.pageContext.site.serverRequestPath;
@@ -103,6 +107,17 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let bannerTitle = this.props.bannerProps.bannerWidth < 900 ? bannerSuffix : `${this.props.bannerProps.title} - ${bannerSuffix}`;
     if ( bannerTitle === '' ) { bannerTitle = 'Pivot Tiles' ; }
 
+    let errorUnapprovedComponent = <div>
+      <h3>Select from Approved sites:</h3>
+        <p>
+          <ul>
+          {this.props.approvedLibraries.map(lib => <li>{lib.text}</li>)}
+          </ul>
+        </p>
+      </div>;
+
+    let scriptComponent = stockPickerHTML;
+
     let Banner = <WebpartBanner 
       exportProps={ this.props.bannerProps.exportProps }
       showBanner={ this.props.bannerProps.showBanner }
@@ -141,28 +156,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
         { Banner }
-        <div className={styles.welcome}>
-          <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} />
-          <h2>Well done, {escape(userDisplayName)}!</h2>
-          <div>{environmentMessage}</div>
-          <div>Web part property value: <strong>{escape(description)}</strong></div>
-        </div>
-        <div>
-          <h3>Welcome to SharePoint Framework!</h3>
-          <p>
-            The SharePoint Framework (SPFx) is a extensibility model for Microsoft Viva, Microsoft Teams and SharePoint. It's the easiest way to extend Microsoft 365 with automatic Single Sign On, automatic hosting and industry standard tooling.
-          </p>
-          <h4>Learn more about SPFx development:</h4>
-          <ul className={styles.links}>
-            <li><a href="https://aka.ms/spfx" target="_blank">SharePoint Framework Overview</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-graph" target="_blank">Use Microsoft Graph in your solution</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-teams" target="_blank">Build for Microsoft Teams using SharePoint Framework</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-viva" target="_blank">Build for Microsoft Viva Connections using SharePoint Framework</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-store" target="_blank">Publish SharePoint Framework applications to the marketplace</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-api" target="_blank">SharePoint Framework API reference</a></li>
-            <li><a href="https://aka.ms/m365pnp" target="_blank">Microsoft 365 Developer Community</a></li>
-          </ul>
-        </div>
+        { errorUnapprovedComponent }
+
+        { scriptComponent }
+
       </section>
     );
   }

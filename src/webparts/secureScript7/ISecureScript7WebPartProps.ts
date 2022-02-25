@@ -43,5 +43,9 @@ export interface ISecureScript7WebPartProps {
     allSectionMarginEnable: boolean;
     allSectionMargin: number;
     toolBarHide: boolean;
+
+    //SecureScript Props for CE Code
+    libraryPicker: string;
+    libraryItemPicker: string;
   
   }
