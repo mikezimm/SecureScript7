@@ -31,20 +31,14 @@ export function basicsContent( repoLinks: IRepoLinks ) {
     let filterIcon = <Icon iconName={"ClearFilter"}  style={ iconStyles } />;
     let dashIcon = <Icon iconName={"ChromeMinimize"}  style={ iconStyles } />;
 
-    messageRows.push( <tr><td>CTRL-Click <b>Tile</b></td><td>Tile</td><td>Open Tile desstination in <b>NEW TAB</b></td></tr> );
-    messageRows.push( <tr><td>CTRL-ALT-SHFT-Click <b>Tile</b></td><td>Tile</td><td>Go directly to that Tile item's properties</td></tr> );
-    messageRows.push( <tr><td>CTRL-Click <b>Category</b></td><td>Top Left</td><td>Set that Category as the "Hero" Category</td></tr> );
-    messageRows.push( <tr><td></td><td></td><td></td></tr> );
-    messageRows.push( <tr><td>Click on &nbsp;&nbsp; <b>Grid Icon { gridIcon } { tilesIcon } </b></td><td>Upper Right</td><td>Change format of tiles to Cards, List, Tiles</td></tr> );
-    messageRows.push( <tr><td>Click on &nbsp;&nbsp;<b>Filter X Icon  { filterIcon } </b></td><td>Upper Right</td><td>Show All Tiles</td></tr> );
-    messageRows.push( <tr><td>Click on &nbsp;&nbsp;<b>-- Icon { dashIcon }</b></td><td>Upper Right</td><td>Hide All Tiles</td></tr> );
+    messageRows.push( <tr><td>Alt-Click</td><td style={{whiteSpace: 'nowrap'}}><b>HTML File Link</b></td><td>Open the html file <b>in Edit Mode</b></td></tr> );
 
     messageRows.push( <tr><td></td><td></td><td></td></tr> );
 
     let thisTable = <div style={{ paddingTop: 15 }}>
         <h2>Easter Eggs</h2>
         <table className={styles.infoTable} style={{ width: '100%' }}>
-            <tr><th style={{ minWidth: '200px' }}>Do this...</th><th>Where</th><th>What it does</th></tr>
+            <tr><th style={{ minWidth: '100px' }}>Do this...</th><th>Where</th><th>What it does</th></tr>
             { messageRows }
         </table>
     </div>;

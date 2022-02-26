@@ -10,32 +10,37 @@ import { convertIssuesMarkdownStringToSpan } from '@mikezimm/npmfunctions/dist/E
 
 export function advancedContent( repoLinks: IRepoLinks ) {
 
+    let thisTable = <div style={{ paddingTop: 15 }}>
+
+        <h2>General comments about FPS style settings</h2>
+        <p>Settings in <b>FPS options</b> are applied after the webpart first loads.  This means on slower connections, you may temporarily see original styling including elements you are trying to hide.  If this poses an issue, be sure to have minimal SharePoint content on the page.</p>
+        <ul>
+            <li>Do not have any other webparts or content on the page.</li>
+            <li>Do not have any site navigation links.</li>
+            <li>Disable the quick launch through site settings.</li>
+            <li>Do not have a Site Icon (unless it is restricted to site owners or above).</li>
+            <li>Minimize Banner/Header including with Powershell if neccessary</li>
+        </ul>
+
+        <p>Also note that these are using undocumented SharePoint properties which are subject to change without notice.  If this happens, please contact your SharePoint team.</p>
+
+        <h2>PFS options - Expandoramic</h2>
+
+        <h3>Enable Expandoramic Mode</h3>
+        <p>Show the Expand Webpart Icon (Expandoramic Mode)</p>
+
+        <h3>Page load default</h3>
+        <p>This will determine if the webpart is pre-loaded as Expanded.  Default = Normal</p>
+
+        <h3>Expandoramic Audience</h3>
+        <p>This will determine what level permissions will see the Expand webpart icon.  <b>NOTE:</b>  Site Admins and Site Owners will ALWAYS see this button.</p>
+    </div>;
+
+    return { html1: thisTable };
+    
     let messageRows = [];
  
     // messageRows.push( <tr><td></td><td></td><td></td></tr> );
-    messageRows.push( <tr><td>Open Site Admin Permissions</td><td>CTRL-Click <strong>Admins</strong> tab</td><td>Only available to Site Admins when in <strong>Groups</strong> or <strong>Permissions</strong> tabs.</td></tr> );
-    messageRows.push( <tr><td>Open Current Web Permissions</td><td>CTRL-Click <strong>web</strong> tab</td><td>Available when in <strong>Permissions</strong> tabs.</td></tr> );
-    messageRows.push( <tr><td>Open List-Library Permissions</td><td>CTRL-Click <strong>List</strong> tab</td><td>Available when in <strong>Permissions</strong> tabs.</td></tr> );
-    messageRows.push( <tr><td>Open Group Settings</td><td>ALT-Click <strong>Group</strong> tab</td><td>Opens settings for Group, Only available to Site Admins when in <strong>Groups</strong> or <strong>Permissions</strong> tabs.</td></tr> );
-    messageRows.push( <tr><td>Icon only tabs</td><td><mark>icon=Car</mark></td><td>Applies to certain categories like <mark>Hub, Permissions, Groups, Subsites</mark>.  <br></br>With this syntax, you can remove the text label and only show an icon.  <br></br>Note that Groups and Permissions tabs will always use a standard icon so this just removes the text label to add more space</td></tr> );
-
-    messageRows.push( <tr><td>CTRL-Click on <b>Search Box</b></td><td><mark>Word1;Word2;Word3</mark></td><td>Type <b>; separated Keywords</b> and <b>ENTER</b> rebuild Tile Categories</td></tr> );
-    messageRows.push( <tr><td>Search Box SHOULD turn <mark>Yellow</mark></td><td><mark>reset</mark></td><td>Type <b>'reset'</b> and <b>Enter</b> to reset Tile Categories</td></tr> );
-
-
-    let customCatWiki = <a href="https://github.com/mikezimm/pivottiles7/wiki/Custom-Category---basic" target="_blank">Github Wiki</a>;
-
-    messageRows.push( <tr><td>Custom Categories</td><td></td><td>See { customCatWiki } for examples</td></tr> );
-
-
-    messageRows.push( <tr><td>Fabric UI {devLinks.devDocsIcon}</td><td></td><td>Set your ImageUrl column value to a valid Fabric UI Icon name - {devLinks.devDocsIcon}</td></tr> );
-    messageRows.push( <tr><td>Valid Icon Examples</td><td></td><td>Cat Auto Edit etc.... must be exact leter casing.</td></tr> );
-    messageRows.push( <tr><td>Colored Icons</td><td></td><td>Set Icon colors in your designated Color column.  Example:  font=green;background=yellow</td></tr> );
-
-    messageRows.push( <tr><td>Adjust Size and Top of Icon</td><td></td><td>Set Icon size(% tile height)/top in your designated Color column.  Example:  size=50;top=-20px</td></tr> );           
-    messageRows.push( <tr><td></td><td></td><td>If you can't see correct styles, be sure all values are separated by ; and have =</td></tr> );   
-    messageRows.push( <tr><td>Full example of Icon styles</td><td></td><td>background=black;font=hotpink;size=50;top=-20px</td></tr> );   
-
     messageRows.push( <tr></tr> );
 
     let thisPage = <div>

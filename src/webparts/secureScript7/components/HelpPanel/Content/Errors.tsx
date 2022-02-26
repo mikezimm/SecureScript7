@@ -11,6 +11,8 @@ import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../ba
 
 export function errorsContent( repoLinks: IRepoLinks ) {
 
+    return null;
+    
     let thisPage = null;
     let messageRows = [];
 
