@@ -38,7 +38,7 @@ export function basicsContent( repoLinks: IRepoLinks ) {
     let thisTable = <div style={{ paddingTop: 15 }}>
         <h2>Easter Eggs</h2>
         <table className={styles.infoTable} style={{ width: '100%' }}>
-            <tr><th style={{ minWidth: '100px' }}>Do this...</th><th>Where</th><th>What it does</th></tr>
+            <tr><th style={{ minWidth: '70px' }}>Do this...</th><th>Where</th><th>What it does</th></tr>
             { messageRows }
         </table>
     </div>;
