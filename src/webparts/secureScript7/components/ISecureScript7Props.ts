@@ -27,10 +27,12 @@ export interface ISecureScript7Props {
   libraryPicker: string;
   libraryItemPicker: string;
   approvedLibraries: any[];
+  fileRelativeUrl: string;
   // context: WebPartContext;
 
   domElement: any;
   snippet: any;
+  showCodeIcon: boolean;
 
 }
 
@@ -39,5 +41,9 @@ export interface ISecureScript7State {
   lastStateChange: string;
   showDevHeader: boolean;
   isSiteAdmin: boolean;
+
+  showOriginalHtml: boolean;
+  showApprovedLocations: boolean;
+  showRawHTML: boolean;
 
 }

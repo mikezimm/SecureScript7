@@ -1,5 +1,8 @@
 
 
+ //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
+ export type IExpandAudiences = 'Site Admins' | 'Site Owners' | 'Page Editors' | 'Everyone';
+
 export interface ISecureScript7WebPartProps {
     description: string;
   
@@ -47,5 +50,6 @@ export interface ISecureScript7WebPartProps {
     //SecureScript Props for CE Code
     libraryPicker: string;
     libraryItemPicker: string;
+    showCodeAudience: IExpandAudiences;
   
   }

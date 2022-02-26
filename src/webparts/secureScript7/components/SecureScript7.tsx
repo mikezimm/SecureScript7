@@ -9,14 +9,12 @@ import WebpartBanner from "./HelpPanel/banner/component";
 import { IWebpartBannerProps, } from "./HelpPanel/banner/onNpm/bannerProps";
 import { defaultBannerCommandStyles, } from "./HelpPanel/banner/onNpm/defaults";
 
-
-const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>'
-
+const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
 
   private currentPageUrl = this.props.bannerProps.pageContext.web.absoluteUrl + this.props.bannerProps.pageContext.site.serverRequestPath;
-    
+
     /***
      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b.      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
      *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 88'  YP 
@@ -28,10 +26,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
      *                                                                                                                                
      */
 
+  private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
   private nearBannerElements = this.buildNearBannerElements();
   private farBannerElements = this.buildFarBannerElements();
 
-    
+
   private buildNearBannerElements() {
     //See banner/NearAndFarSample.js for how to build this.
     let elements = [];
@@ -57,7 +56,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   public constructor(props:ISecureScript7Props){
       super(props);
-
+    console.log('SecureScript7: constructor', this.toggleRawIcon);
 
 
     let urlVars : any = this.props.urlVars;
@@ -70,6 +69,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       showDevHeader: showDevHeader,
       lastStateChange: '',
       isSiteAdmin: null,
+      showOriginalHtml: false,
+      showApprovedLocations: false,
+      showRawHTML: false,
     };
 
   }
@@ -82,8 +84,6 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       hasTeamsContext,
       userDisplayName
     } = this.props;
-
-
 
     /***
      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
@@ -99,7 +99,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     // let farBannerElementsArray = [];
     let farBannerElementsArray = [...this.farBannerElements,
-      // <Icon iconName={layoutIcon} onClick={ this.toggleLayout.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
+      this.props.showCodeIcon !== true ? null : <Icon iconName={ 'Code' } onClick={ this.toggleOriginal.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
     ];
 
     let bannerSuffix = '';
@@ -107,16 +107,39 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let bannerTitle = this.props.bannerProps.bannerWidth < 900 ? bannerSuffix : `${this.props.bannerProps.title} - ${bannerSuffix}`;
     if ( bannerTitle === '' ) { bannerTitle = 'Pivot Tiles' ; }
 
-    let errorUnapprovedComponent = <div>
+    let errorUnapprovedComponent = this.state.showApprovedLocations !== true ? null : <div>
       <h3>Select from Approved sites:</h3>
         <p>
           <ul>
-          {this.props.approvedLibraries.map(lib => <li>{lib.text}</li>)}
+            {this.props.approvedLibraries.map(lib => <li>{lib.text}</li>)}
           </ul>
         </p>
       </div>;
 
-    let scriptComponent = stockPickerHTML;
+    let originalInfo = null;
+    let scriptHTML = this.props.snippet ? `${this.props.snippet}` : stockPickerHTML;
+
+    if ( this.state.showOriginalHtml ) {
+      let directLink = <a href={ this.props.fileRelativeUrl } target='none'>{ this.props.libraryItemPicker }</a>;
+
+      let libViewerLink = <span onClick={() => this.onFileClick( this.props.libraryPicker )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open library ]</span>;
+
+      let fileViewerhref = `${this.props.libraryPicker}/Forms/AllItems.aspx?id=${ this.props.fileRelativeUrl }&parent=${this.props.libraryPicker}`;
+      let fileViewerLink = <span onClick={() => this.onFileClick( fileViewerhref )} style={{ color: 'blue' , cursor: 'pointer' }} > [ open file in editor ]</span>;
+      originalInfo = <div style={{ background: '#dddd', padding: '10px 20px 40px 20px',  }}>
+        <h2 style={{ color: 'darkblue' }}>This is the original html { this.toggleRawIcon }</h2>
+        <ul>
+          <li><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
+          <li><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
+        </ul>
+        {
+          this.state.showRawHTML !== true ? null : <div>
+            <h3>Raw HTML</h3>
+            { scriptHTML }
+          </div>
+        }
+      </div>;
+    }
 
     let Banner = <WebpartBanner 
       exportProps={ this.props.bannerProps.exportProps }
@@ -157,10 +180,27 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         { devHeader }
         { Banner }
         { errorUnapprovedComponent }
-
-        { scriptComponent }
+        { originalInfo }
+        <div dangerouslySetInnerHTML={{ __html: scriptHTML }}></div>
 
       </section>
     );
   }
-}
+
+  private onFileClick( url: string ) : void {
+    let e: any = event;
+    url += e.altKey === true ? '&p=5' : '';
+    window.open( url, 'none' );
+  }
+
+  private toggleOriginal( ) : void {
+    let newSetting = this.state.showOriginalHtml === true ? false : true;
+    this.setState( { showOriginalHtml: newSetting } );
+  }
+
+  private toggleRaw( ) : void {
+    let newSetting = this.state.showRawHTML === true ? false : true;
+    this.setState( { showRawHTML: newSetting } );
+  }
+
+ }

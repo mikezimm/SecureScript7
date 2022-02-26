@@ -6,6 +6,7 @@ import {
   PropertyPaneTextField,
   IPropertyPaneDropdownOption,
   PropertyPaneDropdown,
+  IPropertyPaneDropdownProps,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
@@ -14,7 +15,7 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 import { createFPSWindowProps, initializeFPSSection, initializeFPSPage, webpartInstance, initializeMinimalStyle } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSDocument';
 
 import { FPSOptionsGroupBasic, FPSBanner2Group, FPSOptionsGroupAdvanced } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup2';
-import { FPSOptionsExpando } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando';
+import { FPSOptionsExpando,  } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando'; //expandAudienceChoicesAll
 
 import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
 
@@ -43,6 +44,7 @@ import { fetchSnippetMike } from './components/FetchCode';
 import { executeScript } from './components/EvalScripts';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
+
 
 export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureScript7WebPartProps> {
 
@@ -119,10 +121,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       let padding = this.properties.expandoPadding ? this.properties.expandoPadding : 20;
       setExpandoRamicMode( this.context.domElement, this.expandoDefault, expandoStyle,  false, false, padding );
       
+      
     });
   }
 
-  public render(): void {
+  // public render(): void {
+  public async render() {
 
     let errMessage = '';
     let errorObjArray :  any[] =[];
@@ -144,31 +148,53 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       context: this.context,
       clientWidth: this.domElement.clientWidth,
       exportProps: buildExportProps( this.properties, this.wpInstanceID ),
-  
+
       //Webpart related info
       panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
       modifyBannerTitle: this.modifyBannerTitle,
       repoLinks: links.gitRepoPivotTilesSmall,
-  
+
       //Hard-coded Banner settings on webpart itself
       forceBanner: this.forceBanner,
       earyAccess: false,
       wideToggle: true,
       expandAlert: false,
       expandConsole: true,
-  
+
       //Error info
       errMessage: errMessage,
       errorObjArray: errorObjArray, //In the case of Pivot Tiles, this is manualLinks[],
       expandoErrorObj: this.expandoErrorObj,
-  
+
   };
 
-  let bannerSetup = buildBannerProps( this.properties , buildBannerSettings );
+  let showTricks: any = false;
+  links.trickyEmails.map( getsTricks => {
+    if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
+
+  let bannerSetup = buildBannerProps( this.properties , buildBannerSettings, showTricks );
   errMessage = bannerSetup.errMessage;
   let bannerProps = bannerSetup.bannerProps;
   let expandoErrorObj = bannerSetup.errorObjArray;
 
+  let showCodeIcon = false;
+
+  let legacyPageContext = this.context.pageContext.legacyPageContext;
+
+  if ( this.properties.showCodeAudience === 'Everyone' || showTricks === true ) {
+    showCodeIcon = true;
+  } else if ( legacyPageContext.isSiteAdmin === true ) {
+    showCodeIcon = true;
+  } else if ( ( legacyPageContext.hasManageWebPermissions === true || legacyPageContext.isSiteOwner === true ) && ( 
+    this.properties.showCodeAudience === 'Site Owners' ) ) {
+    showCodeIcon = true;
+
+    //At some point, add for page editors but will require more thought to not slow down load.
+  } else if ( legacyPageContext.isSiteAdmin === true ) {
+    showCodeIcon = true;
+  }
+
+  this.snippet = await fetchSnippetMike( this.context, '', this.properties.libraryPicker, this.properties.libraryItemPicker );
 
     const element: React.ReactElement<ISecureScript7Props> = React.createElement(
       SecureScript7,
@@ -192,10 +218,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         //SecureScript props
         libraryPicker: this.properties.libraryPicker,
         libraryItemPicker: this.properties.libraryItemPicker,
+        fileRelativeUrl: `${this.properties.libraryPicker}/${this.properties.libraryItemPicker}`,
         approvedLibraries: this.approvedLibraries,
         domElement: this.domElement,
         snippet: this.snippet,
-
+        showCodeIcon: showCodeIcon,
 
       }
     );
@@ -306,6 +333,15 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
+
+    //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
+    const expandAudienceChoicesAll: IPropertyPaneDropdownOption[] = <IPropertyPaneDropdownOption[]>[
+      {   index: 0,   key: 'Site Admins', text: "Site Admins"  },
+      {   index: 1,   key: 'Site Owners', text: "Site Owners"  },
+      {   index: 2,   key: 'Page Editors', text: "Page Editors"  },
+      {   index: 2,   key: 'Everyone', text: "Everyone"  },
+    ];
+
     return {
       pages: [
         {
@@ -349,7 +385,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   options: this.libraryItemsList,
                   selectedKey: this.properties.libraryItemPicker,
                   disabled: this.itemsDropdownDisabled
-                })
+                }),
+
+                PropertyPaneDropdown('showCodeAudience', <IPropertyPaneDropdownProps>{
+                  label: 'Show Code Audience',
+                  options: expandAudienceChoicesAll,
+                }),
               ]
             }
 
