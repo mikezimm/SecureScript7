@@ -48,6 +48,8 @@ export interface ISecureScript7WebPartProps {
     toolBarHide: boolean;
 
     //SecureScript Props for CE Code
+    sitePicker: string;
+    webPicker: string;
     libraryPicker: string;
     libraryItemPicker: string;
     showCodeAudience: IExpandAudiences;

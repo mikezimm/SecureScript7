@@ -14,7 +14,7 @@ export function gettingStartedContent( repoLinks: IRepoLinks ) {
     let html1 = <div>
         <h2>Setting scripts to run - Web part property pane</h2>
         <ul>
-            <li>Select Web in dropdown (if it is unlocked)</li>
+            <li>Paste web url in the web url property - must be valid</li>
             <li>Select Library in dropdown</li>
             <li>Select File in dropdown</li>
             {/* <li></li> */}

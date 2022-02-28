@@ -24,7 +24,19 @@ export async function fetchSnippetCherry( context: any, libraryPicker: string , 
 
 export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string ) {
 
+    if ( !webUrl || webUrl.length < 1 ) {
+        console.log('fetchSnippetMike Err 0:', webUrl, libraryPicker, libraryItemPicker );
+        return '<mark>Web URL is not valid.</mark>';
+    } else if ( !libraryPicker || libraryPicker.length < 1 ) {
+        console.log('fetchSnippetMike Err 1:', webUrl, libraryPicker, libraryItemPicker );
+        return '<mark>Select a valid library.</mark>';
+    } else if ( !libraryItemPicker || libraryItemPicker.length < 1 ) {
+        console.log('fetchSnippetMike Err 2:', webUrl, libraryPicker, libraryItemPicker );
+        return '<mark>Select a valid Filename.</mark>';
+    }
+    
     if ( webUrl === '' ) { webUrl = '/sites/TestScriptandFiles'; }
+
     let fileURL = libraryPicker + "/" + libraryItemPicker;
 
     const snippetURLQuery = webUrl + `/_api/web/getFileByServerRelativeUrl('${fileURL}')/$value`;

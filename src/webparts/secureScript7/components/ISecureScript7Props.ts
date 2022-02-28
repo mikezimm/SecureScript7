@@ -4,6 +4,8 @@ import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { IBuildBannerSettings , buildBannerProps, IMinWPBannerProps } from '../BannerSetup';
 import { IWebpartBannerProps, } from './HelpPanel/banner/onNpm/bannerProps';
 
+export type ICDNMode = 'Webs' | 'Libraries';
+
 export interface ISecureScript7Props {
 
   //OOTB Props
@@ -23,7 +25,8 @@ export interface ISecureScript7Props {
   bannerProps: IWebpartBannerProps;
 
   //Secure Script Props
-
+  cdnMode: ICDNMode;
+  cdnValid: boolean;
   libraryPicker: string;
   libraryItemPicker: string;
   approvedLibraries: any[];

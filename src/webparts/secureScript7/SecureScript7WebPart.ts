@@ -33,11 +33,11 @@ import { getUrlVars } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunc
 import * as strings from 'SecureScript7WebPartStrings';
 import SecureScript7 from './components/SecureScript7';
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
-import { ISecureScript7Props } from './components/ISecureScript7Props';
+import { ISecureScript7Props, ICDNMode } from './components/ISecureScript7Props';
 
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import { approvedLibraries } from './components/ApprovedLibraries';
+import { approvedLibraries, approvedSites, IApprovedCDNs } from './components/ApprovedLibraries';
 
 // import { fetchSnippet } from './loadDangerous';
 import { fetchSnippetMike } from './components/FetchCode';
@@ -48,6 +48,8 @@ require('../../services/propPane/GrayPropPaneAccordions.css');
 
 export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureScript7WebPartProps> {
 
+  private cdnMode:  ICDNMode = 'Webs';
+  private cdnValid:  boolean = false;
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
@@ -78,7 +80,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   // Only content from the approved libraries can be selected
   // Copied from CherryPickedCE
+  
   private approvedLibraries = approvedLibraries;
+  private approvedSites = approvedSites;
+  private approvedWebs = [];
+
   private snippet: string = '';
 
 
@@ -194,7 +200,16 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     showCodeIcon = true;
   }
 
-  this.snippet = await fetchSnippetMike( this.context, '', this.properties.libraryPicker, this.properties.libraryItemPicker );
+  approvedSites.map( site => {
+    if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { this.cdnValid = true; }
+  });
+
+  if ( this.cdnValid !== true ) {
+    this.snippet = '<mark>Web URL is not valid.</mark>';
+  } else {
+    this.snippet = await fetchSnippetMike( this.context, this.properties.webPicker, this.properties.libraryPicker, this.properties.libraryItemPicker );
+  }
+
 
     const element: React.ReactElement<ISecureScript7Props> = React.createElement(
       SecureScript7,
@@ -216,6 +231,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         bannerProps: bannerProps,
 
         //SecureScript props
+        cdnMode: this.cdnMode,
+        cdnValid: this.cdnValid, 
         libraryPicker: this.properties.libraryPicker,
         libraryItemPicker: this.properties.libraryItemPicker,
         fileRelativeUrl: `${this.properties.libraryPicker}/${this.properties.libraryItemPicker}`,
@@ -267,16 +284,56 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   // Copied from CherryPickedCE
   private itemsDropdownDisabled: boolean = true;
 
+  //Created in SecureScript7
+  private librariesDropdownDisabled: boolean = true;
+
   // Files in the selected library
   // Copied from CherryPickedCE
+
   private libraryItemsList: IPropertyPaneDropdownOption[];
+
+  //Added in Secure Script 7
+  private libraryList: IPropertyPaneDropdownOption[];
+
+    // Asynchronous site query
+  // Copied from CherryPickedCE
+  private getSubsiteList = (site) => {
+    // Validate approved location
+    const websLocation = this.approvedSites.filter(loc => loc.key == site)[0];
+    const websQuery = window.location.origin + websLocation.siteRelativeURL + "/_api/web/webs/getbytitle('" + websLocation.library + "')/files?$select=title,ServerRelativeUrl";
+
+    return this.context.spHttpClient.get(websQuery, SPHttpClient.configurations.v1)
+      .then((response: SPHttpClientResponse) => response.json())
+      .then(data => data.value);
+  }
+
+    // Asynchronous web query
+  // Copied from CherryPickedCE
+  // /sites/PivotNotInstalled/_api/Web/Lists?$filter=BaseTemplate eq 101 and Hidden eq false&select=Title
+  private getLibrariesList = (web : string ) => {
+    console.log('getLibrariesList', web );
+    // Validate approved location
+    // const websLocation = this.approvedWebs.filter(loc => loc.key == web)[0];
+    // const websQuery = window.location.origin + websLocation.siteRelativeURL + "/_api/Web/Lists?$filter=BaseTemplate eq 101 and Hidden eq false&select=Title";
+
+    let websLocation = web;
+    if ( web.indexOf('/sites/') === 0 ) { websLocation = window.location.origin + websLocation ; }
+    if ( websLocation.slice(-1) !== '/' ) { websLocation += '/'; }
+    const websQuery = websLocation + "/_api/Web/Lists?$filter=BaseTemplate eq 101 and Hidden eq false&select=Title";
+    console.log('getLibrariesList query', websQuery );
+
+    return this.context.spHttpClient.get(websQuery, SPHttpClient.configurations.v1)
+      .then((response: SPHttpClientResponse) => response.json())
+      .then(data => data.value);
+  }
 
   // Asynchronous library query
   // Copied from CherryPickedCE
-  private getLibraryItemsList = (library) => {
+  private getLibraryItemsList = (filesLocation) => {
+    console.log('getLibraryItemsList', filesLocation );
     // Validate approved location
-    const filesLocation = this.approvedLibraries.filter(loc => loc.key == library)[0];
-    const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "/_api/web/lists/getbytitle('" + filesLocation.library + "')/files?$select=Name";
+    // const filesLocation = this.approvedLibraries.filter(loc => loc.key == library)[0];
+    const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/files?$select=Name";
 
     return this.context.spHttpClient.get(filesQuery, SPHttpClient.configurations.v1)
       .then((response: SPHttpClientResponse) => response.json())
@@ -288,22 +345,104 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   // Copied from CherryPickedCE
   protected onPropertyPaneConfigurationStart(): void {
 
+    let isValidCDN : any = false; //Had to add this due to typescript error (isValidCDN was 'always false')
+    this.cdnValid = false;
     this.itemsDropdownDisabled = true;
+    this.librariesDropdownDisabled = true;
 
-    if (this.properties.libraryPicker)
-      this.getLibraryItemsList(this.properties.libraryPicker)
-        .then((files): void => {
+    let isValidWebUrl = true;
+    if ( !this.properties.webPicker || this.properties.webPicker.length === 0 ) { isValidWebUrl = false; }
+    if ( this.properties.webPicker.indexOf('/sites/') !== 0 && this.properties.webPicker.indexOf(window.origin ) !== 0 ) { isValidWebUrl = false; }
+
+
+    if ( isValidWebUrl === true ) {
+
+      approvedSites.map( site => {
+        if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { isValidCDN = true; this.cdnValid = true; }
+      });
+
+      if ( isValidCDN === true ) {
+
+        this.getLibrariesList(this.properties.webPicker)
+        .then((libraries): void => {
           // store items
-          this.libraryItemsList = files.map(file => { return { key: file.Name, text: file.Name }; });
-          this.itemsDropdownDisabled = false;
+          
+          this.libraryList = libraries.map(library => { return { key: this.properties.webPicker + library.EntityTypeName, text: library.Title, library: library.EntityTypeName, siteRelativeURL: this.properties.webPicker }; });
+          let libraryListAny: any[] = this.libraryList; //Added to pass typescript
+          this.approvedLibraries = libraryListAny;
+          this.librariesDropdownDisabled = false;
+
+          if (libraries.length > 0 ) {
+            if (this.properties.libraryPicker) {
+              // if (this.properties.libraryPicker) {
+              // this.getLibraryItemsList( this.libraryList[0] )
+              let libIndex = null;
+        
+              this.libraryList.map( ( lib, idx ) => {
+                if ( lib.key === this.properties.libraryPicker ) { libIndex = idx; }
+              });
+        
+              this.getLibraryItemsList(this.libraryList[libIndex])
+                .then((files): void => {
+                  // store items
+
+                  console.log('onPropertyPaneConfigurationStart: files', files );
+                  this.libraryItemsList = files.map(file => { return { key: file.Name, text: file.Name }; });
+                  this.itemsDropdownDisabled = false;
+                  this.context.propertyPane.refresh();
+                });
+            } else { 
+              console.log('onPropertyPaneConfigurationStart: this.properties.libraryPicker', this.properties.libraryPicker );
+              this.libraryItemsList = []; }
+          }
+
+
         })
         .then(() => this.context.propertyPane.refresh());
+
+      } else { //Invalid CDN - clear all other properties
+        this.properties.libraryPicker = null;
+        this.libraryItemsList = [];
+      }
+
+    } else { //No web selected, clear all sub properties
+      this.properties.libraryPicker = null;
+      this.libraryItemsList = [];
+    }
   }
 
   // This API is invoked after updating the new value of the property in the property bag (Reactive mode). 
   protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
-    if ((propertyPath === 'libraryPicker') && (newValue)) {
+
+    if ((propertyPath === 'webPicker') && (newValue) ) {
+      //Not sure what this does but am keeping same model as with libraries
+      const previousItem: string = this.properties.libraryPicker;
+      this.properties.libraryPicker = '';
+      this.properties.libraryItemPicker = '';
+      this.librariesDropdownDisabled = true;
+      this.itemsDropdownDisabled = true;
+      this.onPropertyPaneFieldChanged('libraryPicker', previousItem, this.properties.libraryPicker);
+      
+      if ( newValue !== '' && newValue.length > 0 ) {
+        this.getLibrariesList(newValue)
+        .then((libraries): void => {
+
+          if (libraries.length) {
+            // store items
+            this.libraryList = libraries.map(library => { return { key: this.properties.webPicker + library.EntityTypeName, text: library.Title, library: library.EntityTypeName, siteRelativeURL: this.properties.webPicker }; });
+            let libraryListAny: any[] = this.libraryList; //Added to pass typescript
+            this.approvedLibraries = libraryListAny;
+            // enable item selector
+            this.librariesDropdownDisabled = false;
+            // this.render();
+            // refresh the item selector control by repainting the property pane
+          }
+        });
+      }
+      this.context.propertyPane.refresh();
+
+    } else if ((propertyPath === 'libraryPicker') && (newValue)) {
       // get previously selected item
       const previousItem: string = this.properties.libraryItemPicker;
       // reset selected item
@@ -314,9 +453,14 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.onPropertyPaneFieldChanged('libraryItemPicker', previousItem, this.properties.libraryItemPicker);
       // this.render();
       // refresh the item selector control by repainting the property pane
-      this.context.propertyPane.refresh();
+      // this.context.propertyPane.refresh();
+      let libIndex = null;
 
-      this.getLibraryItemsList(newValue)
+      this.libraryList.map( ( lib, idx ) => {
+        if ( lib.key === newValue ) { libIndex = idx; }
+      });
+
+      this.getLibraryItemsList(this.libraryList[libIndex])
         .then((files): void => {
 
           if (files.length) {
@@ -329,7 +473,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           this.context.propertyPane.refresh();
           }
         });
-    }
+      } else if ((propertyPath === 'libraryItemPicker') && (newValue)) {
+        console.log('changed Library Item:  ', newValue );
+        this.properties.libraryItemPicker = newValue;
+      }
+
+      this.render();
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
@@ -372,11 +521,30 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                 // PropertyPaneTextField('description', {
                 //   label: strings.DescriptionFieldLabel
                 // }),
-                // Library Picker (approved libraries only)
+                // // Library Picker (approved libraries only)
+                // PropertyPaneDropdown('sitePicker', {
+                //   label: strings.LibraryPickerLabel,
+                //   options: this.approvedLibraries,
+                //   selectedKey: this.properties.libraryPicker,
+
+                // }),
+
+                // PropertyPaneDropdown('webPicker', {
+                //   label: strings.LibraryPickerLabel,
+                //   options: this.approvedLibraries,
+                //   selectedKey: this.properties.libraryPicker,
+
+                // }),
+
+                PropertyPaneTextField('webPicker',{
+                  label: 'Approved web url',
+                }),
+
                 PropertyPaneDropdown('libraryPicker', {
                   label: strings.LibraryPickerLabel,
                   options: this.approvedLibraries,
                   selectedKey: this.properties.libraryPicker,
+                  disabled: this.librariesDropdownDisabled,
 
                 }),
                 // Cascading Library Item Picker
@@ -384,7 +552,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   label: strings.LibraryItemPickerLabel,
                   options: this.libraryItemsList,
                   selectedKey: this.properties.libraryItemPicker,
-                  disabled: this.itemsDropdownDisabled
+                  disabled: this.itemsDropdownDisabled,
                 }),
 
                 PropertyPaneDropdown('showCodeAudience', <IPropertyPaneDropdownProps>{

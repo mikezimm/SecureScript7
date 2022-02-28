@@ -1,4 +1,18 @@
-export const approvedLibraries = [
+import {
+  IPropertyPaneDropdownOption,
+} from '@microsoft/sp-property-pane';
+
+export interface IApprovedCDNs extends IPropertyPaneDropdownOption {
+
+  key: string;
+  siteRelativeURL: string;
+  library: string;
+  text: string;
+  subsites?: boolean;
+
+}
+
+export const approvedLibraries : IApprovedCDNs[] = [
   {
     key: "/sites/PublicCDN/SiteAssets",
     siteRelativeURL: "/sites/PublicCDN",
@@ -24,4 +38,18 @@ export const approvedLibraries = [
     text: "TestScriptandFiles Site Assets"
   },
 
+];
+
+//approvedSites  FetchLibString
+
+export const FetchLibString = 'FetchLibraries';
+
+export const approvedSites : IApprovedCDNs[] = [
+  {
+    key: "/sites/TestScriptandFiles",
+    siteRelativeURL: "/sites/TestScriptandFiles",
+    library: FetchLibString,
+    text: "Tenant CDN",
+    subsites: true,
+  },
 ];

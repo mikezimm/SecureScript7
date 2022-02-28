@@ -9,6 +9,9 @@ import WebpartBanner from "./HelpPanel/banner/component";
 import { IWebpartBannerProps, } from "./HelpPanel/banner/onNpm/bannerProps";
 import { defaultBannerCommandStyles, } from "./HelpPanel/banner/onNpm/defaults";
 
+import { approvedLibraries, approvedSites, IApprovedCDNs } from './ApprovedLibraries';
+
+
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
@@ -107,14 +110,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let bannerTitle = this.props.bannerProps.bannerWidth < 900 ? bannerSuffix : `${this.props.bannerProps.title} - ${bannerSuffix}`;
     if ( bannerTitle === '' ) { bannerTitle = 'Pivot Tiles' ; }
 
-    let errorUnapprovedComponent = this.state.showApprovedLocations !== true ? null : <div>
-      <h3>Select from Approved sites:</h3>
+    let errorUnapprovedComponent = null;
+    
+    if ( this.props.cdnValid !== true ) {
+      errorUnapprovedComponent = <div> 
+      <h3>Only pick web from Approved sites:</h3>
         <p>
           <ul>
-            {this.props.approvedLibraries.map(lib => <li>{lib.text}</li>)}
+            {approvedSites.map(site => <li>{site.siteRelativeURL}</li>)}
           </ul>
         </p>
       </div>;
+    }
+
 
     let originalInfo = null;
     let scriptHTML = this.props.snippet ? `${this.props.snippet}` : stockPickerHTML;
@@ -173,15 +181,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     ></WebpartBanner>;
 
+    let actualElement = errorUnapprovedComponent ?  errorUnapprovedComponent :
+      <div dangerouslySetInnerHTML={{ __html: scriptHTML }}></div>;
+
     let devHeader = this.state.showDevHeader === true ? <div><b>Props: </b> { 'this.props.lastPropChange' + ', ' + 'this.props.lastPropDetailChange' } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
     return (
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
         { Banner }
-        { errorUnapprovedComponent }
+        
         { originalInfo }
-        <div dangerouslySetInnerHTML={{ __html: scriptHTML }}></div>
+        { actualElement }
+        
 
       </section>
     );
