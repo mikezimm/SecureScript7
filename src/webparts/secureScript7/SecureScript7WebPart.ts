@@ -42,9 +42,11 @@ import { approvedLibraries, approvedSites, IApprovedCDNs } from './components/Ap
 // import { fetchSnippet } from './loadDangerous';
 import { fetchSnippetMike } from './components/FetchCode';
 import { executeScript } from './components/EvalScripts';
+import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
+export const repoLink: IRepoLinks = links.gitRepoSecureScript7Small;
 
 export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureScript7WebPartProps> {
 
@@ -158,7 +160,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       //Webpart related info
       panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
       modifyBannerTitle: this.modifyBannerTitle,
-      repoLinks: links.gitRepoPivotTilesSmall,
+      repoLinks: repoLink,
 
       //Hard-coded Banner settings on webpart itself
       forceBanner: this.forceBanner,
@@ -487,8 +489,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     const expandAudienceChoicesAll: IPropertyPaneDropdownOption[] = <IPropertyPaneDropdownOption[]>[
       {   index: 0,   key: 'Site Admins', text: "Site Admins"  },
       {   index: 1,   key: 'Site Owners', text: "Site Owners"  },
-      {   index: 2,   key: 'Page Editors', text: "Page Editors"  },
-      {   index: 2,   key: 'Everyone', text: "Everyone"  },
+      // {   index: 2,   key: 'Page Editors', text: "Page Editors"  }, //Not easily attainable yet.
+      {   index: 3,   key: 'Everyone', text: "Everyone"  },
     ];
 
     return {
@@ -499,7 +501,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           },
           displayGroupsAsAccordion: true, //DONT FORGET THIS IF PROP PANE GROUPS DO NOT EXPAND
           groups: [
-            WebPartInfoGroup( links.gitRepoPivotTiles, 'Swiss Army Knife of tiles' ),
+            WebPartInfoGroup( repoLink, 'More controlled Content Editor Webpart' ),
             FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
             FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
             FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),
@@ -507,7 +509,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
             isCollapsed: true ,
             groupFields: [
               PropertyPaneTextField('fpsImportProps', {
-                label: 'Import settings from another Pivot Tiles webpart',
+                label: `Import settings from another SecureScript webpart`,
                 description: 'For complex settings, use the link below to edit as JSON Object',
                 multiline: true,
               }),

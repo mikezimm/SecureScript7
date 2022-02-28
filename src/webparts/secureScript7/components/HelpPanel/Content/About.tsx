@@ -21,7 +21,7 @@ export function aboutTable( repoLinks: IRepoLinks ) {
         rows: [],
     };
 
-    table.rows.push( createAboutRow('2022-02-25',"1.0.01.01","Initial Release:  Banner, ShowCode, does not execute js", repoLinks ) );
+    table.rows.push( createAboutRow('2022-02-25',"1.0.1.01","Initial test build:  Banner, ShowCode, does not execute js unless in iframe", repoLinks ) );
 
     return { table: table };
 
