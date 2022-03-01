@@ -32,10 +32,10 @@ export const approvedLibraries : IApprovedCDNs[] = [
     text: "Private CDN Site Assets"
   },
   {
-    key: "/sites/TestScriptandFiles/SiteAssets",
-    siteRelativeURL: "/sites/TestScriptandFiles",
+    key: "/sites/SecureCDN/SiteAssets",
+    siteRelativeURL: "/sites/SecureCDN",
     library: "Site Assets",
-    text: "TestScriptandFiles Site Assets"
+    text: "SecureCDN Site Assets"
   },
 
 ];
@@ -46,8 +46,8 @@ export const FetchLibString = 'FetchLibraries';
 
 export const approvedSites : IApprovedCDNs[] = [
   {
-    key: "/sites/TestScriptandFiles",
-    siteRelativeURL: "/sites/TestScriptandFiles",
+    key: "/sites/SecureCDN",
+    siteRelativeURL: "/sites/SecureCDN",
     library: FetchLibString,
     text: "Tenant CDN",
     subsites: true,

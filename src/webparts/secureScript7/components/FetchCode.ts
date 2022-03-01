@@ -35,7 +35,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         return '<mark>Select a valid Filename.</mark>';
     }
     
-    if ( webUrl === '' ) { webUrl = '/sites/TestScriptandFiles'; }
+    if ( webUrl === '' ) { webUrl = '/sites/SecureCDN'; }
 
     let fileURL = libraryPicker + "/" + libraryItemPicker;
 

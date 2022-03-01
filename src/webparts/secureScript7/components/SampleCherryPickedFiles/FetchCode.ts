@@ -24,9 +24,8 @@ export async function fetchSnippetCherry( context: any, libraryPicker: string , 
 
 export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string ) {
 
-    if ( webUrl === '' ) { webUrl = '/sites/TestScriptandFiles'; }
+    if ( webUrl === '' ) { webUrl = '/sites/SecureCDN'; }
     let fileURL = libraryPicker + "/" + libraryItemPicker;
-
 
     const snippetURLQuery = webUrl + `/_api/web/getFileByServerRelativeUrl('${fileURL}')/$value`;
 
