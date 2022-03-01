@@ -53,6 +53,7 @@
 //    } from './IPivottiles7WebPartProps';
 
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
+import { changeScript, exportIgnoreProps, changeExpando, changeBanner, changefpsOptions1, changefpsOptions2,  } from './ISecureScript7WebPartProps';
 
 
 /***
@@ -75,47 +76,15 @@ import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
     let wpInstanceIDSplit = wpInstanceID.split('|');
     exportStructure.wpID = [ wpInstanceIDSplit[0], wpInstanceIDSplit[1], wpInstanceIDSplit[3]].join(' ~ ');
 
-    // exportStructure.items = changeItems;
+    exportStructure.Script = changeScript;
 
-    // exportStructure.cats = changeCats;
-    // exportStructure.filters = changeFilters;
+    exportStructure.Expando = changeExpando;
+    exportStructure.Banner = changeBanner;
 
-    // exportStructure.hubs = changeHubs;
-    // exportStructure.subs = changeSubs;
+    exportStructure.fpsOptions1 = changefpsOptions1;
+    exportStructure.fpsOptions2 = changefpsOptions2;
 
-    // exportStructure.lists = changeLists;
-    // exportStructure.libs = changeLibs;
-
-    // exportStructure.pages = changePages;
-    // exportStructure.news = changeNews;
-
-    // exportStructure.groups = changeGroups;
-    // exportStructure.permissions = changePermissions;
-
-    // exportStructure.expando = changeExpando;
-
-    // exportStructure.manual = changeManual;
-    // exportStructure.fpsOptions1 = changefpsOptions1;
-
-    // exportStructure.banner = changeBanner;
-
-    // exportStructure.styles = changeStyles;
-    // exportStructure.sizes = changeSizes;
-
-    // exportStructure.heros = changeHeros;
-    // exportStructure.box = changeBox;
-
-    // exportStructure.setup = changeSetup;
-    // exportStructure.basic = changeBasic;
-
-    // exportStructure.cols1 = changeCols1;
-    // exportStructure.cols2 = changeCols2;
-
-    // exportStructure.extraInfo = changeExtraInfo;
-    // exportStructure.fpsOptions2 = changefpsOptions2;
-
-    // let exportObject = createExportObject( exportStructure, wpProps, exportIgnoreProps, false );
-    let exportObject = {"key1": "Value1"};
+    let exportObject = createExportObject( exportStructure, wpProps, exportIgnoreProps, false );
 
     console.log('Exportable Props:', exportObject );
     return exportObject;

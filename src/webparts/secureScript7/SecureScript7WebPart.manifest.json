@@ -22,7 +22,32 @@
     "description": { "default": "SecureScript7 description" },
     "officeFabricIconFontName": "Page",
     "properties": {
-      "description": "SecureScript7"
+      "description": "Secure Script 7 Webpart",
+      "webPicker": "/sites/SecureCDN/YOURSUBSITE/",
+      "libraryPicker": "",
+      "libraryItemPicker": "",
+      "showCodeAudience": "Site Owners",
+      "enableExpandoramic": true,
+      "expandoDefault": false,
+      "expandoStyle": "",
+      "expandoPadding": 20,
+      "bannerTitle": "",
+      "bannerStyle": "",
+      "showBanner": true,
+      "showGoToHome": true,
+      "showGoToParent": true,
+      "bannerHoverEffect": "",
+      "quickLaunchHide": false,
+      "pageHeaderHide": false,
+      "allSectionMaxWidthEnable": false,
+      "allSectionMaxWidth": null,
+      "allSectionMarginEnable": false,
+      "allSectionMargin": null,
+      "toolBarHide": false,
+      "fpsPageStyle": "",
+      "fpsContainerMaxWidth": ""
+
     }
   }]
 }
+
