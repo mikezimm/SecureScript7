@@ -23,6 +23,9 @@ import * as links from '@mikezimm/npmfunctions/dist/Links/LinksRepos';
 
 import { importProps, } from '@mikezimm/npmfunctions/dist/Services/PropPane/ImportFunctions';
 
+import { sortStringArray, sortObjectArrayByStringKey, sortNumberArray, sortObjectArrayByNumberKey, sortKeysByOtherKey 
+} from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+
 import { IBuildBannerSettings , buildBannerProps, IMinWPBannerProps } from './BannerSetup';
 
 import { buildExportProps } from './BuildExportProps';
@@ -37,7 +40,7 @@ import { ISecureScript7Props, ICDNMode } from './components/ISecureScript7Props'
 
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import { approvedLibraries, approvedSites, IApprovedCDNs } from './components/ApprovedLibraries';
+import { approvedLibraries, approvedSites, approvedFileTypes, approvedExternalCDNs,IApprovedCDNs } from './components/ApprovedLibraries';
 
 // import { fetchSnippet } from './loadDangerous';
 import { fetchSnippetMike } from './components/FetchCode';
@@ -466,13 +469,21 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         .then((files): void => {
 
           if (files.length) {
-          // store items
-          this.libraryItemsList = files.map(file => { return { key: file.Name, text: file.Name }; });
-          // enable item selector
-          this.itemsDropdownDisabled = false;
-          // this.render();
-          // refresh the item selector control by repainting the property pane
-          this.context.propertyPane.refresh();
+            // store items
+            let items = files.map(file => { return { key: file.Name, text: file.Name }; });
+            //Issue #6 & #7
+            let filteredItems = [];
+            items.map( item => {
+              let extension = item.key.substr(item.key.lastIndexOf(".") + 1).toLowerCase();
+              if ( extension && extension.length > 0 && approvedFileTypes.indexOf(extension) > -1 ) { filteredItems.push( item ) ; }
+            });
+            this.libraryItemsList = sortObjectArrayByStringKey( filteredItems, 'asc', 'key' );
+
+            // enable item selector
+            this.itemsDropdownDisabled = false;
+            // this.render();
+            // refresh the item selector control by repainting the property pane
+            this.context.propertyPane.refresh();
           }
         });
       } else if ((propertyPath === 'libraryItemPicker') && (newValue)) {

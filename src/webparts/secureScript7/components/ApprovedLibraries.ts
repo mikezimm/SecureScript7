@@ -2,6 +2,15 @@ import {
   IPropertyPaneDropdownOption,
 } from '@microsoft/sp-property-pane';
 
+//Issue #7
+//NOTE:  ALWAYS Have approvedFileTypes in lower case for filtering purposes
+export const approvedFileTypes : string[] = [ 'html', 'css', 'js' ];
+
+export const approvedExternalCDNs: string[] = [
+
+];
+
+
 export interface IApprovedCDNs extends IPropertyPaneDropdownOption {
 
   key: string;
