@@ -6,6 +6,12 @@ Short summary on functionality and used technologies.
 
 [picture of the solution in action, if possible]
 
+## Non-Standard npm packages:
+npm install @mikezimm/npmfunctions@1.0.167 (or whatever is the latest version)
+npm install react-json-view
+npm install @pnp/spfx-property-controls --save --save-exact
+
+
 ## Used SharePoint Framework Version
 
 ![version](https://img.shields.io/badge/version-1.13-green.svg)

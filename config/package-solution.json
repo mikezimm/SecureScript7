@@ -3,7 +3,7 @@
   "solution": {
     "name": "secure-script-7-client-side-solution",
     "id": "33d96e71-539e-4e73-bdeb-4e83a49b5d00",
-    "version": "1.0.0.0",
+    "version": "1.0.1.03",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -27,7 +27,7 @@
     },
     "features": [
       {
-        "title": "secure-script-7 Feature",
+        "title": "Secure-Script-7 Feature",
         "description": "The feature that activates elements of the secure-script-7 solution.",
         "id": "6d2999f1-ceed-4ad9-a48f-4037d79cac97",
         "version": "1.0.0.0"
