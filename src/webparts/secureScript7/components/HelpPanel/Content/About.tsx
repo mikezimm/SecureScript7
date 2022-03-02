@@ -9,7 +9,7 @@ import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 import { convertIssuesMarkdownStringToSpan } from '@mikezimm/npmfunctions/dist/Elements/Markdown';
 
-export const panelVersionNumber = '2022-02-25 -  1.0.1.01'; //Added to show in panel
+export const panelVersionNumber = '2022-03-01 -  1.0.1.02'; //Added to show in panel
 
 export function aboutTable( repoLinks: IRepoLinks ) {
 
