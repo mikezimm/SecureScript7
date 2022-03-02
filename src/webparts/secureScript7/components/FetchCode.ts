@@ -1,6 +1,9 @@
 
 import {SPHttpClient, SPHttpClientResponse} from '@microsoft/sp-http';
 
+//encodeDecodeString(this.props.libraryPicker, 'decode')
+import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
+
 export async function fetchSnippetCherry( context: any, libraryPicker: string , libraryItemPicker: string ) {
 
     let fileURL = libraryPicker + "/" + libraryItemPicker;

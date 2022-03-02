@@ -33,6 +33,9 @@ import { buildExportProps } from './BuildExportProps';
 import { setExpandoRamicMode } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSExpandoramic';
 import { getUrlVars } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunctions';
 
+//encodeDecodeString(this.props.libraryPicker, 'decode')
+import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
+
 import * as strings from 'SecureScript7WebPartStrings';
 import SecureScript7 from './components/SecureScript7';
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
@@ -143,6 +146,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     let errMessage = '';
     let errorObjArray :  any[] =[];
 
+    let libraryPicker = encodeDecodeString(this.properties.libraryPicker, 'decode');
+    let webPicker = encodeDecodeString(this.properties.webPicker, 'decode');
 
     /***
       *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
@@ -216,7 +221,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   if ( this.cdnValid !== true ) {
     this.snippet = '<mark>Web URL is not valid.</mark>';
   } else {
-    this.snippet = await fetchSnippetMike( this.context, this.properties.webPicker, this.properties.libraryPicker, this.properties.libraryItemPicker );
+    this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
   }
 
 
@@ -242,9 +247,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         //SecureScript props
         cdnMode: this.cdnMode,
         cdnValid: this.cdnValid, 
-        libraryPicker: this.properties.libraryPicker,
+        libraryPicker: libraryPicker,
         libraryItemPicker: this.properties.libraryItemPicker,
-        fileRelativeUrl: `${this.properties.libraryPicker}/${this.properties.libraryItemPicker}`,
+        fileRelativeUrl: `${libraryPicker}/${this.properties.libraryItemPicker}`,
         approvedLibraries: this.approvedLibraries,
         domElement: this.domElement,
         snippet: this.snippet,

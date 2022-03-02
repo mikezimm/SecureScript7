@@ -7,6 +7,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
 import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/defaults";
+import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
 import { approvedLibraries, approvedSites, IApprovedCDNs } from './ApprovedLibraries';
 
@@ -129,7 +130,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     if ( this.state.showOriginalHtml ) {
       let directLink = <a href={ this.props.fileRelativeUrl } target='none'>{ this.props.libraryItemPicker }</a>;
 
-      let libViewerLink = <span onClick={() => this.onFileClick( this.props.libraryPicker )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open library ]</span>;
+      let libViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.libraryPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open library ]</span>;
 
       let fileViewerhref = `${this.props.libraryPicker}/Forms/AllItems.aspx?id=${ this.props.fileRelativeUrl }&parent=${this.props.libraryPicker}`;
       let fileViewerLink = <span onClick={() => this.onFileClick( fileViewerhref )} style={{ color: 'blue' , cursor: 'pointer' }} > [ open file in editor ]</span>;
