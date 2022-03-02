@@ -3,7 +3,7 @@
   "solution": {
     "name": "secure-script-7-client-side-solution",
     "id": "33d96e71-539e-4e73-bdeb-4e83a49b5d00",
-    "version": "1.0.1.02",
+    "version": "1.0.1.03",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
