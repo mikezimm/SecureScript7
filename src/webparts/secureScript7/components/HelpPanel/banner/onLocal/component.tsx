@@ -12,7 +12,7 @@ import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 import { getHelpfullErrorV2 } from "@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler";
 import { createStyleFromString, getReactCSSFromString } from "@mikezimm/npmfunctions/dist/Services/PropPane/StringToReactCSS";
 
-import { bannerSettingsContent } from './onNpm/bannerGearFunctions';
+import { bannerSettingsContent } from './bannerGearFunctions';
 
 import { IReturnErrorType, checkDeepProperty } from "@mikezimm/npmfunctions/dist/Services/Objects/properties"; 
 import { goToParentSite, goToHomePage } from "@mikezimm/npmfunctions/dist/Services/Navigation/site"; 
@@ -20,26 +20,26 @@ import { goToParentSite, goToHomePage } from "@mikezimm/npmfunctions/dist/Servic
 import { devTable } from '@mikezimm/npmfunctions/dist/Links/Developer';
 import { setExpandoRamicMode } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSExpandoramic';
 
-import { QuichHelpVCard, AssetCard } from './Cards/AssetCard';
+import { QuichHelpVCard, AssetCard } from '../Cards/AssetCard';
 
-import { IWebpartBannerProps, IWebpartBannerState, } from './onNpm/bannerProps';
-import { IKeySiteProps } from './onNpm/interfaces';
+import { IWebpartBannerProps, IWebpartBannerState, } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/bannerProps';
+import { IKeySiteProps } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/interfaces';
 
-import * as assets from "./Cards/assets";
+import * as assets from "../Cards/assets";
 
 import WebPartLinks from './WebPartLinks';
 
-import SinglePage from './SinglePage/SinglePage';
+import SinglePage from '../SinglePage/SinglePage';
 
-import { whyContent } from '../Content/Whyme';  //2022-01-31: Added Pivot Tiles
-import { aboutTable } from '../Content/About';
-import { gettingStartedContent } from '../Content/GettingStarted';
-import { errorsContent } from '../Content/Errors';
-import { advancedContent } from '../Content/Advanced';
-import { futureContent } from '../Content/FuturePlans';
-import { basicsContent } from '../Content/Basics';
-import { tricksTable } from '../Content/Tricks';
-import { getRandomTip, webParTips } from '../Content/Tips';
+import { whyContent } from '../../Content/Whyme';  //2022-01-31: Added Pivot Tiles
+import { aboutTable } from '../../Content/About';
+import { gettingStartedContent } from '../../Content/GettingStarted';
+import { errorsContent } from '../../Content/Errors';
+import { advancedContent } from '../../Content/Advanced';
+import { futureContent } from '../../Content/FuturePlans';
+import { basicsContent } from '../../Content/Basics';
+import { tricksTable } from '../../Content/Tricks';
+import { getRandomTip, webParTips } from '../../Content/Tips';
 
 import ReactJson from "react-json-view";
 
@@ -196,7 +196,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 		// }
 
 		public render(): React.ReactElement<IWebpartBannerProps> {
-		const { showBanner, showTricks } = this.props;
+		const { showBanner, showTricks, showRepoLinks } = this.props;
 		const { showPanel } = this.state;
 
 		if ( showBanner !== true ) {
@@ -282,6 +282,8 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 					childListName = { null } // Static Name of list (for URL) - used for links and determined by first returned item
 
 					repoObject = { this.props.gitHubRepo }
+					showRepoLinks = { this.props.showRepoLinks }
+					
 				></WebPartLinks>;
 
 				let content = null;
@@ -346,6 +348,9 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				let wideIcon = this.wideToggle !== true ? null : <Icon iconName= { this.state.panelType === PanelType.medium ? 'MaximumValue' : 'MinimumValue' } style={{ fontSize: 'xx-large', cursor: 'pointer' }} 
 					onClick={ this._panelWidth.bind(this) }></Icon>;
 
+
+				let showExport = this.props.showExport === true && this.props.exportProps !== null ? true : false;
+
 				panelContent = <div style={{ paddingBottom: '50px' } }>
 					{ earlyAccess }
 					{ tips }
@@ -377,7 +382,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 						{ this.dev						 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ 'TestAutoSolid' }/> }
 						{ showTricks !== true || this.tricks === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={pivotHeading7} itemIcon={ 'AutoEnhanceOn' }/> }
 						{ this.about 				 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'Info' }/> }
-						{ this.props.exportProps === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={pivotHeading9} itemIcon={ 'Export' }/> }
+						{ showExport !== true ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={pivotHeading9} itemIcon={ 'Export' }/> }
 					</Pivot>
 					{ thisPage }
 				</div>;

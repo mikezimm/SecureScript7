@@ -1,14 +1,14 @@
 import * as React from "react";
 
-import { PageContext } from '@microsoft/sp-page-context';
+// For SPPermission:  let addAndCustomizePages = pageContext.web.permissions.hasPermission( SPPermission.addAndCustomizePages );
+import { PageContext, SPPermission } from '@microsoft/sp-page-context';
 
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 
 import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 
-import { IKeySiteProps } from './interfaces';
-import { testTenantA, testTenantC, testTenants } from './logfun';
+import { IKeySiteProps } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/interfaces';
 
 import settingStyles from './bannerSettings.module.scss';
 
@@ -120,6 +120,9 @@ export function bannerSettingsContent( showTricks: boolean,	pageContext: PageCon
   let bannerCommandStyles = JSON.parse(JSON.stringify(bannerCommandStylesX));
   if ( bannerCommandStyles && bannerCommandStyles.background ) { bannerCommandStyles.background = 'transparent'; }
   if ( bannerCommandStyles && bannerCommandStyles.backgroundColor ) { bannerCommandStyles.backgroundColor = 'transparent'; }
+
+  let addAndCustomizePages = pageContext.web.permissions.hasPermission( SPPermission.addAndCustomizePages );
+  console.log('Current user can addAndCustomizePages', addAndCustomizePages );
 
   let showAdmin = pageContext.legacyPageContext.isSiteAdmin === true ? true : false;
   let siteUrl = pageContext.site.absoluteUrl;

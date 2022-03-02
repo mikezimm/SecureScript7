@@ -26,7 +26,7 @@ import { importProps, } from '@mikezimm/npmfunctions/dist/Services/PropPane/Impo
 import { sortStringArray, sortObjectArrayByStringKey, sortNumberArray, sortObjectArrayByNumberKey, sortKeysByOtherKey 
 } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
-import { IBuildBannerSettings , buildBannerProps, IMinWPBannerProps } from './BannerSetup';
+import { IBuildBannerSettings , buildBannerProps, IMinWPBannerProps } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/BannerSetup';
 
 import { buildExportProps } from './BuildExportProps';
 
@@ -131,7 +131,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       }
       let padding = this.properties.expandoPadding ? this.properties.expandoPadding : 20;
       setExpandoRamicMode( this.context.domElement, this.expandoDefault, expandoStyle,  false, false, padding );
-      
+      this.properties.showRepoLinks = false;
+      this.properties.showExport = false;
       
     });
   }
@@ -181,7 +182,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   let showTricks: any = false;
   links.trickyEmails.map( getsTricks => {
-    if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
+    if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { 
+      showTricks = true ; 
+      this.properties.showRepoLinks = true; //Always show these users repo links
+    }   
+    } ); 
 
   let bannerSetup = buildBannerProps( this.properties , buildBannerSettings, showTricks );
   errMessage = bannerSetup.errMessage;
@@ -199,7 +204,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   } else if ( ( legacyPageContext.hasManageWebPermissions === true || legacyPageContext.isSiteOwner === true ) && ( 
     this.properties.showCodeAudience === 'Site Owners' ) ) {
     showCodeIcon = true;
-
     //At some point, add for page editors but will require more thought to not slow down load.
   } else if ( legacyPageContext.isSiteAdmin === true ) {
     showCodeIcon = true;

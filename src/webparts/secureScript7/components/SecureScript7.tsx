@@ -5,9 +5,8 @@ import styles from './SecureScript7.module.scss';
 import { ISecureScript7Props, ISecureScript7State } from './ISecureScript7Props';
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import WebpartBanner from "./HelpPanel/banner/component";
-import { IWebpartBannerProps, } from "./HelpPanel/banner/onNpm/bannerProps";
-import { defaultBannerCommandStyles, } from "./HelpPanel/banner/onNpm/defaults";
+import WebpartBanner from "./HelpPanel/banner/onLocal/component";
+import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/defaults";
 
 import { approvedLibraries, approvedSites, IApprovedCDNs } from './ApprovedLibraries';
 
@@ -170,6 +169,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       nearElements = { this.nearBannerElements }
       farElements = { farBannerElementsArray }
 
+      showRepoLinks={ this.props.bannerProps.showRepoLinks }
+      showExport={ this.props.bannerProps.showExport }
       //2022-02-17:  Added these for expandoramic mode
       domElement = { this.props.bannerProps.domElement }
       enableExpandoramic = { this.props.bannerProps.enableExpandoramic }

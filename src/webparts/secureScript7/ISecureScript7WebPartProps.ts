@@ -1,6 +1,8 @@
 
 // changes = changeScript, changeExpando, changeBanner, changefpsOptions1, changefpsOptions2, 
 
+import { IExpandAudiences } from "@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando";
+
 
 export const changeExpando = [ 
   'enableExpandoramic','expandoDefault','expandoStyle', 'expandoPadding',
@@ -8,7 +10,7 @@ export const changeExpando = [
 
  export const changeScript = [ 'sitePicker', 'webPicker', 'libraryPicker', 'libraryItemPicker', 'showCodeAudience' ];
 
-export const changeBanner = [ 'bannerTitle', 'bannerStyle', 'showBanner', 'showGoToHome', 'showGoToParent', 'bannerHoverEffect' ];
+export const changeBanner = [ 'bannerTitle', 'bannerStyle', 'showBanner', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerHoverEffect' ];
 
 export const changefpsOptions1 = [  'searchShow', 'quickLaunchHide', 'pageHeaderHide', 'allSectionMaxWidthEnable', 'allSectionMaxWidth', 'allSectionMarginEnable', 'allSectionMargin', 'toolBarHide', ];
 
@@ -29,7 +31,7 @@ export const importBlockPropsDev = [
 ];
 
  //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
- export type IExpandAudiences = 'Site Admins' | 'Site Owners' | 'Page Editors' | 'Everyone';
+//  export type IExpandAudiences = 'Site Admins' | 'Site Owners' | 'Page Editors' | 'Everyone';
 
 export interface ISecureScript7WebPartProps {
     description: string;
@@ -56,9 +58,13 @@ export interface ISecureScript7WebPartProps {
   
       showGoToHome: boolean;  //defaults to true
       showGoToParent: boolean;  //defaults to true
-  
+      homeParentGearAudience: IExpandAudiences;
+
       bannerHoverEffect: boolean;
       showTricks: boolean;
+
+      showRepoLinks: boolean;
+      showExport: boolean;
     // }
   
     //Section 16 - FPS Options group

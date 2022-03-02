@@ -12,6 +12,7 @@ export interface IWebPartLinksProps {
     childListName?: string;  // Static Name of list (for URL) - used for links and determined by first returned item
 
     repoObject: any;  // Looking for structure from AllLinks.tsx like:  links.gitRepoTrackMyTime
+    showRepoLinks: boolean;
 }
 
 export interface IWebPartLinksState {
@@ -97,6 +98,15 @@ public constructor(props:IWebPartLinksProps){
         let childListURL = doChildList ? links.createLink(this.childListURL,'_blank', this.childListName ) : null;
 
         let showLists = doParentList === true || doChildList === true ? true : false ;
+        let webpartInfo = this.props.showRepoLinks === true ? <div>
+            { this.props.repoObject ? <div style={{paddingLeft: doChildList === true ? '30px' : '' }}><b>Webpart info:</b></div> : null }
+            { this.props.repoObject ? this.props.repoObject.repo : null }
+            { this.props.repoObject ? this.props.repoObject.issues : null }
+            { this.props.repoObject ? this.props.repoObject.wiki : null }
+        </div>
+        : <div>
+
+        </div>;
 
         thisPage = <div style={{paddingTop: '30px' }}>
             <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackTokensBody}>
@@ -104,10 +114,11 @@ public constructor(props:IWebPartLinksProps){
                 { ( doParentList === true ? parentListURL : null ) }
                 { ( doChildList === true ? childListURL : null ) }
                 { ( showLists === true ? <span style={{width: '30px' }}> </span> : null ) }
-                { this.props.repoObject ? <div style={{paddingLeft: doChildList === true ? '30px' : '' }}><b>Webpart info:</b></div> : null }
-                { this.props.repoObject ? this.props.repoObject.repo : null }
-                { this.props.repoObject ? this.props.repoObject.issues : null }
-                { this.props.repoObject ? this.props.repoObject.wiki : null }
+                { this.props.repoObject &&  this.props.showRepoLinks === true ? <div style={{paddingLeft: doChildList === true ? '30px' : '' }}><b>Webpart info:</b></div> : null }
+                { this.props.repoObject &&  this.props.showRepoLinks === true? this.props.repoObject.repo : null }
+                { this.props.repoObject &&  this.props.showRepoLinks === true? this.props.repoObject.issues : null }
+                { this.props.repoObject &&  this.props.showRepoLinks === true? this.props.repoObject.wiki : null }
+
             </Stack>
         </div>;
 

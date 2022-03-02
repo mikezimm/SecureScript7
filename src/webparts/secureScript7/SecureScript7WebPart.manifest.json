@@ -36,6 +36,7 @@
       "showBanner": true,
       "showGoToHome": true,
       "showGoToParent": true,
+      "homeParentGearAudience": "Site Owners",
       "bannerHoverEffect": "",
       "quickLaunchHide": false,
       "pageHeaderHide": false,
