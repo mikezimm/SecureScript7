@@ -201,21 +201,21 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   let bannerProps = bannerSetup.bannerProps;
   let expandoErrorObj = bannerSetup.errorObjArray;
 
-  let showCodeIcon = false;
+  let showCodeIcon = verifyAudienceVsUser( this.context, showTricks, this.properties.showCodeAudience , null );
 
-  let legacyPageContext = this.context.pageContext.legacyPageContext;
+  // let legacyPageContext = this.context.pageContext.legacyPageContext;
 
-  if ( this.properties.showCodeAudience === 'Everyone' || showTricks === true ) {
-    showCodeIcon = true;
-  } else if ( legacyPageContext.isSiteAdmin === true ) {
-    showCodeIcon = true;
-  } else if ( ( legacyPageContext.hasManageWebPermissions === true || legacyPageContext.isSiteOwner === true ) && ( 
-    this.properties.showCodeAudience === 'Site Owners' ) ) {
-    showCodeIcon = true;
-    //At some point, add for page editors but will require more thought to not slow down load.
-  } else if ( legacyPageContext.isSiteAdmin === true ) {
-    showCodeIcon = true;
-  }
+  // if ( this.properties.showCodeAudience === 'Everyone' || showTricks === true ) {
+  //   showCodeIcon = true;
+  // } else if ( legacyPageContext.isSiteAdmin === true ) {
+  //   showCodeIcon = true;
+  // } else if ( ( legacyPageContext.hasManageWebPermissions === true || legacyPageContext.isSiteOwner === true ) && ( 
+  //   this.properties.showCodeAudience === 'Site Owners' ) ) {
+  //   showCodeIcon = true;
+  //   //At some point, add for page editors but will require more thought to not slow down load.
+  // } else if ( legacyPageContext.isSiteAdmin === true ) {
+  //   showCodeIcon = true;
+  // }
 
   approvedSites.map( site => {
     if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { this.cdnValid = true; }

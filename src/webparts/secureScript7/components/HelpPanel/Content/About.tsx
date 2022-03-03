@@ -11,7 +11,7 @@ import { convertIssuesMarkdownStringToSpan } from '@mikezimm/npmfunctions/dist/E
 
 export const panelVersionNumber = '2022-03-03 -  1.0.1.04'; //Added to show in panel
 
-export function aboutTable( repoLinks: IRepoLinks ) {
+export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
 
     let underScoreIssue = <a href="https://github.com/mikezimm/Pivot-Tiles/issues/30" target="_blank">Issue #30</a>;
 
@@ -21,15 +21,15 @@ export function aboutTable( repoLinks: IRepoLinks ) {
         rows: [],
     };
 
-    table.rows.push( createAboutRow('2022-03-03',"1.0.1.04","Close ", repoLinks ) );
-    table.rows.push( createAboutRow('2022-03-01',"1.0.1.03","Close #5, #6, #7, #11 (file picker)", repoLinks ) );
-    table.rows.push( createAboutRow('2022-02-25',"1.0.1.01","Initial test build:  Banner, ShowCode, does not execute js unless in iframe", repoLinks ) );
+    table.rows.push( createAboutRow('2022-03-03',"1.0.1.04","Close #16, Advanced Help Docs, styling", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('2022-03-01',"1.0.1.03","Close #5, #6, #7, #11 (file picker)", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('2022-02-25',"1.0.1.01","Initial test build:  Banner, ShowCode, does not execute js unless in iframe", showRepoLinks === true ? repoLinks : null ) );
 
     return { table: table };
 
 }
 
-function createAboutRow( date: string, version: string, focus: any, repoLinks: IRepoLinks | null ) {
+export function createAboutRow( date: string, version: string, focus: any, repoLinks: IRepoLinks | null ) {
 
     let fullFocus = convertIssuesMarkdownStringToSpan( focus, repoLinks );
 

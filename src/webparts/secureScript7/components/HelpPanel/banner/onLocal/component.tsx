@@ -69,7 +69,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
     private dev= devTable( );
 		private errors= errorsContent( this.props.gitHubRepo );
 		private tricks= tricksTable( this.props.gitHubRepo );
-		private about= aboutTable( this.props.gitHubRepo );
+		private about= aboutTable( this.props.gitHubRepo, this.props.showRepoLinks );
 		private whyMe= whyContent( this.props.gitHubRepo );  //2022-01-31: Added Pivot Tiles
 
 		private wideToggle = this.props.wideToggle === null || this.props.wideToggle === undefined ? true : this.props.wideToggle ;
