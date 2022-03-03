@@ -25,6 +25,25 @@ export async function fetchSnippetCherry( context: any, libraryPicker: string , 
 
 }
 
+export interface ITagInfo {
+    tag: string;
+    file: string;
+    status: string;
+    style: string;
+}
+
+export interface IFetchInfo {
+        snippet: string;
+        scripts: ITagInfo;
+        css: ITagInfo;
+        img:ITagInfo;
+        preFetchTime: number;
+        postFetchTime: number;
+        postRegexTime: number;
+        fetchTime: number;
+        regexTime: number;
+}
+
 export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string ) {
 
     if ( !webUrl || webUrl.length < 1 ) {
@@ -47,26 +66,94 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     console.log('fetchSnippetMike: webUrl', webUrl );
     console.log('fetchSnippetMike: fileURL', fileURL );
 
+    let preFetchTime = new Date();
 
     const htmlFragment = await context.spHttpClient.get(snippetURLQuery, SPHttpClient.configurations.v1)
     .then((response: SPHttpClientResponse) => response.text());
     // : "<div>No content loaded.</div>";
     console.log('fetchSnippetMike: htmlFragment', htmlFragment );
 
-    // for (let i = 0; 1; i++) {
-        let scriptRegex = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
-        let scriptTags = htmlFragment.match(scriptRegex);
-        console.log('all script tags:', scriptTags );
+    let postFetchTime = new Date();
 
-        let scriptSrcRegex = /<script.+?src=[\"'](.+?)[\"'].*?>/gi;
-        let cleanHtmlFragment = htmlFragment.replace('\\\"','"');
-        let sourceTags = cleanHtmlFragment.match(scriptSrcRegex);
-        console.log('all sourceTags:', sourceTags );
+    // let scriptRegex = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
+    // let scriptSrcRegex = /<script.+?src=[\"'](.+?)[\"'].*?>/gi;
+    // let linkHrefRegex = /<link.+?href=[\"'](.+?)[\"'].*?>/gi;
+    let srcRegex = /src=[\"'](.+?)[\"'].*?/gi;
+    let styleRegex = /style=[\"'](.+?)[\"'].*?/gi;
+    // let hrefRegex = /href=[\"'](.+?)[\"'].*?/gi;
 
-        let srcRegex = /src=[\"'](.+?)[\"'].*?/gi;
-        let sources = cleanHtmlFragment.match(srcRegex);
-        console.log('all sources:', sources );
-    // }
+    // //This gets all js src tags that are .js
+    // let srcJSRegex = /src=[\"'](.+?).js[\"'].*?/gi;
+
+    //This looks for src=*.js in script tag
+    //For this, get group and just add .js
+    let srcJSRegex2 = /<script[\s\S]src=[\"'](.+?).js[\"'].*?<\/script>/gi;
+
+    // //This gets all js src tags that are .js
+    let hrefCSSRegex = /href=[\"'](.+?).css[\"'].*?/gi;
+
+    //This looks for href=*.css file within link tag
+    //For this, get group and just add .css
+    let hrefCSSRegex2 = /<link[\s\S]*?href=[\"'](.+?).css[\"'].*?>/gi;
+
+    //This gets all js src tags that are .js
+    //For this, get match and then look for src tag to get the extension
+    let imgSrcRegex = /<img[\s\S]*?src=[\"'](.+?)\.(jpg|jpeg|png|webp|avif|gif|svg)[\"'].*?>/gi;
+
+    let cleanHtmlFragment = htmlFragment.replace('\\\"','"');
+
+    let scriptTags = cleanHtmlFragment.match(srcJSRegex2);
+    let scripts : ITagInfo = scriptTags.map( tag => { 
+        let tagInfo = {
+            tag: tag,
+            file: tag.match(srcRegex)[0].replace('src="',"").replace('"',""),
+            status: '',
+            style: '',
+        };
+        return tagInfo;
+    });
+
+    let cssTags = cleanHtmlFragment.match(hrefCSSRegex2);
+    let css : ITagInfo = cssTags.map( tag => { 
+        let tagInfo = {
+            tag: tag,
+            file: tag.match(hrefCSSRegex)[0].replace('href="',"").replace('"',""),
+            status: '',
+            style: '',
+        };
+        return tagInfo;
+    });
+
+    let imgTags = cleanHtmlFragment.match(imgSrcRegex);
+    let img : ITagInfo = imgTags.map( tag => { 
+        let tagInfo = {
+            tag: tag,
+            file: tag.match(srcRegex)[0].replace('src="',"").replace('\"','"'),
+            status: '',
+            style: tag.match(styleRegex)[0],
+        };
+        return tagInfo;
+    });
+
+    let postRegexTime = new Date();
+
+
+
+    // // }
+
+    let result :  IFetchInfo= {
+        snippet: htmlFragment,
+        scripts: scripts,
+        css: css,
+        img:img,
+        preFetchTime: preFetchTime.getTime(),
+        postFetchTime: postFetchTime.getTime(),
+        postRegexTime: postRegexTime.getTime(),
+        fetchTime: postFetchTime.getTime() - preFetchTime.getTime(),
+        regexTime: postRegexTime.getTime() - postFetchTime.getTime(),
+    };
+
+    console.log( 'fetch results: ', result );
     return htmlFragment;
 
 }
