@@ -1,6 +1,6 @@
 {
   "name": "secure-script-7",
-  "version": "0.1.04",
+  "version": "0.1.05",
   "private": true,
   "main": "lib/index.js",
   "scripts": {

@@ -9,7 +9,7 @@ import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 import { convertIssuesMarkdownStringToSpan } from '@mikezimm/npmfunctions/dist/Elements/Markdown';
 
-export const panelVersionNumber = '2022-03-03 -  1.0.1.04'; //Added to show in panel
+export const panelVersionNumber = '2022-03-05 -  1.0.1.05'; //Added to show in panel
 
 export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
 
@@ -21,6 +21,7 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
         rows: [],
     };
 
+    table.rows.push( createAboutRow('2022-03-05',"1.0.1.05","Close #10 - add importProps functionality", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('2022-03-03',"1.0.1.04","Close #16, #17, Advanced Help Docs, styling", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('2022-03-01',"1.0.1.03","Close #5, #6, #7, #11 (file picker)", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('2022-02-25',"1.0.1.01","Initial test build:  Banner, ShowCode, does not execute js unless in iframe", showRepoLinks === true ? repoLinks : null ) );

@@ -5,19 +5,19 @@ import { IExpandAudiences } from "@mikezimm/npmfunctions/dist/Services/PropPane/
 
 
 export const changeExpando = [ 
-  'enableExpandoramic','expandoDefault','expandoStyle', 'expandoPadding',
+  'enableExpandoramic','expandoDefault','expandoStyle', 'expandoPadding', 'expandoAudience',
   ];
 
  export const changeScript = [ 'sitePicker', 'webPicker', 'libraryPicker', 'libraryItemPicker', 'showCodeAudience' ];
 
-export const changeBanner = [ 'bannerTitle', 'bannerStyle', 'showBanner', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerHoverEffect' ];
+export const changeBanner = [ 'bannerTitle', 'bannerStyle', 'showBanner', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerHoverEffect', 'showRepoLinks', 'showExport' ];
 
 export const changefpsOptions1 = [  'searchShow', 'quickLaunchHide', 'pageHeaderHide', 'allSectionMaxWidthEnable', 'allSectionMaxWidth', 'allSectionMarginEnable', 'allSectionMargin', 'toolBarHide', ];
 
  export const changefpsOptions2 = [  'fpsPageStyle', 'fpsContainerMaxWidth' ];
 
 
-//, exportIgnoreProps, importBlockProps, 
+//, exportIgnoreProps, importBlockProps, importBlockPropsDev
 //These props will not be exported even if they are in one of the change arrays above (fail-safe)
 //This was done to always insure these values are not exported to the user
 export const exportIgnoreProps = [
@@ -26,8 +26,8 @@ export const exportIgnoreProps = [
 
 //These props will not be imported even if they are in one of the change arrays above (fail-safe)
 //This was done so user could not manually insert specific props to over-right fail-safes built in to the webpart
-export const importBlockPropsDev = [
-  'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks'
+export const importBlockProps = [
+  'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks', 'showRepoLinks', 'showExport', 'fpsImportProps'
 ];
 
  //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
@@ -88,5 +88,7 @@ export interface ISecureScript7WebPartProps {
     libraryPicker: string;
     libraryItemPicker: string;
     showCodeAudience: IExpandAudiences;
+
+    fpsImportProps: string;
   
   }

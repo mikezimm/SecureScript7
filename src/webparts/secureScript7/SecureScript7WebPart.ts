@@ -40,7 +40,7 @@ import { verifyAudienceVsUser } from '@mikezimm/npmfunctions/dist/Services/Users
 
 import * as strings from 'SecureScript7WebPartStrings';
 import SecureScript7 from './components/SecureScript7';
-import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
+import { ISecureScript7WebPartProps, exportIgnoreProps, importBlockProps, } from './ISecureScript7WebPartProps';
 import { ISecureScript7Props, ICDNMode } from './components/ISecureScript7Props';
 
 
@@ -97,6 +97,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private snippet: string = '';
 
+  private importErrorMessage = '';
 
   protected onInit(): Promise<void> {
     this._environmentMessage = this._getEnvironmentMessage();
@@ -432,7 +433,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
 
-    if ((propertyPath === 'webPicker') && (newValue) ) {
+
+    if ( propertyPath === 'fpsImportProps' ) {
+
+      let result = importProps( this.properties, newValue, [], importBlockProps );
+
+      this.importErrorMessage = result.errMessage;
+      if ( result.importError === false ) {
+        this.properties.fpsImportProps = '';
+        this.context.propertyPane.refresh();
+      }
+      this.render();
+
+    } else if ((propertyPath === 'webPicker') && (newValue) ) {
       //Not sure what this does but am keeping same model as with libraries
       const previousItem: string = this.properties.libraryPicker;
       this.properties.libraryPicker = '';
@@ -517,19 +530,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           displayGroupsAsAccordion: true, //DONT FORGET THIS IF PROP PANE GROUPS DO NOT EXPAND
           groups: [
             WebPartInfoGroup( repoLink, 'More controlled Content Editor Webpart' ),
-            FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
-            FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
-            FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),
-            { groupName: 'Import Props',
-            isCollapsed: true ,
-            groupFields: [
-              PropertyPaneTextField('fpsImportProps', {
-                label: `Import settings from another SecureScript webpart`,
-                description: 'For complex settings, use the link below to edit as JSON Object',
-                multiline: true,
-              }),
-              JSON_Edit_Link,
-            ]}, // this group
 
             {
               groupName: 'Script Editor Properties',
@@ -576,9 +576,21 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   label: 'Show Code Audience',
                   options: expandAudienceChoicesAll,
                 }),
-              ]
-            }
-
+              ]}, // this group
+              FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
+              FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
+              FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),
+  
+            { groupName: 'Import Props',
+            isCollapsed: true ,
+            groupFields: [
+              PropertyPaneTextField('fpsImportProps', {
+                label: `Import settings from another SecureScript webpart`,
+                description: 'For complex settings, use the link below to edit as JSON Object',
+                multiline: true,
+              }),
+              JSON_Edit_Link,
+            ]}, // this group
           ]
         }
       ]
