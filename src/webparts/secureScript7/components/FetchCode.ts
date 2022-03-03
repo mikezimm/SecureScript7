@@ -53,6 +53,19 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     // : "<div>No content loaded.</div>";
     console.log('fetchSnippetMike: htmlFragment', htmlFragment );
 
+    let scriptRegex = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
+    let scriptTags = htmlFragment.match(scriptRegex);
+    console.log('all script tags:', scriptTags );
+
+    let scriptSrcRegex = /<script.+?src=[\"'](.+?)[\"'].*?>/gi;
+    let cleanHtmlFragment = htmlFragment.replace('\\\"','"');
+    let sourceTags = cleanHtmlFragment.match(scriptSrcRegex);
+    console.log('all sourceTags:', sourceTags );
+
+    let srcRegex = /src=[\"'](.+?)[\"'].*?/gi;
+    let sources = cleanHtmlFragment.match(srcRegex);
+    console.log('all sources:', sources );
+
     return htmlFragment;
 
 }
