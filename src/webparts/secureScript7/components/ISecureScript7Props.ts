@@ -1,7 +1,7 @@
 import { PageContext } from '@microsoft/sp-page-context';
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 
-import { IWebpartBannerProps, } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/bannerProps';
+import { IWebpartBannerProps, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/bannerProps';
 
 export type ICDNMode = 'Webs' | 'Libraries';
 

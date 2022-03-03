@@ -15,7 +15,7 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 import { createFPSWindowProps, initializeFPSSection, initializeFPSPage, webpartInstance, initializeMinimalStyle } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSDocument';
 
 import { FPSOptionsGroupBasic, FPSBanner2Group, FPSOptionsGroupAdvanced } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup2';
-import { FPSOptionsExpando,  } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando'; //expandAudienceChoicesAll
+import { FPSOptionsExpando, expandAudienceChoicesAll } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando'; //expandAudienceChoicesAll
 
 import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
 
@@ -26,7 +26,7 @@ import { importProps, } from '@mikezimm/npmfunctions/dist/Services/PropPane/Impo
 import { sortStringArray, sortObjectArrayByStringKey, sortNumberArray, sortObjectArrayByNumberKey, sortKeysByOtherKey 
 } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
-import { IBuildBannerSettings , buildBannerProps, IMinWPBannerProps } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/BannerSetup';
+import { IBuildBannerSettings , buildBannerProps, IMinWPBannerProps } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/BannerSetup';
 
 import { buildExportProps } from './BuildExportProps';
 
@@ -35,6 +35,8 @@ import { getUrlVars } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunc
 
 //encodeDecodeString(this.props.libraryPicker, 'decode')
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
+
+import { verifyAudienceVsUser } from '@mikezimm/npmfunctions/dist/Services/Users/CheckPermissions';
 
 import * as strings from 'SecureScript7WebPartStrings';
 import SecureScript7 from './components/SecureScript7';
@@ -190,9 +192,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { 
       showTricks = true ; 
       this.properties.showRepoLinks = true; //Always show these users repo links
-    }   
-    } ); 
+    }
+    } );
 
+  this.properties.showBannerGear = verifyAudienceVsUser( this.context, showTricks, this.properties.homeParentGearAudience, null);
   let bannerSetup = buildBannerProps( this.properties , buildBannerSettings, showTricks );
   errMessage = bannerSetup.errMessage;
   let bannerProps = bannerSetup.bannerProps;
@@ -504,14 +507,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-
-    //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
-    const expandAudienceChoicesAll: IPropertyPaneDropdownOption[] = <IPropertyPaneDropdownOption[]>[
-      {   index: 0,   key: 'Site Admins', text: "Site Admins"  },
-      {   index: 1,   key: 'Site Owners', text: "Site Owners"  },
-      // {   index: 2,   key: 'Page Editors', text: "Page Editors"  }, //Not easily attainable yet.
-      {   index: 3,   key: 'Everyone', text: "Everyone"  },
-    ];
 
     return {
       pages: [

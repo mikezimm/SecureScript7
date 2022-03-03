@@ -6,8 +6,12 @@ import {
 //NOTE:  ALWAYS Have approvedFileTypes in lower case for filtering purposes
 export const approvedFileTypes : string[] = [ 'html', 'css', 'js' ];
 
+//Added from issue #15
 export const approvedExternalCDNs: string[] = [
-
+  `${window.location.origin}/sites/SecureCDN/`,
+  '/_layouts/',
+  'https://code.jquery',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesom/',
 ];
 
 

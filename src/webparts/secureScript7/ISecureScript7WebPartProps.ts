@@ -44,6 +44,7 @@ export interface ISecureScript7WebPartProps {
     expandoDefault: boolean;
     expandoStyle: any;
     expandoPadding: number;
+    expandoAudience: IExpandAudiences;
     
       // expandAlert: boolean;
       // expandConsole: boolean;

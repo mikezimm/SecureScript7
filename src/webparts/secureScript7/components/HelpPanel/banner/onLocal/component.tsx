@@ -22,8 +22,8 @@ import { setExpandoRamicMode } from '@mikezimm/npmfunctions/dist/Services/DOM/FP
 
 import { QuichHelpVCard, AssetCard } from '../Cards/AssetCard';
 
-import { IWebpartBannerProps, IWebpartBannerState, } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/bannerProps';
-import { IKeySiteProps } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/interfaces';
+import { IWebpartBannerProps, IWebpartBannerState, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/bannerProps';
+import { IKeySiteProps } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/interfaces';
 
 import * as assets from "../Cards/assets";
 
