@@ -6,7 +6,7 @@ import { ISecureScript7Props, ISecureScript7State } from './ISecureScript7Props'
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
-import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/defaults";
+import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
 import { approvedLibraries, approvedSites, IApprovedCDNs } from './ApprovedLibraries';

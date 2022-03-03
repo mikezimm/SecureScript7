@@ -1,6 +1,6 @@
 {
   "name": "secure-script-7",
-  "version": "0.1.03",
+  "version": "0.1.04",
   "private": true,
   "main": "lib/index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "@microsoft/sp-office-ui-fabric-core": "1.14.0",
     "@microsoft/sp-property-pane": "1.14.0",
     "@microsoft/sp-webpart-base": "1.14.0",
-    "@mikezimm/npmfunctions": "^1.0.174",
+    "@mikezimm/npmfunctions": "^1.0.180",
     "@pnp/spfx-property-controls": "3.5.0",
     "office-ui-fabric-react": "7.174.1",
     "react": "16.13.1",

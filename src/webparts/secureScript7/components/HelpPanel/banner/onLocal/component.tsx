@@ -22,8 +22,8 @@ import { setExpandoRamicMode } from '@mikezimm/npmfunctions/dist/Services/DOM/FP
 
 import { QuichHelpVCard, AssetCard } from '../Cards/AssetCard';
 
-import { IWebpartBannerProps, IWebpartBannerState, } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/bannerProps';
-import { IKeySiteProps } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/interfaces';
+import { IWebpartBannerProps, IWebpartBannerState, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/bannerProps';
+import { IKeySiteProps } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/interfaces';
 
 import * as assets from "../Cards/assets";
 
@@ -69,7 +69,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
     private dev= devTable( );
 		private errors= errorsContent( this.props.gitHubRepo );
 		private tricks= tricksTable( this.props.gitHubRepo );
-		private about= aboutTable( this.props.gitHubRepo );
+		private about= aboutTable( this.props.gitHubRepo, this.props.showRepoLinks );
 		private whyMe= whyContent( this.props.gitHubRepo );  //2022-01-31: Added Pivot Tiles
 
 		private wideToggle = this.props.wideToggle === null || this.props.wideToggle === undefined ? true : this.props.wideToggle ;

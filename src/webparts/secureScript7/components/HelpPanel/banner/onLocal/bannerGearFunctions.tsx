@@ -8,7 +8,7 @@ import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBa
 
 import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 
-import { IKeySiteProps } from '@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/interfaces';
+import { IKeySiteProps } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/interfaces';
 
 import settingStyles from './bannerSettings.module.scss';
 
