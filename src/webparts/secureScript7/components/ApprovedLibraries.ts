@@ -38,16 +38,16 @@ export interface IFetchInfo {
       extApp:ITagInfo[];
       warns:ITagInfo[];
       blocks:ITagInfo[];
-      every:ITagInfo[];
+      www:ITagInfo[];
 
 
 
 }
 
-export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Tenant' | 'ExternalApproved' | 'ExternalWarn' | 'ExternalBlock' | 'Everything' | 'TBD';
+export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Tenant' | 'ExternalApproved' | 'ExternalWarn' | 'ExternalBlock' | 'WWW' | 'TBD';
 
 //This tells the rank order from Highest security to lowest
-export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Tenant' ,          'ExternalApproved' ,  'ExternalWarn', 'Everything' ,  'ExternalBlock' ];
+export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Tenant' ,          'ExternalApproved' ,  'ExternalWarn', 'WWW' ,  'ExternalBlock' ];
 export const SourceSecurityRankIcons: string[] = [ 'CircleShape' , 'BlockedSiteSolid12' , 'SharepointLogo' ,  'GlobeFavorite' ,     'ErrorBadge',   'Globe' ,       'BlockedSiteSolid12' ];
 export const SourceSecurityRankColor: string[] = [ 'black' ,       'green' ,              'blue' ,            'purple' ,            'black',        'black' ,  'red' ];
 export const SourceSecurityRankBackG: string[] = [ 'lightgray' ,   'white' ,              'white' ,           'white' ,             'yellow',       'white' ,  'yellow' ];

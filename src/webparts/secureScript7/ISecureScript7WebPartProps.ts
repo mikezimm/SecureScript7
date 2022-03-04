@@ -31,7 +31,7 @@ export const importBlockProps = [
 ];
 
  //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
-//  export type IExpandAudiences = 'Site Admins' | 'Site Owners' | 'Page Editors' | 'Everyone';
+//  export type IExpandAudiences = 'Site Admins' | 'Site Owners' | 'Page Editors' | 'WWWone';
 
 export interface ISecureScript7WebPartProps {
     description: string;

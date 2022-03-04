@@ -19,7 +19,7 @@ const stockPickerHTML = '<div class="tradingview-widget-container"><div id="trad
 
 const pivotHeading0 : ICDNCheck = 'ExternalBlock';  //2022-01-31: Added Pivot Tiles
 const pivotHeading1 : ICDNCheck = 'ExternalWarn';  //Templates
-const pivotHeading2 : ICDNCheck = 'Everything';  //Templates
+const pivotHeading2 : ICDNCheck = 'WWW';  //Templates
 const pivotHeading3 : ICDNCheck = 'ExternalApproved';  //Templates
 const pivotHeading4 : ICDNCheck = 'Tenant';  //Templates
 const pivotHeading5 : ICDNCheck = 'SecureCDN';  //Templates
@@ -51,7 +51,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   private tagPageNoteBlocks = 'BLOCKED due to their location.';
   private tagPageNoteWarns = 'High Risk location but still work.';
-  private tagPageNoteEvery = '';
+  private tagPageNoteWWW = '';
   private tagPageNoteExtApp = 'External locations that are approved';
   private tagPageNoteTenant = 'This Tenant but not in SecureCDN';
   private tagPageNoteSecure = 'the Tenant SecureCDN site';
@@ -63,7 +63,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   private page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks ) ;
   private page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns );
-  private page2 = this.buildTagPage( this.props.fetchInfo.every, this.tagPageNoteEvery );
+  private page2 = this.buildTagPage( this.props.fetchInfo.www, this.tagPageNoteWWW );
   private page3 = this.buildTagPage( this.props.fetchInfo.extApp, this.tagPageNoteExtApp );
   private page4 = this.buildTagPage( this.props.fetchInfo.tenant, this.tagPageNoteTenant );
   private page5 = this.buildTagPage( this.props.fetchInfo.secure, this.tagPageNoteSecure );
@@ -76,7 +76,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   private pivotBlocked = <PivotItem headerText={'Blocked'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading0)] }/>;
   private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading1)] }/>;
-  private pivotEvery = <PivotItem headerText={'Every'} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading2)] }/>;
+  private pivotWWW = <PivotItem headerText={'WWW'} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading2)] }/>;
   private pivotExtApp = <PivotItem headerText={'ExtApp'} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading3)] }/>;
   private pivotTenant = <PivotItem headerText={'Tenant'} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading4)] }/>;
   private pivotSecure = <PivotItem headerText={'Secure'} ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading5)] }/>;
@@ -146,7 +146,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
       this.page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks ) ;
       this.page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns );
-      this.page2 = this.buildTagPage( this.props.fetchInfo.every, this.tagPageNoteEvery );
+      this.page2 = this.buildTagPage( this.props.fetchInfo.www, this.tagPageNoteWWW );
       this.page3 = this.buildTagPage( this.props.fetchInfo.extApp, this.tagPageNoteExtApp );
       this.page4 = this.buildTagPage( this.props.fetchInfo.tenant, this.tagPageNoteTenant );
       this.page5 = this.buildTagPage( this.props.fetchInfo.secure, this.tagPageNoteSecure );
@@ -175,7 +175,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   //     if (this.props.setFilter !== prevProps.setFilter) {  reloadData = true ; theTrigger = 'setFilter'; }  
   //     else if (this.props.filterTitle !== prevProps.filterTitle) {  reloadData = true ; theTrigger = 'filterTitle'; }  
   //     else if (this.props.filterDescription !== prevProps.filterDescription) {  reloadData = true ; theTrigger = 'filterDescription'; }  
-  //     else if (this.props.filterEverything !== prevProps.filterEverything) {  reloadData = true ; theTrigger = 'filterEverything'; }  
+  //     else if (this.props.filterWWW !== prevProps.filterWWW) {  reloadData = true ; theTrigger = 'filterWWW'; }  
   //     else if (this.props.listDefinition !== prevProps.listDefinition) {  reloadData = true ; theTrigger = 'listDefinition'; }  
   //     else if (this.props.listWebURL !== prevProps.listWebURL) {  reloadData = true ; theTrigger = 'listWebURL'; }  
   //     else if (this.props.listTitle !== prevProps.listTitle) {  reloadData = true ; theTrigger = 'listTitle'; }  
@@ -339,7 +339,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
       // const pivotHeading0 : ICDNCheck | IApprovedFileType = 'ExternalBlock';  //2022-01-31: Added Pivot Tiles
       // const pivotHeading1 : ICDNCheck | IApprovedFileType = 'ExternalWarn';  //Templates
-      // const pivotHeading2 : ICDNCheck | IApprovedFileType = 'Everything';  //Templates
+      // const pivotHeading2 : ICDNCheck | IApprovedFileType = 'WWW';  //Templates
       // const pivotHeading3 : ICDNCheck | IApprovedFileType = 'ExternalApproved';  //Templates
       // const pivotHeading4 : ICDNCheck | IApprovedFileType = 'Tenant';  //Templates
       // const pivotHeading5 : ICDNCheck | IApprovedFileType = 'SecureCDN';  //Templates
@@ -368,7 +368,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
         if ( fetchInfo.blocks.length > 0 ) { pivotItems.push( this.pivotBlocked ); }
         if ( fetchInfo.warns.length > 0 ) { pivotItems.push( this.pivotWarn ); }
-        if ( fetchInfo.every.length > 0 ) { pivotItems.push( this.pivotEvery ); }
+        if ( fetchInfo.www.length > 0 ) { pivotItems.push( this.pivotWWW ); }
         if ( fetchInfo.extApp.length > 0 ) { pivotItems.push( this.pivotExtApp ); }
         if ( fetchInfo.tenant.length > 0 ) { pivotItems.push( this.pivotTenant ); }
         if ( fetchInfo.secure.length > 0 ) { pivotItems.push( this.pivotSecure ); }

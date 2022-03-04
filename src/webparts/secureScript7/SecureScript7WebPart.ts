@@ -233,7 +233,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   // let legacyPageContext = this.context.pageContext.legacyPageContext;
 
-  // if ( this.properties.showCodeAudience === 'Everyone' || showTricks === true ) {
+  // if ( this.properties.showCodeAudience === 'WWWone' || showTricks === true ) {
   //   showCodeIcon = true;
   // } else if ( legacyPageContext.isSiteAdmin === true ) {
   //   showCodeIcon = true;

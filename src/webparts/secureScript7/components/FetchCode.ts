@@ -90,7 +90,7 @@ export function baseFetchInfo( warning: string ) {
         extApp:[],
         warns:[],
         blocks:[],
-        every:[],
+        www:[],
     };
 
     return base;
@@ -180,7 +180,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         extApp: [],
         warns: [],
         blocks: [],
-        every: [],
+        www: [],
     };
 
     let allTags = [...scripts,...css,...img ];
@@ -191,14 +191,14 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         if ( tag.rank === 2 ) { result.tenant.push( tag ) ; } else
         if ( tag.rank === 3 ) { result.extApp.push( tag ) ; } else
         if ( tag.rank === 4 ) { result.warns.push( tag ) ; } else
-        if ( tag.rank === 5 ) { result.every.push( tag ) ; } else
+        if ( tag.rank === 5 ) { result.www.push( tag ) ; } else
         if ( tag.rank === 6 ) { result.blocks.push( tag ) ; }
     });
 
-    //[ 'Nothing' ,     'SecureCDN' ,          'Tenant' ,          'ExternalApproved' ,  'ExternalWarn', 'Everything' ,  'ExternalBlock' ];
+    //[ 'Nothing' ,     'SecureCDN' ,          'Tenant' ,          'ExternalApproved' ,  'ExternalWarn', 'WWW' ,  'ExternalBlock' ];
     if ( result.blocks.length > 0 ) { result.selectedKey = 'ExternalBlock' ; } else
     if ( result.warns.length > 0 ) { result.selectedKey = 'ExternalWarn' ; } else
-    if ( result.every.length > 0 ) { result.selectedKey = 'Everything' ; } else
+    if ( result.www.length > 0 ) { result.selectedKey = 'WWW' ; } else
     if ( result.extApp.length > 0 ) { result.selectedKey = 'ExternalApproved' ; } else
     if ( result.secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
     if ( result.nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }
@@ -246,7 +246,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
         });
     }
 
-    if ( fileLocaton === 'TBD' ) { fileLocaton = 'Everything';  }
+    if ( fileLocaton === 'TBD' ) { fileLocaton = 'WWW';  }
 
     //Found an example where image file had extra " at the end of the string.
     //"<img style="padding-left:20px;vertical-align:text-bottom" src="https://tenant.sharepoint.com/sites/CRS/Templates/icons/SharePointParentSiteUpArrowIcon.jpg">"

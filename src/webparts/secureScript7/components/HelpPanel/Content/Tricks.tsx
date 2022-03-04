@@ -53,7 +53,7 @@ export function tricksTable( repoLinks: IRepoLinks ) {
     table.rows.push( [ makeCenteredSpan('tool'), makeCenteredSpan('true'), hasToolTrue,    <span>Displays commandbar in some webparts if it's hidden. </span>] );
     table.rows.push( [ makeCenteredSpan('gulp serve'), makeCenteredSpan('dev'), hasGulp,    <span>Adds param to Url to use gulp serve code instead of published code</span>] );
     table.rows.push( [ makeCenteredSpan('allowOtherSites'), makeCenteredSpan('true'), hasAllowOther,   <span>Allows you to do some 'Rails Off' functions on other sites { '' } </span>] );
-    table.rows.push( [ makeCenteredSpan('clearParams'), makeCenteredSpan( `${hasSearch}` ), bareLink,   <span>Reload without any parameters (everything after the ? in the url ) </span>] );
+    table.rows.push( [ makeCenteredSpan('clearParams'), makeCenteredSpan( `${hasSearch}` ), bareLink,   <span>Reload without any parameters (wwwthing after the ? in the url ) </span>] );
 
     // table.rows.push( [ makeCenteredSpan('crazy'), makeCenteredSpan('true'), hasCrazy,   <span>Opens up additional even more options - 'DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING'.</span>] );
     // table.rows.push( [ makeCenteredSpan('create'), makeCenteredSpan('true'), hasCreate,   <span>Opens up additional options - create sample items in lists</span>] );
