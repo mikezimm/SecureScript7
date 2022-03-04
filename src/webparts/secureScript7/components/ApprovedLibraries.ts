@@ -20,11 +20,13 @@ export interface ITagInfo {
 
 export interface IFetchInfo {
       snippet: string;
+      selectedKey: ICDNCheck | IApprovedFileType | 'raw';
       errorHTML: string;
-      scripts: ITagInfo[];
+      js: ITagInfo[];
       css: ITagInfo[];
       img:ITagInfo[];
       links:ITagInfo[];
+      html:ITagInfo[];
       preFetchTime: number;
       postFetchTime: number;
       postRegexTime: number;
@@ -62,7 +64,7 @@ export interface ISecurityProfile {
 
 //Issue #7
 //NOTE:  ALWAYS Have approvedFileTypes in lower case for filtering purposes
-export type IApprovedFileType = 'html' | 'css' | 'js' | 'img' ;
+export type IApprovedFileType = 'html' | 'css' | 'js' | 'img' | 'raw' ;
 export const approvedFileTypes : IApprovedFileType[] = [ 'html', 'css', 'js', 'img' ];
 
 //Added from issue #15

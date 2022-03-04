@@ -72,11 +72,13 @@ export const imgSrcRegex = /<img[\s\S]*?src=[\"'](.+?)\.(jpg|jpeg|png|webp|avif|
 export function baseFetchInfo( warning: string ) {
     let base: IFetchInfo = {
         snippet: '',
+        selectedKey: 'raw',
         errorHTML: warning,
-        scripts: [],
+        js: [],
         css: [],
         img:[],
         links:[],
+        html:[],
         preFetchTime: 0,
         postFetchTime: 0,
         postRegexTime: 0,
@@ -159,12 +161,14 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
     let postRegexTime = new Date();
     let result :  IFetchInfo= {
+        selectedKey: 'raw',
         snippet: htmlFragment,
         errorHTML: '',
-        scripts: scripts,
+        js: scripts,
         css: css,
         img:img,
         links:[],
+        html:[],
         preFetchTime: preFetchTime.getTime(),
         postFetchTime: postFetchTime.getTime(),
         postRegexTime: postRegexTime.getTime(),
@@ -179,7 +183,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         every: [],
     };
 
-    let allTags = [...scripts,...css,...img];
+    let allTags = [...scripts,...css,...img ];
 
     allTags.map( tag => {
         if ( tag.rank === 0 ) { result.nothing.push( tag ) ; } else
@@ -191,6 +195,13 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         if ( tag.rank === 6 ) { result.blocks.push( tag ) ; }
     });
 
+    //[ 'Nothing' ,     'SecureCDN' ,          'Tenant' ,          'ExternalApproved' ,  'ExternalWarn', 'Everything' ,  'ExternalBlock' ];
+    if ( result.blocks.length > 0 ) { result.selectedKey = 'ExternalBlock' ; } else
+    if ( result.every.length > 0 ) { result.selectedKey = 'Everything' ; } else
+    if ( result.warns.length > 0 ) { result.selectedKey = 'ExternalWarn' ; } else
+    if ( result.extApp.length > 0 ) { result.selectedKey = 'ExternalApproved' ; } else
+    if ( result.secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
+    if ( result.nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }
 
     console.log( 'fetch results: ', result );
     return result;

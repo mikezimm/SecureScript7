@@ -2,7 +2,9 @@ import { PageContext } from '@microsoft/sp-page-context';
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 
 import { IWebpartBannerProps, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/bannerProps';
-import { IFetchInfo, } from './ApprovedLibraries';
+
+import { IApprovedCDNs, IFetchInfo, ITagInfo, approvedFileTypes, approvedExternalCDNs, approvedSites, ISecurityProfile, SourceSecurityRank, 
+  IApprovedFileType, ICDNCheck , warnExternalCDNs, blockExternalCDNs, SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons } from './ApprovedLibraries';
 
 export type ICDNMode = 'Webs' | 'Libraries';
 
@@ -48,5 +50,8 @@ export interface ISecureScript7State {
   showOriginalHtml: boolean;
   showApprovedLocations: boolean;
   showRawHTML: boolean;
+  toggleTag: 'file' | 'tag';
+
+  selectedKey: ICDNCheck | IApprovedFileType | 'raw';
 
 }
