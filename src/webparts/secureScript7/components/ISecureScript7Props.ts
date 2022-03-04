@@ -37,6 +37,7 @@ export interface ISecureScript7Props {
 
   domElement: any;
   fetchInfo: IFetchInfo;
+  fetchInstance: string;
   showCodeIcon: boolean;
 
 }
@@ -50,7 +51,7 @@ export interface ISecureScript7State {
   showOriginalHtml: boolean;
   showApprovedLocations: boolean;
   showRawHTML: boolean;
-  toggleTag: 'file' | 'tag';
+  toggleTag: 'files' | 'tags';
 
   selectedKey: ICDNCheck | IApprovedFileType | 'raw';
 

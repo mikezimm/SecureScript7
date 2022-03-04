@@ -85,6 +85,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private  expandoDefault = false;
 
+  private fetchInstance: string = Math.floor(Math.random() * 79797979 ).toString();
+
   private SecureProfile: ISecurityProfile = {
     cssWarn: 'ExternalWarn', 
     cssBlock: 'ExternalBlock', 
@@ -252,6 +254,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   } else {
     // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
     this.fetchInfo = await fetchSnippetMike( this.context, webPicker, libraryPicker, libraryItemPicker , this.SecureProfile );
+    //Reset fetchInstance which triggers some updates in react component
+    this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
   }
 
 
@@ -283,6 +287,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         approvedLibraries: this.approvedLibraries,
         domElement: this.domElement,
         fetchInfo: this.fetchInfo,
+        fetchInstance: this.fetchInstance,
         showCodeIcon: showCodeIcon,
 
       }
