@@ -124,7 +124,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     const htmlFragment = await context.spHttpClient.get(snippetURLQuery, SPHttpClient.configurations.v1)
     .then((response: SPHttpClientResponse) => response.text());
 
-    console.log('fetchSnippetMike: htmlFragment', htmlFragment );
+    // console.log('fetchSnippetMike: htmlFragment', htmlFragment );
 
     let postFetchTime = new Date();
 

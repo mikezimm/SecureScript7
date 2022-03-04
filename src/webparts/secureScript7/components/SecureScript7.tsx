@@ -262,11 +262,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     ></WebpartBanner>;
 
-    let actualElement = errorUnapprovedComponent ?  errorUnapprovedComponent :
-      // <div ref={ (el) => {}} dangerouslySetInnerHTML={{ __html: scriptHTML }}></div>;
-      <div ref={ (el) => { 
-        el.innerHTML = scriptHTML;
-      }} ></div>;
+    // let actualElement = errorUnapprovedComponent ?  errorUnapprovedComponent :
+    //   // <div ref={ (el) => {}} dangerouslySetInnerHTML={{ __html: scriptHTML }}></div>;
+    //   <div ref={ (el) => { 
+    //     el.innerHTML = scriptHTML;
+    //   }} ></div>;
+
+    let actualElement = <div></div>;
 
     let devHeader = this.state.showDevHeader === true ? <div><b>Props: </b> { 'this.props.lastPropChange' + ', ' + 'this.props.lastPropDetailChange' } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
