@@ -295,8 +295,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     ReactDom.render(element, this.bannerElement);
     this.scriptElement.innerHTML = this.fetchInfo.snippet;
-    if ( this.displayMode === DisplayMode.Read ) {
-      this.executeScript(this.scriptElement);
+    if ( this.fetchInfo.selectedKey !== 'ExternalBlock' ) {
+      if ( this.displayMode === DisplayMode.Read ) {
+        this.executeScript(this.scriptElement);
+      }
     }
 
   }

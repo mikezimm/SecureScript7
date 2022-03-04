@@ -197,8 +197,8 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
     //[ 'Nothing' ,     'SecureCDN' ,          'Tenant' ,          'ExternalApproved' ,  'ExternalWarn', 'Everything' ,  'ExternalBlock' ];
     if ( result.blocks.length > 0 ) { result.selectedKey = 'ExternalBlock' ; } else
-    if ( result.every.length > 0 ) { result.selectedKey = 'Everything' ; } else
     if ( result.warns.length > 0 ) { result.selectedKey = 'ExternalWarn' ; } else
+    if ( result.every.length > 0 ) { result.selectedKey = 'Everything' ; } else
     if ( result.extApp.length > 0 ) { result.selectedKey = 'ExternalApproved' ; } else
     if ( result.secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
     if ( result.nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }

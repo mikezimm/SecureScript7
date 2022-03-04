@@ -322,6 +322,17 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       scriptHTML = fetchInfo.errorHTML ? `${fetchInfo.errorHTML}` : fetchInfo.snippet;
     }
     
+    let blockHTML = null;
+    if ( fetchInfo.selectedKey === 'ExternalBlock' ) {
+      blockHTML = <div style={{ padding: '10px', background: 'yellow' }}>
+        <h2>Some content could not be loaded because it was blocked for security reasons</h2>
+        <ul>
+          <li>Click the 'Show Code' button in the upper right to see which files are blocked.</li>
+          <li>Provided the html file is in a valid location, it and all content not considered blocked will show below.</li>
+          <li>However, NO javascript code will execute until the blocked code is resolved.</li>
+        </ul>
+      </div>;
+    }
 
     if ( this.state.showOriginalHtml ) {
       let directLink = <a href={ this.props.fileRelativeUrl } target='none'>{ this.props.libraryItemPicker }</a>;
@@ -438,11 +449,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
         { Banner }
-        
+        { blockHTML }
         { originalInfo }
         { actualElement }
-        
-
       </section>
     );
   }
