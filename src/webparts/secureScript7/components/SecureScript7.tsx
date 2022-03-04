@@ -113,7 +113,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let errorUnapprovedComponent = null;
     
     if ( this.props.cdnValid !== true ) {
-      errorUnapprovedComponent = <div> 
+      errorUnapprovedComponent = <div style={{height: 100, width: '100%', fontSize: 'large', background: 'yellow' }}>
       <h3>Only pick web from Approved sites:</h3>
         <p>
           <ul>
@@ -125,7 +125,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
 
     let originalInfo = null;
-    let scriptHTML = this.props.snippet ? `${this.props.snippet}` : stockPickerHTML;
+    let scriptHTML = null;
+    if ( this.props.fetchInfo ) {
+      scriptHTML = this.props.fetchInfo.errorHTML ? `${this.props.fetchInfo.errorHTML}` : this.props.fetchInfo.snippet;
+    }
+    
 
     if ( this.state.showOriginalHtml ) {
       let directLink = <a href={ this.props.fileRelativeUrl } target='none'>{ this.props.libraryItemPicker }</a>;

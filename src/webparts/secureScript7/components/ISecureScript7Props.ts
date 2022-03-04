@@ -2,6 +2,7 @@ import { PageContext } from '@microsoft/sp-page-context';
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 
 import { IWebpartBannerProps, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/bannerProps';
+import { IFetchInfo, } from './ApprovedLibraries';
 
 export type ICDNMode = 'Webs' | 'Libraries';
 
@@ -33,7 +34,7 @@ export interface ISecureScript7Props {
   // context: WebPartContext;
 
   domElement: any;
-  snippet: any;
+  fetchInfo: IFetchInfo;
   showCodeIcon: boolean;
 
 }

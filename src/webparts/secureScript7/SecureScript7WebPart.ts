@@ -45,7 +45,7 @@ import { ISecureScript7Props, ICDNMode } from './components/ISecureScript7Props'
 
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import { approvedLibraries, approvedSites, approvedFileTypes, approvedExternalCDNs,IApprovedCDNs } from './components/ApprovedLibraries';
+import { approvedLibraries, approvedSites, approvedFileTypes, approvedExternalCDNs,IApprovedCDNs , ISecurityProfile, IFetchInfo } from './components/ApprovedLibraries';
 
 // import { fetchSnippet } from './loadDangerous';
 import { fetchSnippetMike } from './components/FetchCode';
@@ -84,6 +84,15 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private  expandoDefault = false;
 
+  private SecureProfile: ISecurityProfile = {
+    cssWarn: 'ExternalWarn', 
+    cssBlock: 'ExternalBlock', 
+    jsWarn: 'Nothing', 
+    jsBlock: 'Tenant', 
+    imgWarn: 'ExternalWarn', 
+    imgBlock: 'ExternalBlock',
+  };
+
   private expandoErrorObj = {
 
   };
@@ -96,6 +105,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private approvedWebs = [];
 
   private snippet: string = '';
+  private fetchInfo: IFetchInfo = null;
 
   private importErrorMessage = '';
 
@@ -151,6 +161,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     let libraryPicker = encodeDecodeString(this.properties.libraryPicker, 'decode');
     let webPicker = encodeDecodeString(this.properties.webPicker, 'decode');
+    let libraryItemPicker = this.properties.libraryItemPicker;
 
     /***
       *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
@@ -225,7 +236,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   if ( this.cdnValid !== true ) {
     this.snippet = '<mark>Web URL is not valid.</mark>';
   } else {
-    this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
+    // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
+    this.fetchInfo = await fetchSnippetMike( this.context, webPicker, libraryPicker, libraryItemPicker , this.SecureProfile );
   }
 
 
@@ -256,7 +268,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         fileRelativeUrl: `${libraryPicker}/${this.properties.libraryItemPicker}`,
         approvedLibraries: this.approvedLibraries,
         domElement: this.domElement,
-        snippet: this.snippet,
+        fetchInfo: this.fetchInfo,
         showCodeIcon: showCodeIcon,
 
       }
