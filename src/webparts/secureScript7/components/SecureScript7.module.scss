@@ -47,7 +47,21 @@
   background: rgb(255,250,153);
   background: radial-gradient(circle, rgba(255,250,153,1) 0%, rgba(255,220,220,1) 100%);
 
+  //https://www.geeksforgeeks.org/how-to-create-fade-in-effect-on-page-load-using-css/
+  animation: fadeInAnimation ease 2s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
 }
+
+@keyframes fadeInAnimation {
+  0% {
+      opacity: 0;
+  }
+  100% {
+      opacity: 1;
+   }
+}
+
 
 .termsOfUse:hover {
   // border-color: black;

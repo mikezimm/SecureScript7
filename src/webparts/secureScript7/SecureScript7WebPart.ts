@@ -335,7 +335,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     headTag.insertBefore(scriptTag, headTag.firstChild);
   }
 
-  
   // Finds and executes scripts in a newly added element's body.
   // Needed since innerHTML does not run scripts.
   //
@@ -608,6 +607,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.render();
 
     } else if ((propertyPath === 'webPicker') && (newValue) ) {
+      this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
       //Not sure what this does but am keeping same model as with libraries
       const previousItem: string = this.properties.libraryPicker;
       this.properties.libraryPicker = '';
@@ -635,6 +635,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.context.propertyPane.refresh();
 
     } else if ((propertyPath === 'libraryPicker') && (newValue)) {
+      this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
       // get previously selected item
       const previousItem: string = this.properties.libraryItemPicker;
       // reset selected item
@@ -654,7 +655,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
       this.getLibraryItemsList(this.libraryList[libIndex])
         .then((files): void => {
-
+          this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
           if (files.length) {
             // store items
             let items = files.map(file => { return { key: file.Name, text: file.Name }; });
@@ -674,6 +675,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           }
         });
       } else if ((propertyPath === 'libraryItemPicker') && (newValue)) {
+        this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
         console.log('changed Library Item:  ', newValue );
         this.properties.libraryItemPicker = newValue;
       }
