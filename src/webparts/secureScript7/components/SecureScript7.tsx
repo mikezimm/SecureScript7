@@ -69,6 +69,23 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       </div>
     ;
 
+    private termsOfUse = <div className={ styles.termsOfUse }>
+      <h2>Terms of use</h2>
+      <ul>
+        <li>Only store your HTML, JS and CSS files in a Company approved CDN</li>
+        <li>Contact your SharePoint Team to request a space in our CDN</li>
+        <br/>
+        <li><span className={ styles.good}>DO USE</span> the web part properties to expand web part and control access to the back end site</li>
+        <li><span className={ styles.bad}>DO NOT</span> interfere with the banner at the top of this web part.  It must remain visible and functional as it was designed.</li>
+        <li><span className={ styles.bad}>DO NOT</span> execute any Javascript to change any SharePoint or DOM elements above your html content div</li>
+        <li><span className={ styles.bad}>DO NOT</span> load any CSS that changes any SharePoint or DOM element styling above your html content div</li>
+        <br/>
+        <li>We can and do occasional audits to verify compliance with the terms of use.</li>
+        <br/>
+        <li style={{ fontWeight: 'bold', fontSize: 'large' }}>Breaking any of these Terms of Use will cause your CDN access to be revoked.  aka your code will no longer work.</li>
+      </ul>
+    </div>;
+
   private tagPageNoteJS = 'Javascript Files';
   private tagPageNoteCSS = 'CSS Files';
   private tagPageNoteHTML = 'HTML Files';
@@ -174,93 +191,6 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       this._updateStateOnPropsChange({});
     }
 
-  //   //alert('componentDidUpdate 1');
-
-  //   console.log( 'CDU:  LAST-STATE-CHANGE:', this.props.lastPropDetailChange, this.state.lastStateChange );
-
-  //   let rebuildTiles : boolean = false;
-
-  //   let reloadData : boolean = false;
-
-  //   let theTrigger : any = null;
-
-  //   if ( prevProps.lastPropChange === this.props.lastPropChange ) { 
-  //     //Then check individual props
-  //     if (this.props.setFilter !== prevProps.setFilter) {  reloadData = true ; theTrigger = 'setFilter'; }  
-  //     else if (this.props.filterTitle !== prevProps.filterTitle) {  reloadData = true ; theTrigger = 'filterTitle'; }  
-  //     else if (this.props.filterDescription !== prevProps.filterDescription) {  reloadData = true ; theTrigger = 'filterDescription'; }  
-  //     else if (this.props.filterWWW !== prevProps.filterWWW) {  reloadData = true ; theTrigger = 'filterWWW'; }  
-  //     else if (this.props.listDefinition !== prevProps.listDefinition) {  reloadData = true ; theTrigger = 'listDefinition'; }  
-  //     else if (this.props.listWebURL !== prevProps.listWebURL) {  reloadData = true ; theTrigger = 'listWebURL'; }  
-  //     else if (this.props.listTitle !== prevProps.listTitle) {  reloadData = true ; theTrigger = 'listTitle'; }  
-  //     else if ( JSON.stringify(this.props.custCategories) !== JSON.stringify(prevProps.custCategories)) {  reloadData = true ; theTrigger = 'custCategories'; }    
-  //     else if (this.props.ignoreList !== prevProps.ignoreList) {  reloadData = true ; theTrigger = 'ignoreList'; }    
-  //     else if ( JSON.stringify(this.props.fetchInfo) !== JSON.stringify(prevProps.fetchInfo) ) {  reloadData = true ; theTrigger = 'fetchInfo'; }
-
-  //     console.log( 'CDU: theTrigger section 1:', theTrigger );
-
-  //     if (this.props.setTab !== prevProps.setTab) {  rebuildTiles = true ; }
-  //     else if (this.props.setSize !== prevProps.setSize) {  rebuildTiles = true ; theTrigger = 'setSize'; }
-  //     else if (this.props.showHero !== prevProps.showHero) {  rebuildTiles = true ; theTrigger = 'showHero'; }
-  //     else if (this.props.heroType !== prevProps.heroType) {  rebuildTiles = true ; theTrigger = 'heroType'; }
-  //     else if (this.props.setRatio !== prevProps.setRatio) {  rebuildTiles = true ; theTrigger = 'setRatio'; }
-  //     else if (this.props.setMaxWidth !== prevProps.setMaxWidth ) {  rebuildTiles = true ; theTrigger = 'setMaxWidth'; }
-      
-  //     else if (this.props.setImgFit !== prevProps.setImgFit) {  rebuildTiles = true ; theTrigger = 'setImgFit'; }
-  //     else if (this.props.setImgCover !== prevProps.setImgCover) {  rebuildTiles = true ; theTrigger = 'setImgCover'; }
-  //     else if (this.props.heroCategory !== prevProps.heroCategory) {  rebuildTiles = true ; theTrigger = 'heroCategory'; }
-  //     else if (this.props.heroRatio !== prevProps.heroRatio) {  rebuildTiles = true ; theTrigger = 'heroRatio'; }
-  //     else if (this.props.searchShow !== prevProps.searchShow) {  rebuildTiles = true ; theTrigger = 'heroRatio'; }
-
-  //     console.log( 'CDU: theTrigger section 2:', theTrigger );
-
-  //   } else if ( prevProps.lastPropChange !== this.props.lastPropChange ) {
-  //     if ( this.props.lastPropChange === 'cats' ) { reloadData = true ; theTrigger = 'cats'; } 
-  //     else if ( this.props.lastPropChange === 'filters' ) { reloadData = true ; theTrigger = 'filters'; } 
-  //     else if ( this.props.lastPropChange === 'groups' ) { reloadData = true ; theTrigger = 'groups'; } 
-  //     else if ( this.props.lastPropChange === 'hubs' ) { reloadData = true ; theTrigger = 'hubs'; } 
-  //     else if ( this.props.lastPropChange === 'items' ) { reloadData = true ; theTrigger = 'items'; } 
-  //     else if ( this.props.lastPropChange === 'lists' ) { reloadData = true ; theTrigger = 'lists'; } 
-  
-  //     else if ( this.props.lastPropChange === 'subs' ) { reloadData = true ; theTrigger = 'subs'; } 
-  //     else if ( this.props.lastPropChange === 'styles' ) { rebuildTiles = true ; theTrigger = 'styles'; } 
-  //     else if ( this.props.lastPropChange === 'sizes' ) { rebuildTiles = true ; theTrigger = 'sizes'; } 
-  //     else if ( this.props.lastPropChange === 'heros' ) { rebuildTiles = true ; theTrigger = 'heros'; } 
-  //     else if ( this.props.lastPropChange === 'init' ) { rebuildTiles = true ; theTrigger = 'init'; } 
-  //     else if ( this.props.lastPropChange === 'other' ) { rebuildTiles = true ; theTrigger = 'other'; } 
-  //     console.log( 'CDU: theTrigger section 3:', theTrigger );
-  //   }
-  //   if ( this.props.lastPropChange === 'expando' ) { rebuildTiles = true ; theTrigger = 'expando'; } 
-    
-  //   /* 
-  //   */
-
-  //   // if (this.props.fetchInfo !== prevProps.fetchInfo) {  reloadData = true ; }
-
-  //   /**
-  //    * hubs changing are the only complicated situation because Hubs require secondary call to fetch all site icons
-  //    */
-  //   let wasHubChange : any = false;
-  //   if (this.props.fetchInfo !== prevProps.fetchInfo) {
-  //     Object.keys(this.props.fetchInfo).map( key => {
-  //       if ( JSON.stringify(this.props.fetchInfo[key]) !== JSON.stringify(prevProps.fetchInfo[key]) ) { console.log('thisFetchInfoProp Changed: ' + key, this.props.fetchInfo[key] ) ; }
-  //     });
-
-  //     changeHubs.map( change => {
-  //       if ( this.props.fetchInfo[change] !== prevProps.fetchInfo[change] ) { wasHubChange = true ; }
-  //     }) ;
-  //   }
-
-  //   if ( wasHubChange === true || this.state.lastStateChange !== 'updateStateHubs' ) {
-  //     if ( reloadData === true ) {
-  //       console.log('CDU reloadData: ', wasHubChange, wasHubChange, this.state.lastStateChange, theTrigger );
-  //       this._getListItems( this.props.custCategories );
-  
-  //     } else if (rebuildTiles === true) {
-  //       console.log('CDU rebuildTiles: ', wasHubChange, rebuildTiles, this.state.lastStateChange, theTrigger );
-  //       this._updateStateOnPropsChange({});
-  //     }
-
   }
   
   
@@ -330,7 +260,6 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       </div>;
     }
 
-
     let originalInfo = null;
     let scriptHTML = null;
     if ( fetchInfo ) {
@@ -340,7 +269,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let blockHTML = null;
     if ( fetchInfo.selectedKey === 'ExternalBlock' ) {
       let blockHeight = this.state.fullBlockedHeight === true ? null : '50px';
-      blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
+      blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden', cursor: 'pointer' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
         <h2>Some content could not be loaded because it was blocked for security reasons</h2>
         <ul>
           <li>Click the 'Show Code' button in the upper right to see which files are blocked.</li>
@@ -353,18 +282,6 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     if ( this.state.showOriginalHtml ) {
       let directLink = <a href={ this.props.fileRelativeUrl } target='none'>{ this.props.libraryItemPicker }</a>;
-
-      // const pivotHeading0 : ICDNCheck | IApprovedFileType = 'ExternalBlock';  //2022-01-31: Added Pivot Tiles
-      // const pivotHeading1 : ICDNCheck | IApprovedFileType = 'ExternalWarn';  //Templates
-      // const pivotHeading2 : ICDNCheck | IApprovedFileType = 'WWW';  //Templates
-      // const pivotHeading3 : ICDNCheck | IApprovedFileType = 'ExternalApproved';  //Templates
-      // const pivotHeading4 : ICDNCheck | IApprovedFileType = 'Tenant';  //Templates
-      // const pivotHeading5 : ICDNCheck | IApprovedFileType = 'SecureCDN';  //Templates
-      // const pivotHeading6 : ICDNCheck | IApprovedFileType = 'Nothing';  //Templates
-      // const pivotHeading7 : ICDNCheck | IApprovedFileType = 'js';  //Templates
-      // const pivotHeading8 : ICDNCheck | IApprovedFileType = 'css';  //Templates
-      // const pivotHeading9 : ICDNCheck | IApprovedFileType = 'html';  //Templates
-      // const pivotHeading10 : ICDNCheck | IApprovedFileType = 'img';  //Templates
 
         let thisPage: any = <div>'Temp'</div>;
         if ( this.state.selectedKey === pivotHeading0 ) { thisPage = this.page0[toggleTag] ; } else 
@@ -462,12 +379,15 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let devHeader = this.state.showDevHeader === true ? <div><b>Props: </b> { 'this.props.lastPropChange' + ', ' + 'this.props.lastPropDetailChange' } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
+    let termsOfUse = this.props.fetchInfo == null || this.props.fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
+    
     return (
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
         { Banner }
         { blockHTML }
         { originalInfo }
+        { termsOfUse }
         { actualElement }
       </section>
     );
