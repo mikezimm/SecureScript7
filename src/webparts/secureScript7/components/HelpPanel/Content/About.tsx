@@ -13,8 +13,6 @@ export const panelVersionNumber = '2022-03-05 -  1.0.1.05'; //Added to show in p
 
 export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
 
-    let underScoreIssue = <a href="https://github.com/mikezimm/Pivot-Tiles/issues/30" target="_blank">Issue #30</a>;
-
     let table : IHelpTable  = {
         heading: 'Version History',
         headers: ['Date','Version','Focus'],
