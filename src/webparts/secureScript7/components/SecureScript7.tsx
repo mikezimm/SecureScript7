@@ -343,6 +343,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
           <li>Click the 'Show Code' button in the upper right to see which files are blocked.</li>
           <li>Provided the html file is in a valid location, it and all content not considered blocked will show below.</li>
           <li>However, NO javascript code will execute until the blocked code is resolved.</li>
+          <li><b>NOTE:</b> that we have no way to detect what scripts are commented out.  So even commented out scripts will cause this message.</li>
         </ul>
       </div>;
     }
