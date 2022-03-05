@@ -51,6 +51,7 @@ export interface ISecureScript7State {
   showOriginalHtml: boolean;
   showApprovedLocations: boolean;
   showRawHTML: boolean;
+  fullBlockedHeight: boolean;
   toggleTag: 'files' | 'tags';
 
   selectedKey: ICDNCheck | IApprovedFileType | 'raw';

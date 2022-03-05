@@ -49,13 +49,24 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
   private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
 
-  private tagPageNoteBlocks = 'BLOCKED due to their location.';
-  private tagPageNoteWarns = 'High Risk location but still work.';
-  private tagPageNoteWWW = '';
-  private tagPageNoteExtApp = 'External locations that are approved';
-  private tagPageNoteTenant = 'This Tenant but not in SecureCDN';
-  private tagPageNoteSecure = 'the Tenant SecureCDN site';
-  private tagPageNoteNothing = '';
+  private tagPageNoteBlocks = 'Files BLOCKED due to their location.';
+  private tagPageNoteWarns = 'Files in High Risk locations but still work.';
+  private tagPageNoteWWW = 'Files elsewhere in the www.  Not blocked and not approved';
+  private tagPageNoteExtApp = 'Files in External locations/CDNs that are approved';
+  private tagPageNoteTenant = 'Files in this Tenant but not in the SecureCDN';
+  private tagPageNoteSecure = 'Files in the Tenant\'s SecureCDN site';
+  private tagPageNoteNothing =   <div>
+        <a target="_blank" href="https://www.goodreads.com/author/show/879.Plato">
+          <img alt="Plato" src="https://images.gr-assets.com/authors/1393978633p2/879.jpg" style={{ float: 'left', paddingRight: '20px'}}></img>
+        </a>
+        <div style={{display: 'flex', flexDirection: 'column' }}>
+          <div>"I am the wisest man alive, for I know one thing, and that is that I know nothing."</div>
+          <div>--<span>Plato,</span><span><a target="_blank" href="https://www.goodreads.com/work/quotes/1625515">The Republic</a></span>
+        </div>
+        </div>
+      </div>
+    ;
+
   private tagPageNoteJS = 'Javascript Files';
   private tagPageNoteCSS = 'CSS Files';
   private tagPageNoteHTML = 'HTML Files';
@@ -136,6 +147,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       showRawHTML: false,
       toggleTag: 'files',
       selectedKey: this.props.fetchInfo.selectedKey,
+      fullBlockedHeight: true,
     };
 
   }
@@ -324,7 +336,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     
     let blockHTML = null;
     if ( fetchInfo.selectedKey === 'ExternalBlock' ) {
-      blockHTML = <div style={{ padding: '10px', background: 'yellow' }}>
+      let blockHeight = this.state.fullBlockedHeight === true ? null : '50px';
+      blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
         <h2>Some content could not be loaded because it was blocked for security reasons</h2>
         <ul>
           <li>Click the 'Show Code' button in the upper right to see which files are blocked.</li>
@@ -466,7 +479,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       return <div style={{paddingTop: '5px'}}>{`${ parts[0] }`}<b>{`${ tag.file }`}</b>{`${ parts[1] }`}</div>;
     });
 
-    let messageDiv = <div style={{ paddingBottom:"10px", fontWeight: 'bold'}}>{message}</div>;
+    let messageDiv = <div style={{ paddingBottom:"10px", fontWeight: 'bold', display: 'grid' }}>{message}</div>;
     let result = {
       files: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ messageDiv  }{ files }</div>,
       tags: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ messageDiv  }{ tags }</div>,
@@ -491,6 +504,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let e: any = event;
     url += e.altKey === true ? '&p=5' : '';
     window.open( url, 'none' );
+  }
+
+  private toggleBlockWarnHeight( ) : void {
+    let newSetting = this.state.fullBlockedHeight === true ? false : true;
+    this.setState( { fullBlockedHeight: newSetting } );
   }
 
   private toggleOriginal( ) : void {
