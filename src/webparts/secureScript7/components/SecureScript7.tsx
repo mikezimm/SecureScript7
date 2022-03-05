@@ -5,14 +5,32 @@ import styles from './SecureScript7.module.scss';
 import { ISecureScript7Props, ISecureScript7State } from './ISecureScript7Props';
 import { escape } from '@microsoft/sp-lodash-subset';
 
+import { DisplayMode, Version } from '@microsoft/sp-core-library';
+
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
 import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
-import { approvedLibraries, approvedSites, IApprovedCDNs } from './ApprovedLibraries';
+import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
+
+import { IApprovedCDNs, IFetchInfo, ITagInfo, approvedFileTypes, approvedExternalCDNs, approvedSites, ISecurityProfile, SourceSecurityRank, 
+  IApprovedFileType, ICDNCheck , warnExternalCDNs, blockExternalCDNs, SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons } from './ApprovedLibraries';
 
 
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
+
+const pivotHeading0 : ICDNCheck = 'ExternalBlock';  //2022-01-31: Added Pivot Tiles
+const pivotHeading1 : ICDNCheck = 'ExternalWarn';  //Templates
+const pivotHeading2 : ICDNCheck = 'WWW';  //Templates
+const pivotHeading3 : ICDNCheck = 'ExternalApproved';  //Templates
+const pivotHeading4 : ICDNCheck = 'Tenant';  //Templates
+const pivotHeading5 : ICDNCheck = 'SecureCDN';  //Templates
+const pivotHeading6 : ICDNCheck = 'Nothing';  //Templates
+const pivotHeading7 : IApprovedFileType = 'js';  //Templates
+const pivotHeading8 : IApprovedFileType = 'css';  //Templates
+const pivotHeading9 : IApprovedFileType = 'html';  //Templates
+const pivotHeading10 : IApprovedFileType = 'img';  //Templates
+const pivotHeading11 : string = 'raw';  //Templates
 
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
 
@@ -30,9 +48,79 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
      */
 
   private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
+  private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
+  private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
+
+  private tagPageNoteBlocks = 'Files BLOCKED due to their location.';
+  private tagPageNoteWarns = 'Files in High Risk locations but still work.';
+  private tagPageNoteWWW = 'Files elsewhere in the www.  Not blocked and not approved';
+  private tagPageNoteExtApp = 'Files in External locations/CDNs that are approved';
+  private tagPageNoteTenant = 'Files in this Tenant but not in the SecureCDN';
+  private tagPageNoteSecure = 'Files in the Tenant\'s SecureCDN site';
+  private tagPageNoteNothing =   <div>
+        <a target="_blank" href="https://www.goodreads.com/author/show/879.Plato">
+          <img alt="Plato" src="https://images.gr-assets.com/authors/1393978633p2/879.jpg" style={{ float: 'left', paddingRight: '20px'}}></img>
+        </a>
+        <div style={{display: 'flex', flexDirection: 'column' }}>
+          <div>"I am the wisest man alive, for I know one thing, and that is that I know nothing."</div>
+          <div>--<span>Plato,</span><span><a target="_blank" href="https://www.goodreads.com/work/quotes/1625515">The Republic</a></span>
+        </div>
+        </div>
+      </div>
+    ;
+
+    private termsOfUse = <div className={ styles.termsOfUse }>
+      <h2>Terms of use</h2>
+      <ul>
+        <li>Only store your HTML, JS and CSS files in a Company approved CDN</li>
+        <li>Contact your SharePoint Team to request a space in our CDN</li>
+        <br/>
+        <li><span className={ styles.good}>DO USE</span> the web part properties to expand web part and control access to the back end site</li>
+        <li><span className={ styles.bad}>DO NOT</span> interfere with the banner at the top of this web part.  It must remain visible and functional as it was designed.</li>
+        <li><span className={ styles.bad}>DO NOT</span> execute any Javascript to change any SharePoint or DOM elements above your html content div</li>
+        <li><span className={ styles.bad}>DO NOT</span> load any CSS that changes any SharePoint or DOM element styling above your html content div</li>
+        <br/>
+        <li>We can and do occasional audits to verify compliance with the terms of use.</li>
+        <br/>
+        <li style={{ fontWeight: 'bold', fontSize: 'large' }}>Breaking any of these Terms of Use will cause your CDN access to be revoked.  aka your code will no longer work.</li>
+      </ul>
+    </div>;
+
+  private tagPageNoteJS = 'Javascript Files';
+  private tagPageNoteCSS = 'CSS Files';
+  private tagPageNoteHTML = 'HTML Files';
+  private tagPageNoteIMG = 'Image Files';
+
+  private page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks ) ;
+  private page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns );
+  private page2 = this.buildTagPage( this.props.fetchInfo.www, this.tagPageNoteWWW );
+  private page3 = this.buildTagPage( this.props.fetchInfo.extApp, this.tagPageNoteExtApp );
+  private page4 = this.buildTagPage( this.props.fetchInfo.tenant, this.tagPageNoteTenant );
+  private page5 = this.buildTagPage( this.props.fetchInfo.secure, this.tagPageNoteSecure );
+  private page6 = this.buildTagPage( this.props.fetchInfo.nothing, this.tagPageNoteNothing );
+
+  private page7 = this.buildTagPage( this.props.fetchInfo.js, this.tagPageNoteJS );
+  private page8 = this.buildTagPage( this.props.fetchInfo.css, this.tagPageNoteCSS );
+  private page9 = this.buildTagPage( this.props.fetchInfo.html, this.tagPageNoteHTML );
+  private page10 = this.buildTagPage( this.props.fetchInfo.img, this.tagPageNoteIMG );
+
+  private pivotBlocked = <PivotItem headerText={'Blocked'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading0)] }/>;
+  private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading1)] }/>;
+  private pivotWWW = <PivotItem headerText={'WWW'} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading2)] }/>;
+  private pivotExtApp = <PivotItem headerText={'ExtApp'} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading3)] }/>;
+  private pivotTenant = <PivotItem headerText={'Tenant'} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading4)] }/>;
+  private pivotSecure = <PivotItem headerText={'Secure'} ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading5)] }/>;
+  private pivotNothing = <PivotItem headerText={ 'Nothing' } ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={pivotHeading6} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading6)] }/>;
+
+  private pivotJS = <PivotItem headerText={ null } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={pivotHeading7} itemIcon={ 'JS' }/>;
+  private pivotCSS = <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'CSS' }/>;
+  private pivotHTML = <PivotItem headerText={ null } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={pivotHeading9} itemIcon={ 'FileHTML' }/>;
+  private pivotIMG = <PivotItem headerText={ null } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={pivotHeading10} itemIcon={ 'Photo2' }/>;
+  private pivotRAW = <PivotItem headerText={ 'raw' } ariaLabel={'raw'} title={'raw'} itemKey={'raw'} itemIcon={ 'Embed' }/>;
+
+
   private nearBannerElements = this.buildNearBannerElements();
   private farBannerElements = this.buildFarBannerElements();
-
 
   private buildNearBannerElements() {
     //See banner/NearAndFarSample.js for how to build this.
@@ -57,6 +145,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     ];
   }
 
+
   public constructor(props:ISecureScript7Props){
       super(props);
     console.log('SecureScript7: constructor', this.toggleRawIcon);
@@ -75,18 +164,65 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       showOriginalHtml: false,
       showApprovedLocations: false,
       showRawHTML: false,
+      toggleTag: 'files',
+      selectedKey: this.props.fetchInfo.selectedKey,
+      fullBlockedHeight: true,
     };
 
   }
 
+  public componentDidUpdate(prevProps){
+
+    if ( prevProps.fetchInstance !== this.props.fetchInstance ) {
+
+      this.page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks ) ;
+      this.page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns );
+      this.page2 = this.buildTagPage( this.props.fetchInfo.www, this.tagPageNoteWWW );
+      this.page3 = this.buildTagPage( this.props.fetchInfo.extApp, this.tagPageNoteExtApp );
+      this.page4 = this.buildTagPage( this.props.fetchInfo.tenant, this.tagPageNoteTenant );
+      this.page5 = this.buildTagPage( this.props.fetchInfo.secure, this.tagPageNoteSecure );
+      this.page6 = this.buildTagPage( this.props.fetchInfo.nothing, this.tagPageNoteNothing );
+    
+      this.page7 = this.buildTagPage( this.props.fetchInfo.js, this.tagPageNoteJS );
+      this.page8 = this.buildTagPage( this.props.fetchInfo.css, this.tagPageNoteCSS );
+      this.page9 = this.buildTagPage( this.props.fetchInfo.html, this.tagPageNoteHTML );
+      this.page10 = this.buildTagPage( this.props.fetchInfo.img, this.tagPageNoteIMG );
+
+      this._updateStateOnPropsChange({});
+    }
+
+  }
+  
+  
+  /***
+   *            db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b       .d88b.  d8b   db      d8888b. d8888b.  .d88b.  d8888b. .d8888.       .o88b. db   db  .d8b.  d8b   db  d888b  d88888b 
+   *            88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'          .8P  Y8. 888o  88      88  `8D 88  `8D .8P  Y8. 88  `8D 88'  YP      d8P  Y8 88   88 d8' `8b 888o  88 88' Y8b 88'     
+   *            88    88 88oodD' 88   88 88ooo88    88    88ooooo      `8bo.      88    88ooo88    88    88ooooo      88    88 88V8o 88      88oodD' 88oobY' 88    88 88oodD' `8bo.        8P      88ooo88 88ooo88 88V8o 88 88      88ooooo 
+   *            88    88 88~~~   88   88 88~~~88    88    88~~~~~        `Y8b.    88    88~~~88    88    88~~~~~      88    88 88 V8o88      88~~~   88`8b   88    88 88~~~     `Y8b.      8b      88~~~88 88~~~88 88 V8o88 88  ooo 88~~~~~ 
+   *            88b  d88 88      88  .8D 88   88    88    88.          db   8D    88    88   88    88    88.          `8b  d8' 88  V888      88      88 `88. `8b  d8' 88      db   8D      Y8b  d8 88   88 88   88 88  V888 88. ~8~ 88.     
+   *    C88888D ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      `8888Y'    YP    YP   YP    YP    Y88888P       `Y88P'  VP   V8P      88      88   YD  `Y88P'  88      `8888Y'       `Y88P' YP   YP YP   YP VP   V8P  Y888P  Y88888P 
+   *                                                                                                                                                                                                                                        
+   *                                                                                                                                                                                                                                        
+   */
+
+  private _updateStateOnPropsChange(params: any ): void {
+
+  }
+
+  
   public render(): React.ReactElement<ISecureScript7Props> {
     const {
       description,
       isDarkTheme,
       environmentMessage,
       hasTeamsContext,
-      userDisplayName
+      userDisplayName,
+      fetchInfo,
     } = this.props;
+
+    const {
+      toggleTag,
+    } = this.state;
 
     /***
      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
@@ -109,11 +245,12 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     //Exclude the props.bannerProps.title if the webpart is narrow to make more responsive
     let bannerTitle = this.props.bannerProps.bannerWidth < 900 ? bannerSuffix : `${this.props.bannerProps.title} - ${bannerSuffix}`;
     if ( bannerTitle === '' ) { bannerTitle = 'Pivot Tiles' ; }
+    if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ' JS Disabled during Edit' ; }
 
     let errorUnapprovedComponent = null;
     
     if ( this.props.cdnValid !== true ) {
-      errorUnapprovedComponent = <div> 
+      errorUnapprovedComponent = <div style={{height: 100, width: '100%', fontSize: 'large', background: 'yellow' }}>
       <h3>Only pick web from Approved sites:</h3>
         <p>
           <ul>
@@ -123,28 +260,83 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       </div>;
     }
 
-
     let originalInfo = null;
-    let scriptHTML = this.props.snippet ? `${this.props.snippet}` : stockPickerHTML;
+    let scriptHTML = null;
+    if ( fetchInfo ) {
+      scriptHTML = fetchInfo.errorHTML ? `${fetchInfo.errorHTML}` : fetchInfo.snippet;
+    }
+    
+    let blockHTML = null;
+    if ( fetchInfo.selectedKey === 'ExternalBlock' ) {
+      let blockHeight = this.state.fullBlockedHeight === true ? null : '50px';
+      blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden', cursor: 'pointer' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
+        <h2>Some content could not be loaded because it was blocked for security reasons</h2>
+        <ul>
+          <li>Click the 'Show Code' button in the upper right to see which files are blocked.</li>
+          <li>Provided the html file is in a valid location, it and all content not considered blocked will show below.</li>
+          <li>However, NO javascript code will execute until the blocked code is resolved.</li>
+          <li><b>NOTE:</b> that we have no way to detect what scripts are commented out.  So even commented out script tags will cause this message.</li>
+        </ul>
+      </div>;
+    }
 
     if ( this.state.showOriginalHtml ) {
       let directLink = <a href={ this.props.fileRelativeUrl } target='none'>{ this.props.libraryItemPicker }</a>;
+
+        let thisPage: any = <div>'Temp'</div>;
+        if ( this.state.selectedKey === pivotHeading0 ) { thisPage = this.page0[toggleTag] ; } else 
+        if ( this.state.selectedKey === pivotHeading1 ) { thisPage = this.page1[toggleTag] ; } else 
+        if ( this.state.selectedKey === pivotHeading2 ) { thisPage = this.page2[toggleTag] ; } else 
+        if ( this.state.selectedKey === pivotHeading3 ) { thisPage = this.page3[toggleTag] ; } else 
+        if ( this.state.selectedKey === pivotHeading4 ) { thisPage = this.page4[toggleTag] ; } else 
+        if ( this.state.selectedKey === pivotHeading5 ) { thisPage = this.page5[toggleTag] ; } else 
+        if ( this.state.selectedKey === pivotHeading6 ) { thisPage = this.page6[toggleTag] ; } else 
+
+        if ( this.state.selectedKey === pivotHeading7 ) { thisPage = this.page7[toggleTag] ; } else 
+        if ( this.state.selectedKey === pivotHeading8 ) { thisPage = this.page8[toggleTag]; } else 
+        if ( this.state.selectedKey === pivotHeading9 ) { thisPage = this.page9[toggleTag]; } else 
+        if ( this.state.selectedKey === pivotHeading10 ) { thisPage = this.page10[toggleTag]; } else 
+        if ( this.state.selectedKey === 'raw' ) { thisPage = <div>{ fetchInfo.snippet }</div> ; }
+
+        let pivotItems: any [] = [];
+
+        if ( fetchInfo.blocks.length > 0 ) { pivotItems.push( this.pivotBlocked ); }
+        if ( fetchInfo.warns.length > 0 ) { pivotItems.push( this.pivotWarn ); }
+        if ( fetchInfo.www.length > 0 ) { pivotItems.push( this.pivotWWW ); }
+        if ( fetchInfo.extApp.length > 0 ) { pivotItems.push( this.pivotExtApp ); }
+        if ( fetchInfo.tenant.length > 0 ) { pivotItems.push( this.pivotTenant ); }
+        if ( fetchInfo.secure.length > 0 ) { pivotItems.push( this.pivotSecure ); }
+        if ( fetchInfo.nothing.length > 0 ) { pivotItems.push( this.pivotNothing ); }
+    
+        if ( fetchInfo.js.length > 0 ) { pivotItems.push( this.pivotJS ); }
+        if ( fetchInfo.css.length > 0 ) { pivotItems.push( this.pivotCSS ); }
+        if ( fetchInfo.html.length > 0 ) { pivotItems.push( this.pivotHTML ); }
+        if ( fetchInfo.img.length > 0 ) { pivotItems.push( this.pivotIMG ); }
+        if ( fetchInfo.snippet ) { pivotItems.push( this.pivotRAW ); }
+
+        let pivotContent = <div><Pivot
+            // styles={ pivotStyles }
+            linkFormat={PivotLinkFormat.links}
+            linkSize={PivotLinkSize.normal }
+            onLinkClick={this._selectedIndex.bind(this)}
+        > 
+          { pivotItems }
+        </Pivot>
+        { thisPage }
+      </div>;
 
       let libViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.libraryPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open library ]</span>;
 
       let fileViewerhref = `${this.props.libraryPicker}/Forms/AllItems.aspx?id=${ this.props.fileRelativeUrl }&parent=${this.props.libraryPicker}`;
       let fileViewerLink = <span onClick={() => this.onFileClick( fileViewerhref )} style={{ color: 'blue' , cursor: 'pointer' }} > [ open file in editor ]</span>;
       originalInfo = <div style={{ background: '#dddd', padding: '10px 20px 40px 20px',  }}>
-        <h2 style={{ color: 'darkblue' }}>This is the original html { this.toggleRawIcon }</h2>
+        <h2 style={{ color: 'darkblue' }}>This is the original html { this.toggleRawIcon } { this.state.showRawHTML === false ? null : this.state.toggleTag === 'files' ? this.toggleTagFile : this.toggleTagTag }</h2>
         <ul>
           <li><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
           <li><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
         </ul>
         {
-          this.state.showRawHTML !== true ? null : <div>
-            <h3>Raw HTML</h3>
-            { scriptHTML }
-          </div>
+          this.state.showRawHTML !== true ? null : pivotContent
         }
       </div>;
     }
@@ -183,28 +375,64 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     ></WebpartBanner>;
 
-    let actualElement = errorUnapprovedComponent ?  errorUnapprovedComponent :
-      <div dangerouslySetInnerHTML={{ __html: scriptHTML }}></div>;
+    let actualElement = <div></div>;
 
     let devHeader = this.state.showDevHeader === true ? <div><b>Props: </b> { 'this.props.lastPropChange' + ', ' + 'this.props.lastPropDetailChange' } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
+    let termsOfUse = this.props.fetchInfo == null || this.props.fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
+    
     return (
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
         { Banner }
-        
+        { blockHTML }
         { originalInfo }
+        { termsOfUse }
         { actualElement }
-        
-
       </section>
     );
   }
+
+  private buildTagPage( tagsInfo: ITagInfo[], message: any ) {
+    let files = tagsInfo.map( tag => {
+        return <div style={{paddingTop: '5px'}}>{ tag.file }</div>;
+    });
+
+    let tags = tagsInfo.map( tag => {
+      let parts = tag.tag.split( tag.file );
+      return <div style={{paddingTop: '5px'}}>{`${ parts[0] }`}<b>{`${ tag.file }`}</b>{`${ parts[1] }`}</div>;
+    });
+
+    let messageDiv = <div style={{ paddingBottom:"10px", fontWeight: 'bold', display: 'grid' }}>{message}</div>;
+    let result = {
+      files: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ messageDiv  }{ files }</div>,
+      tags: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ messageDiv  }{ tags }</div>,
+      message: <div>{message}</div>
+    };
+
+    return result;
+
+  }
+
+  private _selectedIndex = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+
+		let itemKey = item.props.itemKey;
+
+		this.setState({ selectedKey: itemKey });
+		
+	}
 
   private onFileClick( url: string ) : void {
     let e: any = event;
     url += e.altKey === true ? '&p=5' : '';
     window.open( url, 'none' );
+  }
+
+  private toggleBlockWarnHeight( ) : void {
+    let newSetting = this.state.fullBlockedHeight === true ? false : true;
+    this.setState( { fullBlockedHeight: newSetting } );
   }
 
   private toggleOriginal( ) : void {
@@ -215,6 +443,12 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private toggleRaw( ) : void {
     let newSetting = this.state.showRawHTML === true ? false : true;
     this.setState( { showRawHTML: newSetting } );
+  }
+
+  
+  private toggleTag( ) : void {
+    let toggleTag : 'files' | 'tags' = this.state.toggleTag === 'files' ? 'tags' : 'files';
+    this.setState( { toggleTag: toggleTag } );
   }
 
  }

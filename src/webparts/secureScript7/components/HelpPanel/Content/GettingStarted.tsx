@@ -27,6 +27,7 @@ export function gettingStartedContent( repoLinks: IRepoLinks ) {
                     <p>Show Code Audience will determine what level permissions will see the Show-Code icon. <b>NOTE:</b>  Site Admins and Site Owners will ALWAYS see this button.</p>
                 </li>
             </ul>
+            <h2>NOTE:  Javascript does not load while editing the page, only while viewing.</h2>
         </div>
  
 
