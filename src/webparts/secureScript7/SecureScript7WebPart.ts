@@ -279,6 +279,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         bannerProps: bannerProps,
 
         //SecureScript props
+        displayMode: this.displayMode,
         cdnMode: this.cdnMode,
         cdnValid: this.cdnValid, 
         libraryPicker: libraryPicker,
@@ -295,6 +296,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     ReactDom.render(element, this.bannerElement);
     this.scriptElement.innerHTML = this.fetchInfo.snippet;
+
     if ( this.fetchInfo.selectedKey !== 'ExternalBlock' ) {
       if ( this.displayMode === DisplayMode.Read ) {
         this.executeScript(this.scriptElement);

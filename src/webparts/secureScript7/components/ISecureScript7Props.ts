@@ -3,6 +3,8 @@ import { WebPartContext } from "@microsoft/sp-webpart-base";
 
 import { IWebpartBannerProps, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/bannerProps';
 
+import { DisplayMode, Version } from '@microsoft/sp-core-library';
+
 import { IApprovedCDNs, IFetchInfo, ITagInfo, approvedFileTypes, approvedExternalCDNs, approvedSites, ISecurityProfile, SourceSecurityRank, 
   IApprovedFileType, ICDNCheck , warnExternalCDNs, blockExternalCDNs, SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons } from './ApprovedLibraries';
 
@@ -16,6 +18,8 @@ export interface ISecureScript7Props {
   environmentMessage: string;
   hasTeamsContext: boolean;
   userDisplayName: string;
+
+  displayMode: DisplayMode;
 
   //Environement props
   // pageContext: PageContext;

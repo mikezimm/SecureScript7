@@ -5,6 +5,8 @@ import styles from './SecureScript7.module.scss';
 import { ISecureScript7Props, ISecureScript7State } from './ISecureScript7Props';
 import { escape } from '@microsoft/sp-lodash-subset';
 
+import { DisplayMode, Version } from '@microsoft/sp-core-library';
+
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
 import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
@@ -313,6 +315,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     //Exclude the props.bannerProps.title if the webpart is narrow to make more responsive
     let bannerTitle = this.props.bannerProps.bannerWidth < 900 ? bannerSuffix : `${this.props.bannerProps.title} - ${bannerSuffix}`;
     if ( bannerTitle === '' ) { bannerTitle = 'Pivot Tiles' ; }
+    if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ' JS Disabled during Edit' ; }
 
     let errorUnapprovedComponent = null;
     
@@ -343,7 +346,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
           <li>Click the 'Show Code' button in the upper right to see which files are blocked.</li>
           <li>Provided the html file is in a valid location, it and all content not considered blocked will show below.</li>
           <li>However, NO javascript code will execute until the blocked code is resolved.</li>
-          <li><b>NOTE:</b> that we have no way to detect what scripts are commented out.  So even commented out scripts will cause this message.</li>
+          <li><b>NOTE:</b> that we have no way to detect what scripts are commented out.  So even commented out script tags will cause this message.</li>
         </ul>
       </div>;
     }
