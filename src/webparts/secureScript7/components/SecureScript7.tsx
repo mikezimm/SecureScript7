@@ -12,10 +12,10 @@ import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPan
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
-import { approvedExternalCDNs, approvedSites, warnExternalCDNs, blockExternalCDNs, } from './Security10/ApprovedLibraries';
+import { approvedSites, } from './Security20/ApprovedLibraries';
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './Security10/interface';
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IPolicyFlag } from './Security20/interface';
 
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
@@ -51,8 +51,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
   private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
 
-  private tagPageNoteBlocks = 'Files BLOCKED due to their location.';
-  private tagPageNoteWarns = 'Files in High Risk locations but still work.';
+  private tagPageNoteBlocks = 'Files BLOCKED due to a policy.';
+  private tagPageNoteWarns = 'Files in High Risk locations (due to a policy) but still work.';
   private tagPageNoteWWW = 'Files elsewhere in the www.  Not blocked and not approved';
   private tagPageNoteExtApp = 'Files in External locations/CDNs that are approved';
   private tagPageNoteTenant = 'Files in this Tenant but not in the SecureCDN';
@@ -91,8 +91,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private tagPageNoteHTML = 'HTML Files';
   private tagPageNoteIMG = 'Image Files';
 
-  private page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks ) ;
-  private page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns );
+  private page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.block ) ;
+  private page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns, this.props.fetchInfo.policyFlags.warn );
   private page2 = this.buildTagPage( this.props.fetchInfo.www, this.tagPageNoteWWW );
   private page3 = this.buildTagPage( this.props.fetchInfo.extApp, this.tagPageNoteExtApp );
   private page4 = this.buildTagPage( this.props.fetchInfo.tenant, this.tagPageNoteTenant );
@@ -174,19 +174,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   public componentDidUpdate(prevProps){
 
     if ( prevProps.fetchInstance !== this.props.fetchInstance ) {
-
-      this.page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks ) ;
-      this.page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns );
-      this.page2 = this.buildTagPage( this.props.fetchInfo.www, this.tagPageNoteWWW );
-      this.page3 = this.buildTagPage( this.props.fetchInfo.extApp, this.tagPageNoteExtApp );
-      this.page4 = this.buildTagPage( this.props.fetchInfo.tenant, this.tagPageNoteTenant );
-      this.page5 = this.buildTagPage( this.props.fetchInfo.secure, this.tagPageNoteSecure );
-      this.page6 = this.buildTagPage( this.props.fetchInfo.nothing, this.tagPageNoteNothing );
+      let fetchInfo = this.props.fetchInfo;
+      this.page0 = this.buildTagPage( fetchInfo.blocks, this.tagPageNoteBlocks, fetchInfo.policyFlags.block ) ;
+      this.page1 = this.buildTagPage( fetchInfo.warns, this.tagPageNoteWarns, fetchInfo.policyFlags.warn );
+      this.page2 = this.buildTagPage( fetchInfo.www, this.tagPageNoteWWW );
+      this.page3 = this.buildTagPage( fetchInfo.extApp, this.tagPageNoteExtApp );
+      this.page4 = this.buildTagPage( fetchInfo.tenant, this.tagPageNoteTenant );
+      this.page5 = this.buildTagPage( fetchInfo.secure, this.tagPageNoteSecure );
+      this.page6 = this.buildTagPage( fetchInfo.nothing, this.tagPageNoteNothing );
     
-      this.page7 = this.buildTagPage( this.props.fetchInfo.js, this.tagPageNoteJS );
-      this.page8 = this.buildTagPage( this.props.fetchInfo.css, this.tagPageNoteCSS );
-      this.page9 = this.buildTagPage( this.props.fetchInfo.html, this.tagPageNoteHTML );
-      this.page10 = this.buildTagPage( this.props.fetchInfo.img, this.tagPageNoteIMG );
+      this.page7 = this.buildTagPage( fetchInfo.js, this.tagPageNoteJS );
+      this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS );
+      this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML );
+      this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG );
 
       this._updateStateOnPropsChange({});
     }
@@ -272,10 +272,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden', cursor: 'pointer' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
         <h2>Some content could not be loaded because it was blocked for security reasons</h2>
         <ul>
+        <li><b>NO javascript code will execute until</b> the blocked code is resolved.</li>
           <li>Click the 'Show Code' button in the upper right to see which files are blocked.</li>
           <li>Provided the html file is in a valid location, it and all content not considered blocked will show below.</li>
-          <li>However, NO javascript code will execute until the blocked code is resolved.</li>
-          <li><b>NOTE:</b> that we have no way to detect what scripts are commented out.  So even commented out script tags will cause this message.</li>
+          <li><b>NOTE:</b> We have no way to detect what scripts are commented out.  So even commented out script tags will cause this message.</li>
         </ul>
       </div>;
     }
@@ -393,7 +393,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     );
   }
 
-  private buildTagPage( tagsInfo: ITagInfo[], message: any ) {
+  private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [] ) {
     let files = tagsInfo.map( tag => {
         return <div style={{paddingTop: '5px'}}>{ tag.file }</div>;
     });
@@ -403,10 +403,20 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       return <div style={{paddingTop: '5px'}}>{`${ parts[0] }`}<b>{`${ tag.file }`}</b>{`${ parts[1] }`}</div>;
     });
 
+    let policies = policyFlags.map( policy => {
+      return <div style={{paddingTop: '5px'}}>{`${ policy.level }`}<b>{`${ policy.type }`}</b>{`${ policy.cdn }`}</div>;
+    });
+
+    let policyMessage =  policyFlags.length === 0 ? null : <div style={{paddingBottom: '30px' }}>
+      <div style={{fontSize: 'larger', fontWeight: 'bold' }}>Policies detected</div>
+      { policies }
+    </div>;
+
     let messageDiv = <div style={{ paddingBottom:"10px", fontWeight: 'bold', display: 'grid' }}>{message}</div>;
     let result = {
-      files: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ messageDiv  }{ files }</div>,
-      tags: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ messageDiv  }{ tags }</div>,
+      files: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ policyMessage  }{ messageDiv  }{ files }</div>,
+      tags: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ policyMessage  }{ messageDiv  }{ tags }</div>,
+      
       message: <div>{message}</div>
     };
 

@@ -1,8 +1,24 @@
-import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN } from './interface';
-import { warnExternalCDNs, blockExternalCDNs } from './ApprovedLibraries';
+import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN , ICDNCheck, IFileTypeCDN } from './interface';
+import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternalCDNs, SecureProfile, jsCDNs, cssCDNs, imgCDNs, linkCDNs, htmlCDNs } from './ApprovedLibraries';
 
-  export function createFileTypeSecurity( ext: string, icon: string, title: string, approved:string[], warn:string[], block:string[], text1: string = 'text1', text2: string = 'text2' ){
-  
+
+ export const masterCDNs: IFileTypeCDN = {
+  approved: masterApprovedExternalCDNs,
+  warn: masterWarnExternalCDNs,
+  block: masterBlockExternalCDNs,
+};
+
+  export function createFileTypeSecurity( ext: string, icon: string, title: string, fileTypeCDN: IFileTypeCDN, text1: string = 'text1', text2: string = 'text2' ){
+    
+    //parsing this just to be sure it's not mutated
+    let fullCDNs = JSON.parse(JSON.stringify(masterCDNs )) ;
+
+    if ( ext !== '*' ) {
+      fileTypeCDN.approved.map( cdn => { fullCDNs.approved.push(cdn ) ; } );
+      fileTypeCDN.warn.map( cdn => { fullCDNs.approved.push(cdn ) ; } );
+      fileTypeCDN.block.map( cdn => { fullCDNs.approved.push(cdn ) ; } );
+    }
+
     let result : IFileTypeSecurity = {
       icon: icon,
       ext: ext,
@@ -18,31 +34,30 @@ import { warnExternalCDNs, blockExternalCDNs } from './ApprovedLibraries';
         WWW: 0,
         ExternalBlock: 0,
       },
-      cdns: {
-        approved: approved,
-        warn: warn,
-        block: block,
-      }
+      level: {
+        warn: SecureProfile[`${ext}Warn`],
+        block: SecureProfile[`${ext}Block`],
+      },
+      cdns: fullCDNs,
     };
   
     return result;
   
   }
   //TenantCDN, warnExternalCDNs, blockExternalCDNs
-  function createAdvSecProfile () {
+  export function createAdvSecProfile () {
     let result :IAdvancedSecurityProfile = {
       sort: ['js', 'css', 'html', 'img', 'link', 'all' ],
-      all: createFileTypeSecurity('*', '', 'All', [TenantCDN + '/'], warnExternalCDNs, blockExternalCDNs ),
-      js: createFileTypeSecurity('js', 'JS', '', [TenantCDN + '/'], warnExternalCDNs, blockExternalCDNs ),
-      css: createFileTypeSecurity('css', 'CSS', 'All', [TenantCDN + '/'], warnExternalCDNs, blockExternalCDNs ),
-      html: createFileTypeSecurity('html', 'FileHTML', 'All', [TenantCDN + '/'], warnExternalCDNs, blockExternalCDNs ),
-      img: createFileTypeSecurity('img', 'Photo2', 'All', [TenantCDN + '/'], warnExternalCDNs, blockExternalCDNs ),
-      link: createFileTypeSecurity('link', '', 'All', [TenantCDN + '/'], warnExternalCDNs, blockExternalCDNs ),
-  
+      all: createFileTypeSecurity('*', '', 'All', masterCDNs ),
+      js: createFileTypeSecurity('js', 'JS', '', jsCDNs ),
+      css: createFileTypeSecurity('css', 'CSS', 'All', cssCDNs ),
+      html: createFileTypeSecurity('html', 'FileHTML', 'All', htmlCDNs ),
+      img: createFileTypeSecurity('img', 'Photo2', 'All', imgCDNs ),
+      link: createFileTypeSecurity('link', '', 'All', linkCDNs ),
     };
-  
+
     return result;
-    
+
   }
   
   

@@ -9,39 +9,10 @@ import { Icon, ITag } from 'office-ui-fabric-react';
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
 
-import { approvedExternalCDNs, approvedSites, warnExternalCDNs, blockExternalCDNs, } from './ApprovedLibraries';
+import { approvedSites, } from './ApprovedLibraries';
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './interface';
-
-  export async function fetchSnippetCherry( context: any, libraryPicker: string , libraryItemPicker: string ) {
-
-    let fileURL = libraryPicker + "/" + libraryItemPicker;
-
-    const webURLQuery = context.pageContext.web.absoluteUrl + `/_api/sp.web.getweburlfrompageurl(@v)?@v=%27${window.location.origin}${fileURL}%27`;
-
-    // if (props.url)
-    // const htmlFragment: string = (props.url) ?
-    let webURL = await context.spHttpClient.get(webURLQuery, SPHttpClient.configurations.v1)
-    .then((response: SPHttpClientResponse) => response.json())
-    .then(data => data.value);
-    const snippetURLQuery = webURL + `/_api/web/getFileByServerRelativeUrl('${fileURL}')/$value`;
-
-    const htmlFragment = await context.spHttpClient.get(snippetURLQuery, SPHttpClient.configurations.v1)
-    .then((response: SPHttpClientResponse) => response.text());
-    // : "<div>No content loaded.</div>";
-    const newHtml = `<div id='thisReallyUniqueId'>${htmlFragment}<div>`;
-    const node = document.createRange().createContextualFragment(newHtml);
-
-}
-
-const iconStyles: any = { root: {
-    fontSize: 'x-large',
-    fontWeight: 600,
-    paddingRight: '10px',
-    paddingLeft: '10px',
-}};
-
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags } from './interface';
 
 // let scriptRegex = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
 // let scriptSrcRegex = /<script.+?src=[\"'](.+?)[\"'].*?>/gi;
@@ -95,13 +66,18 @@ export function baseFetchInfo( warning: string ) {
         warns:[],
         blocks:[],
         www:[],
+        policyFlags: {
+            warn: [],
+            block: [],
+            none: [],
+        },
     };
 
     return base;
 
 }
 
-export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , SecureProfile: ISecurityProfile ) {
+export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile  ) {
 
     if ( !webUrl || webUrl.length < 1 ) {
         console.log('fetchSnippetMike Err 0:', webUrl, libraryPicker, libraryItemPicker );
@@ -113,7 +89,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         console.log('fetchSnippetMike Err 2:', webUrl, libraryPicker, libraryItemPicker );
         return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid Filename.</div>' );
     }
-    
+
     if ( webUrl === '' ) { webUrl = '/sites/SecureCDN'; }
 
     let fileURL = libraryPicker + "/" + libraryItemPicker;
@@ -143,7 +119,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     let scripts : ITagInfo[] = scriptTags === null ? [] : scriptTags.map( tag => { 
         let matchTag = tag.match(srcRegex);
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'js', createTag, SecureProfile  );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'js', createTag, securityProfile.js  );
         return tagInfo;
     });
 
@@ -151,7 +127,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     let css : ITagInfo[] = cssTags === null ? [] : cssTags.map( tag => { 
         let matchTag = tag.match(hrefCSSRegex);
         let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'css', createTag, SecureProfile  );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'css', createTag, securityProfile.css  );
         return tagInfo;
     });
 
@@ -159,8 +135,23 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     let img : ITagInfo[] = imgTags === null ? [] : imgTags.map( tag => { 
         let matchTag = tag.match(srcRegex);
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('\"','"');
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'img', createTag , SecureProfile );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'img', createTag , securityProfile.img );
         return tagInfo;
+    });
+
+
+    let policyFlags: IPolicyFlags = {
+        warn: [],
+        block: [],
+        none: [],
+    };
+
+    let policyKeys: string[] = [];
+    [...scripts, ...css, ...img ].map ( tag => {
+        if ( tag.policyFlags.level !== 'none' && policyKeys.indexOf( tag.policyFlags.key ) < 0 ) {
+            policyKeys.push( tag.policyFlags.key );
+            policyFlags[ tag.policyFlags.level ].push( tag.policyFlags );
+        }
     });
 
     let postRegexTime = new Date();
@@ -185,6 +176,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         warns: [],
         blocks: [],
         www: [],
+        policyFlags: policyFlags,
     };
 
     let allTags = [...scripts,...css,...img ];
@@ -208,15 +200,17 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     if ( result.nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }
 
     console.log( 'fetch results: ', result );
+    console.log( 'fetch policyFlags: ', policyFlags );
     return result;
 
 }
 
-export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, file: string, SecureProfile: ISecurityProfile ) {
+export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, file: string, SecureFileProfile: IFileTypeSecurity ) {
     let styleRegex = /style=[\"'](.+?)[\"'].*?/gi;
     let styleTagCheck = tag.match(styleRegex);
     let styleTag = styleTagCheck === null ? '' : styleTagCheck[0];
     let lcFile = file.toLowerCase();
+    let policyFlags: IPolicyFlag = { cdn: '', level: 'none', type: type, key: `none` };
 
     let fileLocaton : ICDNCheck = 'TBD';
     approvedSites.map( site => {
@@ -230,23 +224,29 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     }
 
     if ( fileLocaton === 'TBD' ) {
-        approvedExternalCDNs.map( site => {
+        SecureFileProfile.cdns.approved.map( site => {
             let idx = lcFile.indexOf( site.toLowerCase() );
             if ( idx === 0 ) { fileLocaton = 'ExternalApproved' ; } 
         });
     }
 
     if ( fileLocaton === 'TBD' ) {
-        warnExternalCDNs.map( site => {
+        SecureFileProfile.cdns.warn.map( site => {
             let idx = lcFile.indexOf( site.toLowerCase() );
-            if ( idx === 0 ) { fileLocaton = 'ExternalWarn' ; } 
+            if ( idx === 0 ) { 
+                fileLocaton = 'ExternalWarn' ;
+                policyFlags = { cdn: site, level: 'warn', type: type, key: `warn: ${type}-${site}` }  ;
+            }
         });
     }
 
     if ( fileLocaton === 'TBD' ) {
-        blockExternalCDNs.map( site => {
+        SecureFileProfile.cdns.block.map( site => {
             let idx = lcFile.indexOf( site.toLowerCase() );
-            if ( idx === 0 ) { fileLocaton = 'ExternalBlock';  } 
+            if ( idx === 0 ) { 
+                fileLocaton = 'ExternalBlock' ;
+                policyFlags = { cdn: site, level: 'block', type: type, key: `block: ${type}-${site}` } ;
+            }
         });
     }
 
@@ -271,6 +271,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
         label: '',
         eleStyle: '',
         location: fileLocaton,
+        policyFlags: policyFlags,
     };
 
     return result;

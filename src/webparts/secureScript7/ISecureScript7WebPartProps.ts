@@ -3,6 +3,7 @@
 
 import { IExpandAudiences } from "@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando";
 
+import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 
 export const changeExpando = [ 
   'enableExpandoramic','expandoDefault','expandoStyle', 'expandoPadding', 'expandoAudience',
@@ -90,5 +91,6 @@ export interface ISecureScript7WebPartProps {
     showCodeAudience: IExpandAudiences;
 
     fpsImportProps: string;
+
   
   }

@@ -5,11 +5,11 @@ import { IWebpartBannerProps, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNp
 
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
 
-import { approvedExternalCDNs, approvedSites, warnExternalCDNs, blockExternalCDNs, } from './Security10/ApprovedLibraries';
-
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './Security10/interface';
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './Security20/interface';
 
+import { IAdvancedSecurityProfile } from './Security20/interface';
+ 
 export type ICDNMode = 'Webs' | 'Libraries';
 
 export interface ISecureScript7Props {
@@ -39,6 +39,9 @@ export interface ISecureScript7Props {
   libraryItemPicker: string;
   approvedLibraries: any[];
   fileRelativeUrl: string;
+
+  securityProfile: IAdvancedSecurityProfile;
+
   // context: WebPartContext;
 
   domElement: any;

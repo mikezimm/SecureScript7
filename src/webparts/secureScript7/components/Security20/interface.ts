@@ -2,11 +2,11 @@
 import {
     IPropertyPaneDropdownOption,
   } from '@microsoft/sp-property-pane';
-  
-  
+
+
 export const FetchLibString = 'FetchLibraries';
 export const TenantCDN = '/sites/SecureCDN';
-  
+
 export interface IApprovedCDNs extends IPropertyPaneDropdownOption {
 
     key: string;
@@ -29,8 +29,30 @@ export interface ITagInfo {
     label: string;
     eleStyle: string;
     location: ICDNCheck;
+    policyFlags: IPolicyFlag;
   }
-  
+
+  export interface IFileTypeCDN {
+      approved: string[];
+      warn: string[];
+      block: string[];
+  }
+
+  export type IPolicyFlagLevel = 'warn' | 'block' | 'none';
+
+  export interface IPolicyFlags {
+    block: IPolicyFlag[];
+    warn: IPolicyFlag[];
+    none: IPolicyFlag[];
+  }
+
+  export interface IPolicyFlag {
+    level: IPolicyFlagLevel;
+    type: IApprovedFileType;
+    cdn: string;
+    key: string;
+  }
+
   export interface IFetchInfo {
         snippet: string;
         selectedKey: ICDNCheck | IApprovedFileType | 'raw';
@@ -52,16 +74,17 @@ export interface ITagInfo {
         warns:ITagInfo[];
         blocks:ITagInfo[];
         www:ITagInfo[];
+        policyFlags: IPolicyFlags;
   }
-  
+
   export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Tenant' | 'ExternalApproved' | 'ExternalWarn' | 'ExternalBlock' | 'WWW' | 'TBD';
-  
+
   //This tells the rank order from Highest security to lowest
   export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Tenant' ,          'ExternalApproved' ,  'ExternalWarn', 'WWW' ,  'ExternalBlock' ];
   export const SourceSecurityRankIcons: string[] = [ 'CircleShape' , 'BlockedSiteSolid12' , 'SharepointLogo' ,  'GlobeFavorite' ,     'ErrorBadge',   'Globe' ,       'BlockedSiteSolid12' ];
   export const SourceSecurityRankColor: string[] = [ 'black' ,       'green' ,              'blue' ,            'purple' ,            'black',        'black' ,  'red' ];
   export const SourceSecurityRankBackG: string[] = [ 'lightgray' ,   'white' ,              'white' ,           'white' ,             'yellow',       'white' ,  'yellow' ];
-  
+
   export interface ISecurityProfile {
     cssWarn: ICDNCheck;
     cssBlock: ICDNCheck;
@@ -69,9 +92,13 @@ export interface ITagInfo {
     jsBlock: ICDNCheck;
     imgWarn: ICDNCheck;
     imgBlock: ICDNCheck;
-  
+    linkWarn: ICDNCheck;
+    linkBlock: ICDNCheck;
+    htmlWarn: ICDNCheck;
+    htmBlock: ICDNCheck;
+
   }
-  
+
   /**
    * This interface defines the structure to summarize each file type
    * counts:  number of files in each category
@@ -91,6 +118,10 @@ export interface ITagInfo {
       ExternalWarn: number;
       WWW: number;
       ExternalBlock: number;
+    };
+    level: {
+      warn: ICDNCheck;
+      block: ICDNCheck;
     };
     cdns: {
       approved: string[];
