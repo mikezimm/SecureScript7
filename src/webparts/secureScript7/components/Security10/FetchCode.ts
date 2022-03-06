@@ -8,9 +8,13 @@ import { Icon, ITag } from 'office-ui-fabric-react';
 //encodeDecodeString(this.props.libraryPicker, 'decode')
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, approvedFileTypes, approvedExternalCDNs, approvedSites, ISecurityProfile, SourceSecurityRank, IApprovedFileType, ICDNCheck , warnExternalCDNs, blockExternalCDNs, SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons } from './ApprovedLibraries';
 
-export async function fetchSnippetCherry( context: any, libraryPicker: string , libraryItemPicker: string ) {
+import { approvedExternalCDNs, approvedSites, warnExternalCDNs, blockExternalCDNs, } from './ApprovedLibraries';
+
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './interface';
+
+  export async function fetchSnippetCherry( context: any, libraryPicker: string , libraryItemPicker: string ) {
 
     let fileURL = libraryPicker + "/" + libraryItemPicker;
 

@@ -5,8 +5,10 @@ import { IWebpartBannerProps, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNp
 
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, approvedFileTypes, approvedExternalCDNs, approvedSites, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , warnExternalCDNs, blockExternalCDNs, SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons } from './ApprovedLibraries';
+import { approvedExternalCDNs, approvedSites, warnExternalCDNs, blockExternalCDNs, } from './Security10/ApprovedLibraries';
+
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './Security10/interface';
 
 export type ICDNMode = 'Webs' | 'Libraries';
 

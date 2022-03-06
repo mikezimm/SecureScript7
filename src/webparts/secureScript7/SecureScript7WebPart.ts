@@ -46,11 +46,16 @@ import { ISecureScript7Props, ICDNMode } from './components/ISecureScript7Props'
 
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import { approvedLibraries, approvedSites, approvedFileTypes, approvedExternalCDNs,IApprovedCDNs , ISecurityProfile, IFetchInfo } from './components/ApprovedLibraries';
+
+import { approvedLibraries, approvedExternalCDNs, approvedSites, warnExternalCDNs, blockExternalCDNs, } from './components/Security10/ApprovedLibraries';
+
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './components/Security10/interface';
+
 
 // import { fetchSnippet } from './loadDangerous';
-import { fetchSnippetMike } from './components/FetchCode';
-import { executeScript } from './components/EvalScripts';
+import { fetchSnippetMike } from './components/Security10/FetchCode';
+import { executeScript } from './components/Security10/EvalScripts';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
