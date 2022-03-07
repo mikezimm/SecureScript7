@@ -15,15 +15,17 @@ import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} fro
 import { approvedSites, } from './Security20/ApprovedLibraries';
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IPolicyFlag } from './Security20/interface';
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IPolicyFlag, IPolicyFlagLevel } from './Security20/interface';
 
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
 const pivotHeading0 : ICDNCheck = 'ExternalBlock';  //2022-01-31: Added Pivot Tiles
 const pivotHeading1 : ICDNCheck = 'ExternalWarn';  //Templates
 const pivotHeading2 : ICDNCheck = 'WWW';  //Templates
+const pivotHeadingV : ICDNCheck = 'Verify';  //Templates
 const pivotHeading3 : ICDNCheck = 'ExternalApproved';  //Templates
 const pivotHeading4 : ICDNCheck = 'Tenant';  //Templates
+const pivotHeadingL : ICDNCheck = 'Local';  //Templates
 const pivotHeading5 : ICDNCheck = 'SecureCDN';  //Templates
 const pivotHeading6 : ICDNCheck = 'Nothing';  //Templates
 const pivotHeading7 : IApprovedFileType = 'js';  //Templates
@@ -92,6 +94,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private tagPageNoteHTML = 'HTML Files';
   private tagPageNoteIMG = 'Image Files';
   private tagPageNoteLINK = 'Attribute Links';
+  private tagPageNoteLOCAL = 'Local Files';
+  private tagPageNoteVERIFY = 'Verify Tag';
+
 
   private page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.block ) ;
   private page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns, this.props.fetchInfo.policyFlags.warn );
@@ -106,6 +111,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private page9 = this.buildTagPage( this.props.fetchInfo.html, this.tagPageNoteHTML );
   private page10 = this.buildTagPage( this.props.fetchInfo.img, this.tagPageNoteIMG );
   private page11 = this.buildTagPage( this.props.fetchInfo.link, this.tagPageNoteLINK );
+  
+  private pageL = this.buildTagPage( this.props.fetchInfo.local, this.tagPageNoteLOCAL );
+  private pageV = this.buildTagPage( this.props.fetchInfo.verify, this.tagPageNoteVERIFY, [], 'verify' );
+
+
 
   private pivotBlocked = <PivotItem headerText={'Blocked'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading0)] }/>;
   private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading1)] }/>;
@@ -114,6 +124,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pivotTenant = <PivotItem headerText={'Tenant'} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading4)] }/>;
   private pivotSecure = <PivotItem headerText={'Secure'} ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading5)] }/>;
   private pivotNothing = <PivotItem headerText={ 'Nothing' } ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={pivotHeading6} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading6)] }/>;
+
+  private pivotVerify = <PivotItem headerText={ 'Verify' } ariaLabel={pivotHeadingV} title={pivotHeadingV} itemKey={pivotHeadingV} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeadingV)] }/>;
+  private pivotLocal = <PivotItem headerText={ 'Local' } ariaLabel={pivotHeadingL} title={pivotHeadingL} itemKey={pivotHeadingL} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeadingL)] }/>;
 
   private pivotJS = <PivotItem headerText={ null } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={pivotHeading7} itemIcon={ 'JS' }/>;
   private pivotCSS = <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'CSS' }/>;
@@ -192,6 +205,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML );
       this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG );
       this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK );
+
+      this.pageL = this.buildTagPage( fetchInfo.local, this.tagPageNoteLOCAL );
+      this.pageV = this.buildTagPage( fetchInfo.verify, this.tagPageNoteVERIFY, [], 'verify' );
 
       this._updateStateOnPropsChange({});
     }
@@ -303,6 +319,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( this.state.selectedKey === pivotHeading10 ) { thisPage = this.page10[toggleTag]; } else 
         if ( this.state.selectedKey === pivotHeading11 ) { thisPage = this.page11[toggleTag]; } else 
 
+        if ( this.state.selectedKey === pivotHeadingV ) { thisPage = this.pageV[toggleTag]; } else 
+        if ( this.state.selectedKey === pivotHeadingL ) { thisPage = this.pageL[toggleTag]; } else 
+        if ( this.state.selectedKey === pivotHeading11 ) { thisPage = this.page11[toggleTag]; } else 
+
         if ( this.state.selectedKey === 'raw' ) { thisPage = <div>{ fetchInfo.snippet }</div> ; }
 
         let pivotItems: any [] = [];
@@ -312,8 +332,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( fetchInfo.www.length > 0 ) { pivotItems.push( this.pivotWWW ); }
         if ( fetchInfo.extApp.length > 0 ) { pivotItems.push( this.pivotExtApp ); }
         if ( fetchInfo.tenant.length > 0 ) { pivotItems.push( this.pivotTenant ); }
+        if ( fetchInfo.local.length > 0 ) { pivotItems.push( this.pivotLocal ); }
         if ( fetchInfo.secure.length > 0 ) { pivotItems.push( this.pivotSecure ); }
         if ( fetchInfo.nothing.length > 0 ) { pivotItems.push( this.pivotNothing ); }
+
+        if ( fetchInfo.verify.length > 0 ) { pivotItems.push( this.pivotVerify ); }
     
         if ( fetchInfo.js.length > 0 ) { pivotItems.push( this.pivotJS ); }
         if ( fetchInfo.css.length > 0 ) { pivotItems.push( this.pivotCSS ); }
@@ -401,12 +424,22 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     );
   }
 
-  private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [] ) {
+
+  private getTagColor( level: IPolicyFlagLevel ) {
+    let color = '';
+    if ( level === 'block' ) { color = 'crimson' ; } else
+    if ( level === 'warn' ) { color = 'darkviolet' ; } else
+    if ( level === 'verify' ) { color = 'blue' ; } 
+    return color;
+  }
+
+  private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'verify' | '' = '' ) {
 
     let files = tagsInfo.map( ( tag, idx ) => {
-      // return <tr><td>{( idx + 1 )}</td><td>{ tag.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
-      let color = tag.policyFlags.level === 'block' ? 'crimson' : tag.policyFlags.level === 'warn' ? 'darkviolet' : '';
-      return <tr style={{color: color }}><td>{( idx + 1 )}</td><td>{ tag.policyFlags.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
+      // return <tr><td>{ idx }</td><td>{ tag.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
+      let color = this.getTagColor( tag.policyFlags.level ) ;
+      let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
+      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
     });
 
     let fileTable = <table>
@@ -415,9 +448,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let tags = tagsInfo.map( ( tag, idx ) => {
       let parts = tag.tag.split( tag.file );
-      let color = tag.policyFlags.level === 'block' ? 'crimson' : tag.policyFlags.level === 'warn' ? 'darkviolet' : '';
+      let color = this.getTagColor( tag.policyFlags.level ) ;
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.file }`}</b>{`${ parts[1] }`}</td>;
-      return <tr style={{color: color }}><td>{( idx + 1 )}</td><td>{ tag.policyFlags.level }</td><td>{ tag.type }</td>{ tagCell }</tr>;
+      let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
+      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td>{ tagCell }</tr>;
     });
 
     let tagTable = <table>
@@ -425,7 +459,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     </table>;
 
     let policies = policyFlags.map( ( policy, idx ) => {
-      return <tr><td>{( idx + 1 )}</td><td>{ policy.level }</td><td>{ policy.type }</td><td>{ policy.cdn }</td></tr>;
+      return <tr><td>{ idx }</td><td>{ policy.level }</td><td>{ policy.type }</td><td>{ policy.cdn }</td></tr>;
     });
 
     let policyMessage =  policyFlags.length === 0 ? null : <div style={{paddingBottom: '30px' }}>

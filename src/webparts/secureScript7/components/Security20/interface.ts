@@ -38,16 +38,20 @@ export interface ITagInfo {
       block: string[];
   }
 
-  export type IPolicyFlagLevel = 'warn' | 'block' | 'form' | 'none';
+  export type IPolicyFlagLevel = 'warn' | 'block' | 'verify' | 'none';
 
   export interface IPolicyFlags {
     block: IPolicyFlag[];
     warn: IPolicyFlag[];
+    verify: IPolicyFlag[];
     none: IPolicyFlag[];
   }
 
+  export type IVerifyType = '+=' | '+' | '-' | '+-' | '++'  | '=' | 'length' ;
+
   export interface IPolicyFlag {
     level: IPolicyFlagLevel;
+    verify: IVerifyType[];
     type: IApprovedFileType;
     cdn: string;
     key: string;
@@ -69,21 +73,23 @@ export interface ITagInfo {
         regexTime: number;
         nothing:ITagInfo[];
         secure:ITagInfo[];
+        local:ITagInfo[];
         tenant:ITagInfo[];
         extApp:ITagInfo[];
         warns:ITagInfo[];
         blocks:ITagInfo[];
+        verify:ITagInfo[];
         www:ITagInfo[];
         policyFlags: IPolicyFlags;
   }
 
-  export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Tenant' | 'ExternalApproved' | 'ExternalWarn' | 'ExternalBlock' | 'WWW' | 'TBD';
+  export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Local' | 'Tenant' | 'ExternalApproved' | 'ExternalWarn' | 'ExternalBlock' | 'Verify' | 'WWW' | 'TBD';
 
   //This tells the rank order from Highest security to lowest
-  export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Tenant' ,          'ExternalApproved' ,  'ExternalWarn', 'WWW' ,  'ExternalBlock' ];
-  export const SourceSecurityRankIcons: string[] = [ 'CircleShape' , 'BlockedSiteSolid12' , 'SharepointLogo' ,  'GlobeFavorite' ,     'ErrorBadge',   'Globe' ,       'BlockedSiteSolid12' ];
-  export const SourceSecurityRankColor: string[] = [ 'black' ,       'green' ,              'blue' ,            'purple' ,            'black',        'black' ,  'red' ];
-  export const SourceSecurityRankBackG: string[] = [ 'lightgray' ,   'white' ,              'white' ,           'white' ,             'yellow',       'white' ,  'yellow' ];
+  export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExternalApproved' ,  'ExternalWarn',   'Verify',     'WWW' ,  'ExternalBlock' ];
+  export const SourceSecurityRankIcons: string[] = [ 'CircleShape' , 'BlockedSiteSolid12' , 'SharepointLogo',   'SharepointLogo' ,  'GlobeFavorite' ,     'ErrorBadge',     'TagUnknown', 'Globe' ,       'BlockedSiteSolid12' ];
+  export const SourceSecurityRankColor: string[] = [ 'black' ,       'green' ,              'blue',             'blue' ,            'purple' ,            'black',          'black',      'black' ,  'red' ];
+  export const SourceSecurityRankBackG: string[] = [ 'lightgray' ,   'white' ,              'white',            'white' ,           'white' ,             'yellow',         'yellow',     'white' ,  'yellow' ];
 
   export interface ISecurityProfile {
     cssWarn: ICDNCheck;

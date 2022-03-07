@@ -65,15 +65,18 @@ export function baseFetchInfo( warning: string ) {
         regexTime: 0,
         nothing:[],
         secure:[],
+        local:[],
         tenant:[],
         extApp:[],
         warns:[],
         blocks:[],
+        verify: [],
         www:[],
         policyFlags: {
             warn: [],
             block: [],
             none: [],
+            verify: [],
         },
     };
 
@@ -155,6 +158,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     let policyFlags: IPolicyFlags = {
         warn: [],
         block: [],
+        verify: [],
         none: [],
     };
 
@@ -183,31 +187,40 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         regexTime: postRegexTime.getTime() - postFetchTime.getTime(),
         nothing: [],
         secure: [],
+        local: [],
         tenant: [],
         extApp: [],
         warns: [],
         blocks: [],
+        verify: [],
         www: [],
         policyFlags: policyFlags,
     };
 
     let allTags = [ ...scripts, ...css, ...img, ...link ];
 
+    //export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExternalApproved' ,  'ExternalWarn',   'Verify',     'WWW' ,  'ExternalBlock' ];
     allTags.map( tag => {
         if ( tag.rank === 0 ) { result.nothing.push( tag ) ; } else
         if ( tag.rank === 1 ) { result.secure.push( tag ) ; } else
-        if ( tag.rank === 2 ) { result.tenant.push( tag ) ; } else
-        if ( tag.rank === 3 ) { result.extApp.push( tag ) ; } else
-        if ( tag.rank === 4 ) { result.warns.push( tag ) ; } else
-        if ( tag.rank === 5 ) { result.www.push( tag ) ; } else
-        if ( tag.rank === 6 ) { result.blocks.push( tag ) ; }
+        if ( tag.rank === 2 ) { result.local.push( tag ) ; } else
+        if ( tag.rank === 3 ) { result.tenant.push( tag ) ; } else
+        if ( tag.rank === 4 ) { result.extApp.push( tag ) ; } else
+        if ( tag.rank === 5 ) { result.warns.push( tag ) ; } else
+        if ( tag.rank === 7 ) { result.www.push( tag ) ; } else
+        if ( tag.rank === 8 ) { result.blocks.push( tag ) ; }
+
+        if ( tag.policyFlags.verify.length > 0 ) { result.verify.push( tag ) ; }
+
     });
 
-    //[ 'Nothing' ,     'SecureCDN' ,          'Tenant' ,          'ExternalApproved' ,  'ExternalWarn', 'WWW' ,  'ExternalBlock' ];
+    //This determines the default tab selected in Code Pane Tags
     if ( result.blocks.length > 0 ) { result.selectedKey = 'ExternalBlock' ; } else
     if ( result.warns.length > 0 ) { result.selectedKey = 'ExternalWarn' ; } else
     if ( result.www.length > 0 ) { result.selectedKey = 'WWW' ; } else
+    if ( result.verify.length > 0 ) { result.selectedKey = 'Verify' ; } else
     if ( result.extApp.length > 0 ) { result.selectedKey = 'ExternalApproved' ; } else
+    if ( result.local.length > 0 ) { result.selectedKey = 'Local' ; } else
     if ( result.secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
     if ( result.nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }
 
@@ -217,18 +230,31 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
 }
 
+//This will get all instances of '+' except any '++' or '+=' or '+-'
+export const regexJustPlus = /[^\+]\+[^\+\=\-]/gi;
+export const regexJustEqual = /[^\+]\=/gi;
+export const regexPlusPlus = /\+\+/gi;
+export const regexPlusMinus = /\+\-/gi;
+export const regexPlusEqual = /\+\=/gi;
+
+
 export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, file: string, SecureFileProfile: IFileTypeSecurity ) {
     let styleRegex = /style=[\"'](.+?)[\"'].*?/gi;
     let styleTagCheck = tag.match(styleRegex);
     let styleTag = styleTagCheck === null ? '' : styleTagCheck[0];
     let lcFile = file.toLowerCase();
-    let policyFlags: IPolicyFlag = { cdn: '', level: 'none', type: type, key: `none` };
+    let policyFlags: IPolicyFlag = { cdn: '', level: 'none', type: type, key: `none`, verify: [] };
 
     let fileLocaton : ICDNCheck = 'TBD';
     approvedSites.map( site => {
         if (lcFile.indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) === 0 ) { fileLocaton = 'SecureCDN';  } else 
         if (lcFile.indexOf( `${window.origin}${site.siteRelativeURL.toLowerCase()}/` ) === 0 ) { fileLocaton = 'SecureCDN';  }   
     });
+
+    if ( fileLocaton === 'TBD' ) {
+        if (lcFile.indexOf( `./` ) === 0 ) { fileLocaton = 'Local' ; } else
+        if (lcFile.indexOf( `../` ) === 0 ) { fileLocaton = 'Local' ; }
+    }
 
     if ( fileLocaton === 'TBD' ) {
         if (lcFile.indexOf( `/sites/` ) === 0 ) { fileLocaton = 'Tenant' ; } else
@@ -247,7 +273,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
             let idx = lcFile.indexOf( site.toLowerCase() );
             if ( idx === 0 ) { 
                 fileLocaton = 'ExternalWarn' ;
-                policyFlags = { cdn: site, level: 'warn', type: type, key: `warn: ${type}-${site}` }  ;
+                policyFlags = { cdn: site, level: 'warn', type: type, key: `warn: ${type}-${site}`, verify: [] }  ;
             }
         });
     }
@@ -257,16 +283,31 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
             let idx = lcFile.indexOf( site.toLowerCase() );
             if ( idx === 0 ) { 
                 fileLocaton = 'ExternalBlock' ;
-                policyFlags = { cdn: site, level: 'block', type: type, key: `block: ${type}-${site}` } ;
+                policyFlags = { cdn: site, level: 'block', type: type, key: `block: ${type}-${site}`, verify: [] } ;
             }
         });
     }
 
-    if ( fileLocaton === 'TBD' ) { fileLocaton = 'WWW';  }
+    if ( fileLocaton === 'TBD' ) { 
+        fileLocaton = 'WWW';
+    }
 
+    let justPlus = file.match(regexJustPlus);
+
+    if ( file.match(regexJustPlus) !== null ) { policyFlags.verify.push( '+' ) ; }
+    if ( file.match(regexPlusPlus) !== null ) { policyFlags.verify.push( '++' ) ; }
+    if ( file.match(regexPlusMinus) !== null  ) { policyFlags.verify.push( '+-' ) ; }
+    if ( file.match(regexPlusEqual) !== null ) { policyFlags.verify.push( '+=' ) ; }
+    if ( file.match(regexJustEqual) !== null ) { policyFlags.verify.push( '=' ) ; }
+    if ( file.length > 255 ) { policyFlags.verify.push( 'length' ) ; }
+
+    if ( policyFlags.verify.length > 0 && policyFlags.level === 'none' ) { policyFlags.level = 'verify'; }
+    
     //Found an example where image file had extra " at the end of the string.
     //"<img style="padding-left:20px;vertical-align:text-bottom" src="https://tenant.sharepoint.com/sites/CRS/Templates/icons/SharePointParentSiteUpArrowIcon.jpg">"
     file = file.replace('"','');
+
+    //export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExternalApproved' ,  'ExternalWarn',   'Verify',     'WWW' ,  'ExternalBlock' ];
 
     let rank = SourceSecurityRank.indexOf( fileLocaton );
 
