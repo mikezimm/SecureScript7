@@ -48,6 +48,12 @@ export const imgSrcRegex = /<img[\s\S]*?src=[\"'](.+?)\.(jpg|jpeg|png|webp|avif|
 //For this, get match and then look for src tag to get the extension
 export const linkSrcRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?>/gi;
 
+//This gets all a tags and finds the hrefs in them
+//For this, get match and then look for src tag to get the extension
+export const linkHrefRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?<\/a>/gi;
+export const linkHrefSingleQuoteRegex = /<a[\s\S]*?href\=[\"](.+?)[\"].*?<\/a>/gi;
+export const linkHrefDoubleQuoteRegex = /<a[\s\S]*?href\=['](.+?)['].*?<\/a>/gi;
+
 export function baseFetchInfo( warning: string ) {
     let base: IFetchInfo = {
         snippet: '',
@@ -213,7 +219,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
     });
 
-    CHECK WHY THIS DOES NOT GIVE VERIFY TAB ANY MORE
+    // CHECK WHY THIS DOES NOT GIVE VERIFY TAB ANY MORE
     ///SecureScriptTesting/Gulpy/SitePages/Site-Audit-Test.aspx?debug=true&noredir=true&debugManifestsFile=https%3a//localhost%3a4321/temp/manifests.js
 
     //This determines the default tab selected in Code Pane Tags
