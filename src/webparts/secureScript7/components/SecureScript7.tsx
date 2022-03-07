@@ -95,7 +95,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private tagPageNoteIMG = 'Image Files';
   private tagPageNoteLINK = 'Attribute Links';
   private tagPageNoteLOCAL = 'Local Files';
-  private tagPageNoteVERIFY = 'Verify Tag';
+  private tagPageNoteVERIFY = 'Verify Tags';
 
 
   private page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.block ) ;
