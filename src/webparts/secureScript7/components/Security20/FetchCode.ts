@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import {SPHttpClient, SPHttpClientResponse} from '@microsoft/sp-http';
 
-import { Icon, ITag } from 'office-ui-fabric-react';
+import { Icon, ITag, mergeOverflows } from 'office-ui-fabric-react';
 
 //encodeDecodeString(this.props.libraryPicker, 'decode')
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
@@ -212,6 +212,9 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         if ( tag.rank === 8 ) { result.blocks.push( tag ) ; }
 
     });
+
+    CHECK WHY THIS DOES NOT GIVE VERIFY TAB ANY MORE
+    ///SecureScriptTesting/Gulpy/SitePages/Site-Audit-Test.aspx?debug=true&noredir=true&debugManifestsFile=https%3a//localhost%3a4321/temp/manifests.js
 
     //This determines the default tab selected in Code Pane Tags
     if ( result.blocks.length > 0 ) { result.selectedKey = 'ExternalBlock' ; } else
