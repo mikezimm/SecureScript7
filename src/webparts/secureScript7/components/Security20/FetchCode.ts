@@ -207,10 +207,9 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         if ( tag.rank === 3 ) { result.tenant.push( tag ) ; } else
         if ( tag.rank === 4 ) { result.extApp.push( tag ) ; } else
         if ( tag.rank === 5 ) { result.warns.push( tag ) ; } else
+        if ( tag.rank === 6 ) { result.verify.push( tag ) ; } else
         if ( tag.rank === 7 ) { result.www.push( tag ) ; } else
         if ( tag.rank === 8 ) { result.blocks.push( tag ) ; }
-
-        if ( tag.policyFlags.verify.length > 0 ) { result.verify.push( tag ) ; }
 
     });
 
@@ -302,7 +301,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     if ( file.length > 255 ) { policyFlags.verify.push( 'length' ) ; }
 
     if ( policyFlags.verify.length > 0 && policyFlags.level === 'none' ) { policyFlags.level = 'verify'; }
-    
+
     //Found an example where image file had extra " at the end of the string.
     //"<img style="padding-left:20px;vertical-align:text-bottom" src="https://tenant.sharepoint.com/sites/CRS/Templates/icons/SharePointParentSiteUpArrowIcon.jpg">"
     file = file.replace('"','');

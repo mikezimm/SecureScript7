@@ -429,7 +429,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let color = '';
     if ( level === 'block' ) { color = 'crimson' ; } else
     if ( level === 'warn' ) { color = 'darkviolet' ; } else
-    if ( level === 'verify' ) { color = 'blue' ; } 
+    if ( level === 'verify' ) { color = 'blue' ; }
     return color;
   }
 
