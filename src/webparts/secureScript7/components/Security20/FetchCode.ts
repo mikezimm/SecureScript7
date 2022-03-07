@@ -261,6 +261,9 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
 
     if ( fileLocaton === 'TBD' ) {
         if (lcFile.indexOf( `./` ) === 0 ) { fileLocaton = 'Local' ; } else
+        if (lcFile === '#' ) { fileLocaton = 'Local' ; } else
+        if (lcFile ==="href='#'" ) { fileLocaton = 'Local' ; } else
+        if (lcFile ==='href="#"' ) { fileLocaton = 'Local' ; } else
         if (lcFile.indexOf( `../` ) === 0 ) { fileLocaton = 'Local' ; }
     }
 
