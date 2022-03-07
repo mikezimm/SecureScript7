@@ -69,33 +69,33 @@ export const masterBlockExternalCDNs: string[] = [
 ];
 
 export const jsCDNs : IFileTypeCDN = {
-    approved: ['https://js.blockme.com/'],
-    warn: ['https://js.blockme.com/'],
+    approved: ['https://js.approveme.com/'],
+    warn: ['https://js.warnme.com/'],
     block: ['https://js.blockme.com/'],
 };
 
 export const cssCDNs : IFileTypeCDN = {
-  approved: ['https://css.blockme.com/'],
-  warn: ['https://css.blockme.com/'],
+  approved: ['https://css.approveme.com/'],
+  warn: ['https://css.warnme.com/'],
   block: ['https://css.blockme.com/'],
 };
 
 export const imgCDNs : IFileTypeCDN = {
-  approved: ['https://img.blockme.com/'],
-  warn: ['https://img.blockme.com/'],
+  approved: ['https://img.approveme.com/'],
+  warn: ['https://img.warnme.com/'],
   block: ['https://img.blockme.com/'],
 };
 
 export const linkCDNs : IFileTypeCDN = {
-  approved: ['https://link.blockme.com/'],
-  warn: ['https://link.blockme.com/'],
+  approved: ['https://link.approveme.com/', 'https://msdn.microsoft.com/'],
+  warn: ['https://link.warnme.com/'],
   block: ['https://link.blockme.com/'],
 };
 
 //Currently only html from SecureCDN is valid.  This is just protecting for possible need
 export const htmlCDNs : IFileTypeCDN = {
-  approved: ['https://html.blockme.com/'],
-  warn: ['https://html.blockme.com/'],
+  approved: ['https://html.approveme.com/'],
+  warn: ['https://html.warnme.com/'],
   block: ['https://html.blockme.com/'],
 };
 

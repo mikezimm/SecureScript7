@@ -30,7 +30,8 @@ const pivotHeading7 : IApprovedFileType = 'js';  //Templates
 const pivotHeading8 : IApprovedFileType = 'css';  //Templates
 const pivotHeading9 : IApprovedFileType = 'html';  //Templates
 const pivotHeading10 : IApprovedFileType = 'img';  //Templates
-const pivotHeading11 : string = 'raw';  //Templates
+const pivotHeading11 : IApprovedFileType = 'link';  //Templates
+const pivotHeading12 : string = 'raw';  //Templates
 
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
 
@@ -90,6 +91,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private tagPageNoteCSS = 'CSS Files';
   private tagPageNoteHTML = 'HTML Files';
   private tagPageNoteIMG = 'Image Files';
+  private tagPageNoteLINK = 'Attribute Links';
 
   private page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.block ) ;
   private page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns, this.props.fetchInfo.policyFlags.warn );
@@ -103,6 +105,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private page8 = this.buildTagPage( this.props.fetchInfo.css, this.tagPageNoteCSS );
   private page9 = this.buildTagPage( this.props.fetchInfo.html, this.tagPageNoteHTML );
   private page10 = this.buildTagPage( this.props.fetchInfo.img, this.tagPageNoteIMG );
+  private page11 = this.buildTagPage( this.props.fetchInfo.link, this.tagPageNoteLINK );
 
   private pivotBlocked = <PivotItem headerText={'Blocked'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading0)] }/>;
   private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading1)] }/>;
@@ -116,6 +119,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pivotCSS = <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'CSS' }/>;
   private pivotHTML = <PivotItem headerText={ null } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={pivotHeading9} itemIcon={ 'FileHTML' }/>;
   private pivotIMG = <PivotItem headerText={ null } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={pivotHeading10} itemIcon={ 'Photo2' }/>;
+  private pivotLINK = <PivotItem headerText={ null } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={pivotHeading11} itemIcon={ 'Link' }/>;
   private pivotRAW = <PivotItem headerText={ 'raw' } ariaLabel={'raw'} title={'raw'} itemKey={'raw'} itemIcon={ 'Embed' }/>;
 
 
@@ -187,6 +191,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS );
       this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML );
       this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG );
+      this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK );
 
       this._updateStateOnPropsChange({});
     }
@@ -296,6 +301,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( this.state.selectedKey === pivotHeading8 ) { thisPage = this.page8[toggleTag]; } else 
         if ( this.state.selectedKey === pivotHeading9 ) { thisPage = this.page9[toggleTag]; } else 
         if ( this.state.selectedKey === pivotHeading10 ) { thisPage = this.page10[toggleTag]; } else 
+        if ( this.state.selectedKey === pivotHeading11 ) { thisPage = this.page11[toggleTag]; } else 
+
         if ( this.state.selectedKey === 'raw' ) { thisPage = <div>{ fetchInfo.snippet }</div> ; }
 
         let pivotItems: any [] = [];
@@ -312,6 +319,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( fetchInfo.css.length > 0 ) { pivotItems.push( this.pivotCSS ); }
         if ( fetchInfo.html.length > 0 ) { pivotItems.push( this.pivotHTML ); }
         if ( fetchInfo.img.length > 0 ) { pivotItems.push( this.pivotIMG ); }
+        if ( fetchInfo.link.length > 0 ) { pivotItems.push( this.pivotLINK ); }
         if ( fetchInfo.snippet ) { pivotItems.push( this.pivotRAW ); }
 
         let pivotContent = <div><Pivot
@@ -394,29 +402,43 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   }
 
   private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [] ) {
-    let files = tagsInfo.map( tag => {
-        return <div style={{paddingTop: '5px'}}>{ tag.file }</div>;
+
+    let files = tagsInfo.map( ( tag, idx ) => {
+      // return <tr><td>{( idx + 1 )}</td><td>{ tag.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
+      let color = tag.policyFlags.level === 'block' ? 'crimson' : tag.policyFlags.level === 'warn' ? 'darkviolet' : '';
+      return <tr style={{color: color }}><td>{( idx + 1 )}</td><td>{ tag.policyFlags.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
     });
 
-    let tags = tagsInfo.map( tag => {
+    let fileTable = <table>
+        { files }
+      </table>;
+
+    let tags = tagsInfo.map( ( tag, idx ) => {
       let parts = tag.tag.split( tag.file );
-      return <div style={{paddingTop: '5px'}}>{`${ parts[0] }`}<b>{`${ tag.file }`}</b>{`${ parts[1] }`}</div>;
+      let color = tag.policyFlags.level === 'block' ? 'crimson' : tag.policyFlags.level === 'warn' ? 'darkviolet' : '';
+      let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.file }`}</b>{`${ parts[1] }`}</td>;
+      return <tr style={{color: color }}><td>{( idx + 1 )}</td><td>{ tag.policyFlags.level }</td><td>{ tag.type }</td>{ tagCell }</tr>;
     });
 
-    let policies = policyFlags.map( policy => {
-      return <div style={{paddingTop: '5px'}}>{`${ policy.level }`}<b>{`${ policy.type }`}</b>{`${ policy.cdn }`}</div>;
+    let tagTable = <table>
+      { tags }
+    </table>;
+
+    let policies = policyFlags.map( ( policy, idx ) => {
+      return <tr><td>{( idx + 1 )}</td><td>{ policy.level }</td><td>{ policy.type }</td><td>{ policy.cdn }</td></tr>;
     });
 
     let policyMessage =  policyFlags.length === 0 ? null : <div style={{paddingBottom: '30px' }}>
       <div style={{fontSize: 'larger', fontWeight: 'bold' }}>Policies detected</div>
-      { policies }
+      <table>
+        { policies }
+      </table>
     </div>;
 
-    let messageDiv = <div style={{ paddingBottom:"10px", fontWeight: 'bold', display: 'grid' }}>{message}</div>;
+    let messageDiv = <div style={{ fontWeight: 'bold', display: 'grid' }}>{ `${message} - ( ${ tagsInfo.length } )` }</div>;
     let result = {
-      files: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ policyMessage  }{ messageDiv  }{ files }</div>,
-      tags: <div style={{ minHeight: '25vh', padding: '15px 20px 20px 20px'}}>{ policyMessage  }{ messageDiv  }{ tags }</div>,
-      
+      files: <div className = { styles.policies } >{ policyMessage  }{ messageDiv  }{ fileTable }</div>,
+      tags: <div className = { styles.policies } >{ policyMessage  }{ messageDiv  }{ tagTable }</div>,
       message: <div>{message}</div>
     };
 

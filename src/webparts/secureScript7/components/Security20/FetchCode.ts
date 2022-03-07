@@ -19,7 +19,7 @@ import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRa
 // let linkHrefRegex = /<link.+?href=[\"'](.+?)[\"'].*?>/gi;
 export const srcRegex = /src=[\"'](.+?)[\"'].*?/gi;
 
-// let hrefRegex = /href=[\"'](.+?)[\"'].*?/gi;
+export const hrefRegex = /href=[\"'](.+?)[\"'].*?/gi;
 
 // //This gets all js src tags that are .js
 // let srcJSRegex = /src=[\"'](.+?).js[\"'].*?/gi;
@@ -44,6 +44,10 @@ export const hrefCSSRegex2 = /<link[\s\S]*?href=[\"'](.+?).css[\"'].*?>/gi;
 //For this, get match and then look for src tag to get the extension
 export const imgSrcRegex = /<img[\s\S]*?src=[\"'](.+?)\.(jpg|jpeg|png|webp|avif|gif|svg)[\"'].*?>/gi;
 
+//This gets all a tags and finds the hrefs in them
+//For this, get match and then look for src tag to get the extension
+export const linkSrcRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?>/gi;
+
 export function baseFetchInfo( warning: string ) {
     let base: IFetchInfo = {
         snippet: '',
@@ -51,9 +55,9 @@ export function baseFetchInfo( warning: string ) {
         errorHTML: warning,
         js: [],
         css: [],
-        img:[],
-        links:[],
-        html:[],
+        img: [],
+        link: [],
+        html: [],
         preFetchTime: 0,
         postFetchTime: 0,
         postRegexTime: 0,
@@ -139,6 +143,14 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         return tagInfo;
     });
 
+    let linkTags = cleanHtmlFragment.match(linkSrcRegex);
+    let link : ITagInfo[] = linkTags === null ? [] : linkTags.map( tag => { 
+        let matchTag = tag.match(hrefRegex);
+        let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'link', createTag , securityProfile.link );
+        return tagInfo;
+    });
+
 
     let policyFlags: IPolicyFlags = {
         warn: [],
@@ -147,7 +159,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     };
 
     let policyKeys: string[] = [];
-    [...scripts, ...css, ...img ].map ( tag => {
+    [...scripts, ...css, ...img, ...link ].map ( tag => {
         if ( tag.policyFlags.level !== 'none' && policyKeys.indexOf( tag.policyFlags.key ) < 0 ) {
             policyKeys.push( tag.policyFlags.key );
             policyFlags[ tag.policyFlags.level ].push( tag.policyFlags );
@@ -161,8 +173,8 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         errorHTML: '',
         js: scripts,
         css: css,
-        img:img,
-        links:[],
+        img: img,
+        link: link,
         html:[],
         preFetchTime: preFetchTime.getTime(),
         postFetchTime: postFetchTime.getTime(),
@@ -179,7 +191,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         policyFlags: policyFlags,
     };
 
-    let allTags = [...scripts,...css,...img ];
+    let allTags = [ ...scripts, ...css, ...img, ...link ];
 
     allTags.map( tag => {
         if ( tag.rank === 0 ) { result.nothing.push( tag ) ; } else

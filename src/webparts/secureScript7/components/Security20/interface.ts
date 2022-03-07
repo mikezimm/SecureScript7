@@ -38,7 +38,7 @@ export interface ITagInfo {
       block: string[];
   }
 
-  export type IPolicyFlagLevel = 'warn' | 'block' | 'none';
+  export type IPolicyFlagLevel = 'warn' | 'block' | 'form' | 'none';
 
   export interface IPolicyFlags {
     block: IPolicyFlag[];
@@ -60,7 +60,7 @@ export interface ITagInfo {
         js: ITagInfo[];
         css: ITagInfo[];
         img:ITagInfo[];
-        links:ITagInfo[];
+        link:ITagInfo[];
         html:ITagInfo[];
         preFetchTime: number;
         postFetchTime: number;

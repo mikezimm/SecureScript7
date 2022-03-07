@@ -15,8 +15,8 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
 
     if ( ext !== '*' ) {
       fileTypeCDN.approved.map( cdn => { fullCDNs.approved.push(cdn ) ; } );
-      fileTypeCDN.warn.map( cdn => { fullCDNs.approved.push(cdn ) ; } );
-      fileTypeCDN.block.map( cdn => { fullCDNs.approved.push(cdn ) ; } );
+      fileTypeCDN.warn.map( cdn => { fullCDNs.warn.push(cdn ) ; } );
+      fileTypeCDN.block.map( cdn => { fullCDNs.block.push(cdn ) ; } );
     }
 
     let result : IFileTypeSecurity = {
@@ -35,8 +35,8 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
         ExternalBlock: 0,
       },
       level: {
-        warn: SecureProfile[`${ext}Warn`],
-        block: SecureProfile[`${ext}Block`],
+        warn: ext === '*' ? 'TBD' : SecureProfile[`${ext}Warn`],
+        block: ext === '*' ? 'TBD' : SecureProfile[`${ext}Block`],
       },
       cdns: fullCDNs,
     };
@@ -53,7 +53,7 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
       css: createFileTypeSecurity('css', 'CSS', 'All', cssCDNs ),
       html: createFileTypeSecurity('html', 'FileHTML', 'All', htmlCDNs ),
       img: createFileTypeSecurity('img', 'Photo2', 'All', imgCDNs ),
-      link: createFileTypeSecurity('link', '', 'All', linkCDNs ),
+      link: createFileTypeSecurity('link', 'Link', 'All', linkCDNs ),
     };
 
     return result;
