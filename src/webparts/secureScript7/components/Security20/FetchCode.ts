@@ -38,17 +38,15 @@ export const hrefCSSRegex = /href=[\"'](.+?).css[\"'].*?/gi;
 
 //This looks for href=*.css file within link tag
 //For this, get group and just add .css
-export const hrefCSSRegex2 = /<link[\s\S]*?href=[\"'](.+?).css[\"'].*?<\/link>/gi;
+export const hrefCSSRegex2 = /<link[\s\S]*?href=[\"'](.+?).css[\"'].*?>/gi;
 
 //This gets all js src tags that are .js
 //For this, get match and then look for src tag to get the extension
-export const imgSrcRegex = /<img[\s\S]*?src=[\"'](.+?)\.(jpg|jpeg|png|webp|avif|gif|svg)[\"'].*?<\/img>/gi;
+export const imgSrcRegex = /<img[\s\S]*?src=[\"'](.+?)\.(jpg|jpeg|png|webp|avif|gif|svg)[\"'].*?>/gi;
 
 //This gets all a tags and finds the hrefs in them
 //For this, get match and then look for src tag to get the extension
-export const linkHrefRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?<\/a>/gi;
-export const linkHrefSingleQuoteRegex = /<a[\s\S]*?href\=[\"](.+?)[\"].*?<\/a>/gi;
-export const linkHrefDoubleQuoteRegex = /<a[\s\S]*?href\=['](.+?)['].*?<\/a>/gi;
+export const linkSrcRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?>/gi;
 
 export function baseFetchInfo( warning: string ) {
     let base: IFetchInfo = {
@@ -117,7 +115,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
     let postFetchTime = new Date();
 
-    let cleanHtmlFragment = htmlFragment ; //.replace('\\\"','"');
+    let cleanHtmlFragment = htmlFragment.replace('\\\"','"');
 
     let scriptTags2 = cleanHtmlFragment.match(srcJSRegex2);
     let scriptTags3 = cleanHtmlFragment.match(srcJSRegex3);
@@ -148,12 +146,10 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         return tagInfo;
     });
 
-    // let linkTags = cleanHtmlFragment.match(linkHrefRegex);  linkHrefSingleQuoteRegex
-
-    let linkTags = cleanHtmlFragment.match(linkHrefSingleQuoteRegex);
+    let linkTags = cleanHtmlFragment.match(linkSrcRegex);
     let link : ITagInfo[] = linkTags === null ? [] : linkTags.map( tag => { 
-        let matchTag = tag.match(linkHrefSingleQuoteRegex);
-        let createTag = matchTag === null ? '' : matchTag[0].replace('href\'',"").replace('\'',"");
+        let matchTag = tag.match(hrefRegex);
+        let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
         let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'link', createTag , securityProfile.link );
         return tagInfo;
     });
@@ -204,26 +200,20 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     let allTags = [ ...scripts, ...css, ...img, ...link ];
 
     //export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExternalApproved' ,  'ExternalWarn',   'Verify',     'WWW' ,  'ExternalBlock' ];
-    let verifyList : string[] = [];
     allTags.map( tag => {
-
         if ( tag.rank === 0 ) { result.nothing.push( tag ) ; } else
-        if ( tag.rank === 8 ) { result.blocks.push( tag ) ; } else
-        if ( tag.rank === 5 ) { result.warns.push( tag ) ; } else
-        if ( tag.rank === 7 ) { result.www.push( tag ) ; } else
-        if ( tag.rank === 4 ) { result.extApp.push( tag ) ; } else 
-        if ( tag.rank === 6 ) { result.verify.push( tag ) ; } else
-        if ( tag.rank === 3 ) { result.tenant.push( tag ) ; } else
-        if ( tag.rank === 2 ) { result.local.push( tag ) ; } else
         if ( tag.rank === 1 ) { result.secure.push( tag ) ; } else
-
-        //This will catch everything previously put in other arrays like 
-        if ( tag.rank !== 6 && tag.policyFlags.verify.length > 0 ) { result.verify.push( tag ) ; }
+        if ( tag.rank === 2 ) { result.local.push( tag ) ; } else
+        if ( tag.rank === 3 ) { result.tenant.push( tag ) ; } else
+        if ( tag.rank === 4 ) { result.extApp.push( tag ) ; } else
+        if ( tag.rank === 5 ) { result.warns.push( tag ) ; } else
+        if ( tag.rank === 6 ) { result.verify.push( tag ) ; } else
+        if ( tag.rank === 7 ) { result.www.push( tag ) ; } else
+        if ( tag.rank === 8 ) { result.blocks.push( tag ) ; }
 
     });
 
-
-    // CHECK WHY THIS DOES NOT GIVE VERIFY TAB ANY MORE
+    CHECK WHY THIS DOES NOT GIVE VERIFY TAB ANY MORE
     ///SecureScriptTesting/Gulpy/SitePages/Site-Audit-Test.aspx?debug=true&noredir=true&debugManifestsFile=https%3a//localhost%3a4321/temp/manifests.js
 
     //This determines the default tab selected in Code Pane Tags
@@ -265,9 +255,6 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
 
     if ( fileLocaton === 'TBD' ) {
         if (lcFile.indexOf( `./` ) === 0 ) { fileLocaton = 'Local' ; } else
-        if (lcFile === '#' ) { fileLocaton = 'Local' ; } else
-        if (lcFile ==="href='#'" ) { fileLocaton = 'Local' ; } else
-        if (lcFile ==='href="#"' ) { fileLocaton = 'Local' ; } else
         if (lcFile.indexOf( `../` ) === 0 ) { fileLocaton = 'Local' ; }
     }
 
