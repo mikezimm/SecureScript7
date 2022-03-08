@@ -46,11 +46,19 @@ import { ISecureScript7Props, ICDNMode } from './components/ISecureScript7Props'
 
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import { approvedLibraries, approvedSites, approvedFileTypes, approvedExternalCDNs,IApprovedCDNs , ISecurityProfile, IFetchInfo } from './components/ApprovedLibraries';
+
+import { approvedSites, } from './components/Security20/ApprovedLibraries';
+import { approvedLibraries, } from './components/Security20/ApprovedPropPane';
+
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './components/Security20/interface';
+
+import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
+import { createAdvSecProfile } from './components/Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
 
 // import { fetchSnippet } from './loadDangerous';
-import { fetchSnippetMike } from './components/FetchCode';
-import { executeScript } from './components/EvalScripts';
+import { fetchSnippetMike } from './components/Security20/FetchCode';
+import { executeScript } from './components/Security20/EvalScripts';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
@@ -87,18 +95,20 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private fetchInstance: string = Math.floor(Math.random() * 79797979 ).toString();
 
-  private SecureProfile: ISecurityProfile = {
-    cssWarn: 'ExternalWarn', 
-    cssBlock: 'ExternalBlock', 
-    jsWarn: 'Nothing', 
-    jsBlock: 'Tenant', 
-    imgWarn: 'ExternalWarn', 
-    imgBlock: 'ExternalBlock',
-  };
+  // private SecureProfile: ISecurityProfile = {
+  //   cssWarn: 'ExternalWarn', 
+  //   cssBlock: 'ExternalBlock', 
+  //   jsWarn: 'Nothing', 
+  //   jsBlock: 'Tenant', 
+  //   imgWarn: 'ExternalWarn', 
+  //   imgBlock: 'ExternalBlock',
+  // };
 
   private expandoErrorObj = {
 
   };
+
+  private securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();
 
   // Only content from the approved libraries can be selected
   // Copied from CherryPickedCE
@@ -253,7 +263,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.snippet = '<mark>Web URL is not valid.</mark>';
   } else {
     // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
-    this.fetchInfo = await fetchSnippetMike( this.context, webPicker, libraryPicker, libraryItemPicker , this.SecureProfile );
+    this.fetchInfo = await fetchSnippetMike( this.context, webPicker, libraryPicker, libraryItemPicker , this.securityProfile );
     //Reset fetchInstance which triggers some updates in react component
     this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
   }
@@ -279,6 +289,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         bannerProps: bannerProps,
 
         //SecureScript props
+        securityProfile: this.securityProfile,
         displayMode: this.displayMode,
         cdnMode: this.cdnMode,
         cdnValid: this.cdnValid, 
@@ -299,131 +310,131 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     if ( this.fetchInfo.selectedKey !== 'ExternalBlock' ) {
       if ( this.displayMode === DisplayMode.Read ) {
-        this.executeScript(this.scriptElement);
+        executeScript(this.scriptElement, this._unqiueId, document );
       }
     }
 
   }
 
     
-    private evalScript(elem) {
-      console.log('Secure trace:  evalScript');
-    const data = (elem.text || elem.textContent || elem.innerHTML || "");
-    const headTag = document.getElementsByTagName("head")[0] || document.documentElement;
-    const scriptTag = document.createElement("script");
+  //   private evalScript(elem) {
+  //     console.log('Secure trace:  evalScript');
+  //   const data = (elem.text || elem.textContent || elem.innerHTML || "");
+  //   const headTag = document.getElementsByTagName("head")[0] || document.documentElement;
+  //   const scriptTag = document.createElement("script");
 
-    for (let i = 0; i < elem.attributes.length; i++) {
-        const attr = elem.attributes[i];
-        // Copies all attributes in case of loaded script relies on the tag attributes
-        if(attr.name.toLowerCase() === "onload"  ) continue; // onload handled after loading with SPComponentLoader
-        scriptTag.setAttribute(attr.name, attr.value);
-    }
+  //   for (let i = 0; i < elem.attributes.length; i++) {
+  //       const attr = elem.attributes[i];
+  //       // Copies all attributes in case of loaded script relies on the tag attributes
+  //       if(attr.name.toLowerCase() === "onload"  ) continue; // onload handled after loading with SPComponentLoader
+  //       scriptTag.setAttribute(attr.name, attr.value);
+  //   }
 
-    // set a bogus type to avoid browser loading the script, as it's loaded with SPComponentLoader
-    scriptTag.type = (scriptTag.src && scriptTag.src.length) > 0 ? "pnp" : "text/javascript";
-    // Ensure proper setting and adding id used in cleanup on reload
-    scriptTag.setAttribute("pnpname", this._unqiueId);
+  //   // set a bogus type to avoid browser loading the script, as it's loaded with SPComponentLoader
+  //   scriptTag.type = (scriptTag.src && scriptTag.src.length) > 0 ? "pnp" : "text/javascript";
+  //   // Ensure proper setting and adding id used in cleanup on reload
+  //   scriptTag.setAttribute("pnpname", this._unqiueId);
 
-    try {
-        // doesn't work on ie...
-        scriptTag.appendChild(document.createTextNode(data));
-    } catch (e) {
-        // IE has funky script nodes
-        scriptTag.text = data;
-    }
+  //   try {
+  //       // doesn't work on ie...
+  //       scriptTag.appendChild(document.createTextNode(data));
+  //   } catch (e) {
+  //       // IE has funky script nodes
+  //       scriptTag.text = data;
+  //   }
 
-    headTag.insertBefore(scriptTag, headTag.firstChild);
-  }
-
-  // Finds and executes scripts in a newly added element's body.
-  // Needed since innerHTML does not run scripts.
-  //
-  // Argument element is an element in the dom.
-  private async executeScript(element: HTMLElement) {
-    console.log('Secure trace:  executeScript');
-  // clean up added script tags in case of smart re-load
-  const headTag = document.getElementsByTagName("head")[0] || document.documentElement;
-  let scriptTags = headTag.getElementsByTagName("script");
-  for (let i = 0; i < scriptTags.length; i++) {
-      const scriptTag = scriptTags[i];
-      if(scriptTag.hasAttribute("pnpname") && scriptTag.attributes["pnpname"].value == this._unqiueId ) {
-          headTag.removeChild(scriptTag);
-      }
-  }
-
-  // if (this.properties.spPageContextInfo && !window["_spPageContextInfo"]) {
-  //     window["_spPageContextInfo"] = this.context.pageContext.legacyPageContext;
+  //   headTag.insertBefore(scriptTag, headTag.firstChild);
   // }
 
-  // if (this.properties.teamsContext && !window["_teamsContexInfo"]) {
-  //     window["_teamsContexInfo"] = this.context.sdks.microsoftTeams.context;
-  // }
+//   // Finds and executes scripts in a newly added element's body.
+//   // Needed since innerHTML does not run scripts.
+//   //
+//   // Argument element is an element in the dom.
+//   private async executeScript(element: HTMLElement) {
+//     console.log('Secure trace:  executeScript');
+//   // clean up added script tags in case of smart re-load
+//   const headTag = document.getElementsByTagName("head")[0] || document.documentElement;
+//   let scriptTags = headTag.getElementsByTagName("script");
+//   for (let i = 0; i < scriptTags.length; i++) {
+//       const scriptTag = scriptTags[i];
+//       if(scriptTag.hasAttribute("pnpname") && scriptTag.attributes["pnpname"].value == this._unqiueId ) {
+//           headTag.removeChild(scriptTag);
+//       }
+//   }
 
-  // Define global name to tack scripts on in case script to be loaded is not AMD/UMD
-  (<any>window).ScriptGlobal = {};
+//   // if (this.properties.spPageContextInfo && !window["_spPageContextInfo"]) {
+//   //     window["_spPageContextInfo"] = this.context.pageContext.legacyPageContext;
+//   // }
 
-  // main section of function
-  const scripts = [];
-  const children_nodes = element.getElementsByTagName("script");
+//   // if (this.properties.teamsContext && !window["_teamsContexInfo"]) {
+//   //     window["_teamsContexInfo"] = this.context.sdks.microsoftTeams.context;
+//   // }
 
-  for (let i = 0; children_nodes[i]; i++) {
-      const child: any = children_nodes[i];
-      if (!child.type || child.type.toLowerCase() === "text/javascript") {
-          scripts.push(child);
-      }
-  }
+//   // Define global name to tack scripts on in case script to be loaded is not AMD/UMD
+//   (<any>window).ScriptGlobal = {};
 
-  const urls = [];
-  const onLoads = [];
-  for (let i = 0; scripts[i]; i++) {
-      const scriptTag = scripts[i];
-      if (scriptTag.src && scriptTag.src.length > 0) {
-          urls.push(scriptTag.src);
-      }
-      if (scriptTag.onload && scriptTag.onload.length > 0) {
-          onLoads.push(scriptTag.onload);
-      }
-  }
+//   // main section of function
+//   const scripts = [];
+//   const children_nodes = element.getElementsByTagName("script");
 
-  let oldamd = null;
-  if (window["define"] && window["define"].amd) {
-      oldamd = window["define"].amd;
-      window["define"].amd = null;
-  }
+//   for (let i = 0; children_nodes[i]; i++) {
+//       const child: any = children_nodes[i];
+//       if (!child.type || child.type.toLowerCase() === "text/javascript") {
+//           scripts.push(child);
+//       }
+//   }
 
-  for (let i = 0; i < urls.length; i++) {
-     let scriptUrl: any = [];
-     let prefix = '';
-      try {
-        scriptUrl = urls[i];
-          // Add unique param to force load on each run to overcome smart navigation in the browser as needed
-          prefix = scriptUrl.indexOf('?') === -1 ? '?' : '&';
-          scriptUrl += prefix + 'pnp=' + new Date().getTime();
-          await SPComponentLoader.loadScript(scriptUrl, { globalExportsName: "ScriptGlobal" });
-      } catch (error) {
-        console.log('Secure trace:  error executeScript-prefix ', prefix);
-        console.log('Secure trace:  error executeScript-scriptUrl ', scriptUrl);
-          if (console.error) {
-              console.error(error);
-          }
-      }
-  }
-  if (oldamd) {
-      window["define"].amd = oldamd;
-  }
+//   const urls = [];
+//   const onLoads = [];
+//   for (let i = 0; scripts[i]; i++) {
+//       const scriptTag = scripts[i];
+//       if (scriptTag.src && scriptTag.src.length > 0) {
+//           urls.push(scriptTag.src);
+//       }
+//       if (scriptTag.onload && scriptTag.onload.length > 0) {
+//           onLoads.push(scriptTag.onload);
+//       }
+//   }
 
-  for (let i = 0; scripts[i]; i++) {
-      const scriptTag = scripts[i];
-      if (scriptTag.parentNode) { scriptTag.parentNode.removeChild(scriptTag); }
-      console.log('Secure trace:  evalScript ' + i, scripts[i]);
+//   let oldamd = null;
+//   if (window["define"] && window["define"].amd) {
+//       oldamd = window["define"].amd;
+//       window["define"].amd = null;
+//   }
 
-      this.evalScript(scripts[i]);
-  }
-  // execute any onload people have added
-  for (let i = 0; onLoads[i]; i++) {
-      onLoads[i]();
-  }
-}
+//   for (let i = 0; i < urls.length; i++) {
+//      let scriptUrl: any = [];
+//      let prefix = '';
+//       try {
+//         scriptUrl = urls[i];
+//           // Add unique param to force load on each run to overcome smart navigation in the browser as needed
+//           prefix = scriptUrl.indexOf('?') === -1 ? '?' : '&';
+//           scriptUrl += prefix + 'pnp=' + new Date().getTime();
+//           await SPComponentLoader.loadScript(scriptUrl, { globalExportsName: "ScriptGlobal" });
+//       } catch (error) {
+//         console.log('Secure trace:  error executeScript-prefix ', prefix);
+//         console.log('Secure trace:  error executeScript-scriptUrl ', scriptUrl);
+//           if (console.error) {
+//               console.error(error);
+//           }
+//       }
+//   }
+//   if (oldamd) {
+//       window["define"].amd = oldamd;
+//   }
+
+//   for (let i = 0; scripts[i]; i++) {
+//       const scriptTag = scripts[i];
+//       if (scriptTag.parentNode) { scriptTag.parentNode.removeChild(scriptTag); }
+//       console.log('Secure trace:  evalScript ' + i, scripts[i]);
+
+//       this.evalScript(scripts[i]);
+//   }
+//   // execute any onload people have added
+//   for (let i = 0; onLoads[i]; i++) {
+//       onLoads[i]();
+//   }
+// }
 
 
   private _getEnvironmentMessage(): string {
