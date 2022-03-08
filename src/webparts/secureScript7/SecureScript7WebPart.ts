@@ -218,6 +218,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       expandAlert: false,
       expandConsole: true,
 
+      replacePanelWarning: '<h2>replacePanelWarning</h2>',
       //Error info
       errMessage: errMessage,
       errorObjArray: errorObjArray, //In the case of Pivot Tiles, this is manualLinks[],

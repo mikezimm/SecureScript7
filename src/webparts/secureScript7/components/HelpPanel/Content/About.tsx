@@ -19,6 +19,7 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
         rows: [],
     };
 
+    table.rows.push( createAboutRow('2022-03-xx',"1.0.1.07","panelHTMLContent", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('2022-03-08',"1.0.1.06","#27, #21 - Add File Type security", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('2022-03-05',"1.0.1.05","Close #3, #22, #10 - add importProps functionality", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('"',"\"","#15 - whitelist CDNs, #19 - quick peek tags", showRepoLinks === true ? repoLinks : null ) );
