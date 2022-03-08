@@ -325,8 +325,8 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				} else if ( this.state.selectedKey === pivotHeading9 ) {  //2022-01-31: Added Pivot Tiles
 						content= <div id="CommandsJSONPanel" style={{paddingTop: '20px'}}>
 							<h3>Summary of Exportable Properties</h3>
-							<ReactJson src={ this.props.webpartHistory } name={ 'Webpart History' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-							<ReactJson src={ this.props.exportProps } name={ 'Export Properties' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+							<ReactJson src={ this.props.webpartHistory } name={ 'Webpart History' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+							<ReactJson src={ this.props.exportProps } name={ 'Export Properties' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
 						</div>;
 				}
 
