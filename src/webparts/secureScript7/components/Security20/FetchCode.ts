@@ -131,32 +131,36 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
     let scripts : ITagInfo[] = scriptTags === null ? [] : scriptTags.map( tag => { 
         let matchTag = tag.match(srcRegex);
+        let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'js', createTag, securityProfile.js  );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'js', createTag, fileOriginal, securityProfile.js  );
         return tagInfo;
     });
 
     let cssTags = cleanHtmlFragment.match(hrefCSSRegex2);
     let css : ITagInfo[] = cssTags === null ? [] : cssTags.map( tag => { 
         let matchTag = tag.match(hrefCSSRegex);
+        let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'css', createTag, securityProfile.css  );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'css', createTag, fileOriginal, securityProfile.css  );
         return tagInfo;
     });
 
     let imgTags = cleanHtmlFragment.match(imgSrcRegex);
     let img : ITagInfo[] = imgTags === null ? [] : imgTags.map( tag => { 
         let matchTag = tag.match(srcRegex);
+        let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('\"','"');
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'img', createTag , securityProfile.img );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'img', createTag , fileOriginal, securityProfile.img );
         return tagInfo;
     });
 
     let linkTags = cleanHtmlFragment.match(linkSrcRegex);
     let link : ITagInfo[] = linkTags === null ? [] : linkTags.map( tag => { 
         let matchTag = tag.match(hrefRegex);
+        let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'link', createTag , securityProfile.link );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'link', createTag , fileOriginal, securityProfile.link );
         return tagInfo;
     });
 
@@ -217,6 +221,9 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         if ( tag.rank === 7 ) { result.www.push( tag ) ; } else
         if ( tag.rank === 8 ) { result.blocks.push( tag ) ; }
 
+        //This will catch everything previously put in other arrays like 
+        if ( tag.rank !== 6 && tag.policyFlags.verify.length > 0 ) { result.verify.push( tag ) ; }
+
     });
 
     // CHECK WHY THIS DOES NOT GIVE VERIFY TAB ANY MORE
@@ -246,7 +253,7 @@ export const regexPlusMinus = /\+\-/gi;
 export const regexPlusEqual = /\+\=/gi;
 
 
-export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, file: string, SecureFileProfile: IFileTypeSecurity ) {
+export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, file: string, fileOriginal: string, SecureFileProfile: IFileTypeSecurity ) {
     let styleRegex = /style=[\"'](.+?)[\"'].*?/gi;
     let styleTagCheck = tag.match(styleRegex);
     let styleTag = styleTagCheck === null ? '' : styleTagCheck[0];
@@ -325,6 +332,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     let result : ITagInfo = {
         tag: tag,
         file: file,
+        fileOriginal: fileOriginal,
         type: type,
         status: '',
         styleTag: styleTag,

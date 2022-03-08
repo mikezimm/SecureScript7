@@ -447,9 +447,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       </table>;
 
     let tags = tagsInfo.map( ( tag, idx ) => {
-      let parts = tag.tag.split( tag.file );
+      let parts = tag.tag.split( tag.fileOriginal );
       let color = this.getTagColor( tag.policyFlags.level ) ;
-      let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.file }`}</b>{`${ parts[1] }`}</td>;
+      let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
       let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
       return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td>{ tagCell }</tr>;
     });

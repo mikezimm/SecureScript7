@@ -19,6 +19,7 @@ export interface IApprovedCDNs extends IPropertyPaneDropdownOption {
 export interface ITagInfo {
     tag: string;
     file: string;
+    fileOriginal: string;
     type: IApprovedFileType;
     status: string;
     styleTag: string;
