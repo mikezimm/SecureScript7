@@ -396,6 +396,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       showGoToParent={ this.props.bannerProps.showGoToParent }
       showGoToHome={ this.props.bannerProps.showGoToHome }
       onHomePage={ this.props.bannerProps.onHomePage }
+
+      webpartHistory={ this.props.webpartHistory }
       
       showBannerGear={ this.props.bannerProps.showBannerGear }
       

@@ -62,7 +62,12 @@ import { executeScript } from './components/Security20/EvalScripts';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 
+import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
+import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
+
+
 require('../../services/propPane/GrayPropPaneAccordions.css');
+
 
 export const repoLink: IRepoLinks = links.gitRepoSecureScript7Small;
 
@@ -118,6 +123,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private approvedSites = approvedSites;
   private approvedWebs = [];
 
+  //ADDED FOR WEBPART HISTORY:  
+  private thisHistoryInstance: IWebpartHistoryItem = null;
+
   private snippet: string = '';
   private fetchInfo: IFetchInfo = null;
 
@@ -127,6 +135,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private scriptElement : HTMLDivElement;
 
   protected onInit(): Promise<void> {
+    
+
     this._environmentMessage = this._getEnvironmentMessage();
 
     this.bannerElement = document.createElement('div');
@@ -137,6 +147,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.domElement.innerHTML = '<div></div>';
     this.domElement.appendChild(this.bannerElement);
     this.domElement.appendChild(this.scriptElement);
+
 
     return super.onInit().then(_ => {
       // other init code may be present
@@ -179,6 +190,14 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       if ( !this.properties.documentationLinkDesc || this.properties.documentationLinkDesc.length === 0 ) {
         this.properties.documentationLinkDesc = 'Documentation';
       }
+      
+      //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
+      this.thisHistoryInstance = createWebpartHistory( 'onInit' , 'new', this.context.pageContext.user.displayName );
+      let priorHistory : IWebpartHistoryItem[] = this.properties.webpartHistory ? this.properties.webpartHistory.history : [];
+      this.properties.webpartHistory = {
+        thisInstance: this.thisHistoryInstance,
+        history: priorHistory,
+      };
 
     });
   }
@@ -299,6 +318,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         //Banner related props
         errMessage: 'any',
         bannerProps: bannerProps,
+        webpartHistory: this.properties.webpartHistory,
 
         //SecureScript props
         securityProfile: this.securityProfile,
@@ -617,6 +637,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
 
+    //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
+    this.properties.webpartHistory = updateWebpartHistory( this.properties.webpartHistory , propertyPath , newValue, this.context.pageContext.user.displayName );
+
+    // console.log('webpartHistory:', this.thisHistoryInstance, this.properties.webpartHistory );
 
     if ( propertyPath === 'fpsImportProps' ) {
 

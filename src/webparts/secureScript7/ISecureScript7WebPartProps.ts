@@ -3,6 +3,9 @@
 
 import { IExpandAudiences } from "@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando";
 
+import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
+import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
+
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 
 export const changeExpando = [ 
@@ -72,6 +75,9 @@ export interface ISecureScript7WebPartProps {
       documentationLinkDesc: string;
       documentationLinkUrl: string;
       supportContacts: string;
+
+      //ADDED FOR WEBPART HISTORY:  
+      webpartHistory: IWebpartHistory;
 
       bannerHoverEffect: boolean;
       showTricks: boolean;
