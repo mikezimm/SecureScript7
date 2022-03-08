@@ -60,7 +60,7 @@ import { createAdvSecProfile } from './components/Security20/functions';  //secu
 import { fetchSnippetMike } from './components/Security20/FetchCode';
 import { executeScript } from './components/Security20/EvalScripts';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
-import { testTSX } from './temp';
+import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
@@ -176,7 +176,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.properties.showRepoLinks = false;
       this.properties.showExport = false;
       this.properties.fullPanelAudience = 'Item Editors';
-      this.properties.replacePanelHTML = testTSX();
+      if ( !this.properties.documentationLinkDesc || this.properties.documentationLinkDesc.length === 0 ) {
+        this.properties.documentationLinkDesc = 'Documentation';
+      }
 
     });
   }
@@ -185,7 +187,13 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   public async render() {
     this._unqiueId = this.context.instanceId;
 
+    this.properties.replacePanelHTML = visitorPanelInfo( this.properties );
+
     let errMessage = '';
+
+    if ( !this.properties.documentationLinkUrl || this.properties.documentationLinkUrl.length < 10 ) { errMessage += ' Need valid documentation Link' ; }
+    if ( !this.properties.supportContacts || this.properties.supportContacts.length < 10 ) { errMessage += ' Need valid Support Contacts' ; }
+
     let errorObjArray :  any[] =[];
 
     let libraryPicker = encodeDecodeString(this.properties.libraryPicker, 'decode');
@@ -755,6 +763,43 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   label: 'Show Code Audience',
                   options: expandAudienceChoicesAll,
                 }),
+              ]}, // this group
+            {
+              groupName: 'Visitor Help Info (required)',
+              isCollapsed: false,
+              groupFields: [
+
+                PropertyPaneTextField('panelMessageDescription1',{
+                  label: 'Panel Description',
+                  description: 'Optional message displayed at the top of the panel for the end user to see.'
+                }),
+
+                PropertyPaneTextField('panelMessageDocumentation',{
+                  label: 'Documentation message',
+                  description: 'Optional message to the user shown directly above the Documentation link',
+                }),
+
+                PropertyPaneTextField('documentationLinkUrl',{
+                  label: 'Documentation Link',
+                  description: 'REQUIRED:  A valid link to documentation'
+                }),
+
+                PropertyPaneTextField('documentationLinkDesc',{
+                  label: 'Documentation Link',
+                  description: 'Optional:  Text user sees as the clickable documentation link',
+                }),
+
+                PropertyPaneTextField('supportContacts',{
+                  label: 'Support Contacts',
+                  description: 'REQUIRED:  Contact information for issues '
+                }),
+
+                PropertyPaneTextField('panelMessageSupport',{
+                  label: 'Support Message',
+                  description: 'Optional message to the user when looking for support',
+                }),
+
+
               ]}, // this group
               FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
               FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group

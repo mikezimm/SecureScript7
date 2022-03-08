@@ -63,7 +63,15 @@ export interface ISecureScript7WebPartProps {
       homeParentGearAudience: IExpandAudiences;
 
       fullPanelAudience : IExpandAudiences;
-      replacePanelHTML : any;
+      replacePanelHTML : any;  //This is the jsx sent to panel for User controled information (aka what reader will see when clicking 'info' button)
+
+      //These are added for the minimum User Panel component ( which turns into the replacePanelHTML component )
+      panelMessageDescription1: string; //
+      panelMessageSupport: string;
+      panelMessageDocumentation: string;
+      documentationLinkDesc: string;
+      documentationLinkUrl: string;
+      supportContacts: string;
 
       bannerHoverEffect: boolean;
       showTricks: boolean;
