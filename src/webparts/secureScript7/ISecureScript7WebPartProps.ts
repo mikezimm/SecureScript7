@@ -62,10 +62,8 @@ export interface ISecureScript7WebPartProps {
       showGoToParent: boolean;  //defaults to true
       homeParentGearAudience: IExpandAudiences;
 
-
       fullPanelAudience : IExpandAudiences;
       replacePanelHTML : any;
-      
 
       bannerHoverEffect: boolean;
       showTricks: boolean;

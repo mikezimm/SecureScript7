@@ -60,6 +60,7 @@ import { createAdvSecProfile } from './components/Security20/functions';  //secu
 import { fetchSnippetMike } from './components/Security20/FetchCode';
 import { executeScript } from './components/Security20/EvalScripts';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
+import { testTSX } from './temp';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
@@ -174,7 +175,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       setExpandoRamicMode( this.context.domElement, this.expandoDefault, expandoStyle,  false, false, padding );
       this.properties.showRepoLinks = false;
       this.properties.showExport = false;
-      
+      this.properties.fullPanelAudience = 'Item Editors';
+      this.properties.replacePanelHTML = testTSX();
+
     });
   }
 
