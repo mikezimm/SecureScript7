@@ -35,6 +35,17 @@ const pivotHeading10 : IApprovedFileType = 'img';  //Templates
 const pivotHeading11 : IApprovedFileType = 'link';  //Templates
 const pivotHeading12 : string = 'raw';  //Templates
 
+const fileButtonStyles = {
+  backgroundColor: 'transparent',
+  color: 'black',
+  padding: '3px',
+  fontSize: '17px',
+  margin: '0',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  fontWeight: 'normal',
+};
+
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
 
   private currentPageUrl = this.props.bannerProps.pageContext.web.absoluteUrl + this.props.bannerProps.pageContext.site.serverRequestPath;
@@ -265,7 +276,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let bannerSuffix = '';
     //Exclude the props.bannerProps.title if the webpart is narrow to make more responsive
     let bannerTitle = this.props.bannerProps.bannerWidth < 900 ? bannerSuffix : `${this.props.bannerProps.title} - ${bannerSuffix}`;
-    if ( bannerTitle === '' ) { bannerTitle = 'Pivot Tiles' ; }
+    if ( bannerTitle === '' ) { bannerTitle = 'Secure Script 7' ; }
     if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ' JS Disabled during Edit' ; }
 
     let errorUnapprovedComponent = null;
@@ -439,7 +450,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       // return <tr><td>{ idx }</td><td>{ tag.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
       let color = this.getTagColor( tag.policyFlags.level ) ;
       let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
-      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
+      const newStyle = this.getColorStyle( color );
+      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
+      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
     });
 
     let fileTable = <table>
@@ -451,7 +464,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       let color = this.getTagColor( tag.policyFlags.level ) ;
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
       let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
-      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td>{ tagCell }</tr>;
+      const newStyle = this.getColorStyle( color );
+      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
+      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
     });
 
     let tagTable = <table>
@@ -480,6 +495,23 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   }
 
+  private getColorStyle ( color: string ) {
+    return {
+      backgroundColor: 'transparent',
+      color: color,
+      padding: '3px',
+      fontSize: '17px',
+      margin: '0',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      fontWeight: 'normal',
+    };
+
+  }
+  private goToFile() {
+
+
+  }
   private _selectedIndex = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;

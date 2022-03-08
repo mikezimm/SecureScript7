@@ -247,7 +247,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
 //This will get all instances of '+' except any '++' or '+=' or '+-'
 export const regexJustPlus = /[^\+]\+[^\+\=\-]/gi;
-export const regexJustEqual = /[^\+]\=/gi;
+export const regexJustEqual = /[^\+][^href]\=/gi;
 export const regexPlusPlus = /\+\+/gi;
 export const regexPlusMinus = /\+\-/gi;
 export const regexPlusEqual = /\+\=/gi;
@@ -267,6 +267,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     });
 
     if ( fileLocaton === 'TBD' ) {
+        if (lcFile.indexOf( `../../` ) === 0 ) { fileLocaton = 'Tenant' ; } else
         if (lcFile.indexOf( `./` ) === 0 ) { fileLocaton = 'Local' ; } else
         if (lcFile === '#' ) { fileLocaton = 'Local' ; } else
         if (lcFile ==="href='#'" ) { fileLocaton = 'Local' ; } else
@@ -317,7 +318,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     if ( file.match(regexPlusMinus) !== null  ) { policyFlags.verify.push( '+-' ) ; }
     if ( file.match(regexPlusEqual) !== null ) { policyFlags.verify.push( '+=' ) ; }
     if ( file.match(regexJustEqual) !== null ) { policyFlags.verify.push( '=' ) ; }
-    if ( file.length > 255 ) { policyFlags.verify.push( 'length' ) ; }
+    if ( tag.length > 255 ) { policyFlags.verify.push( 'length' ) ; }
 
     if ( policyFlags.verify.length > 0 && policyFlags.level === 'none' ) { policyFlags.level = 'verify'; }
 
