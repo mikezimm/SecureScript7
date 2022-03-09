@@ -5,6 +5,8 @@ import { IWebpartBannerProps, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNp
 
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
 
+import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
+
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
   IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './Security20/interface';
 
@@ -48,6 +50,9 @@ export interface ISecureScript7Props {
   fetchInfo: IFetchInfo;
   fetchInstance: string;
   showCodeIcon: boolean;
+
+    //ADDED FOR WEBPART HISTORY:  
+    webpartHistory: IWebpartHistory;
 
 }
 

@@ -49,6 +49,8 @@ const pivotStyles = {
 	//   textAlign: "center"
 	}};
 
+const pivotHeadingX = '';  //2022-01-31: Added Pivot Tiles
+
 const pivotHeading0 = 'Why';  //2022-01-31: Added Pivot Tiles
 const pivotHeading1 = 'Getting started';  //Templates
 const pivotHeading2 = 'Basics';  //Templates
@@ -61,41 +63,43 @@ const pivotHeading8 = 'About';  //Templates
 const pivotHeading9 = 'Export';  //Templates
 
 export default class WebpartBanner extends React.Component<IWebpartBannerProps, IWebpartBannerState > {
-		private hoverEffect = this.props.hoverEffect === false ? false : true;
+
+	private hoverEffect = this.props.hoverEffect === false ? false : true;
+
     private gettingStarted= gettingStartedContent( this.props.gitHubRepo );
     private basics= basicsContent( this.props.gitHubRepo );
     private advanced= advancedContent( this.props.gitHubRepo );
     private futurePlans= futureContent( this.props.gitHubRepo );
     private dev= devTable( );
-		private errors= errorsContent( this.props.gitHubRepo );
-		private tricks= tricksTable( this.props.gitHubRepo );
-		private about= aboutTable( this.props.gitHubRepo, this.props.showRepoLinks );
-		private whyMe= whyContent( this.props.gitHubRepo );  //2022-01-31: Added Pivot Tiles
+	private errors= errorsContent( this.props.gitHubRepo );
+	private tricks= tricksTable( this.props.gitHubRepo );
+	private about= aboutTable( this.props.gitHubRepo, this.props.showRepoLinks );
+	private whyMe= whyContent( this.props.gitHubRepo );  //2022-01-31: Added Pivot Tiles
 
-		private wideToggle = this.props.wideToggle === null || this.props.wideToggle === undefined ? true : this.props.wideToggle ;
+	private wideToggle = this.props.wideToggle === null || this.props.wideToggle === undefined ? true : this.props.wideToggle ;
 
-		private hasNear = this.props.nearElements.length > 0 ? true : false;
-		private hasFar = this.props.farElements.length > 0 ? true : false;
-		private hasNearOrFar = this.hasNear === true || this.hasFar === true ? true : false;
+	private hasNear = this.props.nearElements.length > 0 ? true : false;
+	private hasFar = this.props.farElements.length > 0 ? true : false;
+	private hasNearOrFar = this.hasNear === true || this.hasFar === true ? true : false;
 
-		private nearElements: any[] = [];
-		private showSettings() {  this.setState({ showSettings: !this.state.showSettings }); }
-		private showSettingsAsPivot = false;
+	private nearElements: any[] = [];
+	private showSettings() {  this.setState({ showSettings: !this.state.showSettings }); }
+	private showSettingsAsPivot = false;
 
-		private settingsContent: any = null;
-		private isShowTricks = this.props.showTricks;
-		private isSiteAdmin = this.props.pageContext.legacyPageContext.isSiteAdmin;
-		private isSiteOwner = this.isSiteAdmin === true ? true : this.props.pageContext.legacyPageContext.isSiteOwner;
+	private settingsContent: any = null;
+	private isShowTricks = this.props.showTricks;
+	private isSiteAdmin = this.props.pageContext.legacyPageContext.isSiteAdmin;
+	private isSiteOwner = this.isSiteAdmin === true ? true : this.props.pageContext.legacyPageContext.isSiteOwner;
 
-		private jumpToParentSite(  ) {
-			let e: any = event;
-			goToParentSite( e, this.props.pageContext );		
-		}
-		
-		private  jumpToHomePage( ) {
-			let e: any = event;
-			goToHomePage( e, this.props.pageContext );		
-		}
+	private jumpToParentSite(  ) {
+		let e: any = event;
+		goToParentSite( e, this.props.pageContext );		
+	}
+	
+	private  jumpToHomePage( ) {
+		let e: any = event;
+		goToHomePage( e, this.props.pageContext );		
+	}
 
     constructor(props: IWebpartBannerProps) {
 			super(props);
@@ -177,7 +181,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			this.state = {
 				keySiteProps: keySiteProps,
 				showPanel: false,
-				selectedKey: pivotHeading0,    //2022-01-31: Added Pivot Tiles
+				selectedKey: this.props.replacePanelHTML ? pivotHeadingX : pivotHeading0,    //2022-01-31: Added Pivot Tiles
 				panelType: PanelType.medium,
 				showSettings: false,
 				expandoramicMode: this.props.enableExpandoramic === true && this.props.expandoDefault === true ? true : false ,
@@ -248,11 +252,11 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 					<div style={ styleLeftTitle } onClick = { titleInfoOnClick } title={ bannerTitleText }> { bannerTitleText } </div>
 				</div>;
 
-		let bannerRight = this.props.farElements.length === 0 ? <div style={ styleFlexElements } onClick = { titleInfoOnClick } >{moreInfoText}</div> :
-			<div className={ styles.flexLeftNoWrapStart }>
-				<div style={ styleRightTitle } onClick = { titleInfoOnClick }  title={ 'More Information on webpart' }>{moreInfoText}</div>
-				{ this.props.farElements }
-			</div>;
+			let bannerRight = this.props.farElements.length === 0 ? <div style={ styleFlexElements } onClick = { titleInfoOnClick } >{moreInfoText}</div> :
+				<div className={ styles.flexLeftNoWrapStart }>
+					<div style={ styleRightTitle } onClick = { titleInfoOnClick }  title={ 'More Information on webpart' }>{moreInfoText}</div>
+					{ this.props.farElements }
+				</div>;
 
 			let showSettingStyle = this.showSettingsAsPivot === true ? styles.showSettingsPivot : styles.showSettingsFlex;
 
@@ -273,7 +277,12 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 			let panelContent = null;
 
-			if ( showPanel === true ) {
+			if ( showPanel === true && this.props.showFullPanel !== true ) {
+
+				//This is a message above the replacePanelHTML that is visible to those who can see all panel content
+				panelContent = this.props.replacePanelHTML;
+
+			} else if ( showPanel === true ) {
 				const webPartLinks =  <WebPartLinks 
 					parentListURL = { null } //Get from list item
 					childListURL = { null } //Get from list item
@@ -283,11 +292,17 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 					repoObject = { this.props.gitHubRepo }
 					showRepoLinks = { this.props.showRepoLinks }
-					
+
 				></WebPartLinks>;
 
 				let content = null;
-				if ( this.state.selectedKey === pivotHeading1 ) {
+				if ( this.state.selectedKey === pivotHeadingX ) {
+					console.log('Banner component -build content');
+					content = <div>
+						<div style={{ padding: '10px 20px 20px 20px', background: 'yellow', marginTop: '20px' }}>{ this.props.replacePanelWarning }</div>
+						<div>{ this.props.replacePanelHTML }</div>
+					</div>;
+				} else if ( this.state.selectedKey === pivotHeading1 ) {
 						content = this.gettingStarted;
 				} else if ( this.state.selectedKey === pivotHeading2 ) {
 						content= this.basics;
@@ -308,11 +323,12 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				} else if ( this.state.selectedKey === pivotHeading9 ) {  //2022-01-31: Added Pivot Tiles
 						content= <div id="CommandsJSONPanel" style={{paddingTop: '20px'}}>
 							<h3>Summary of Exportable Properties</h3>
-							<ReactJson src={ this.props.exportProps } name={ 'Export Properties' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+							<ReactJson src={ this.props.webpartHistory } name={ 'Webpart History' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+							<ReactJson src={ this.props.exportProps } name={ 'Export Properties' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
 						</div>;
 				}
 
-				if ( this.state.selectedKey === pivotHeading9 ) {
+				if ( this.state.selectedKey === pivotHeading9 || this.state.selectedKey === pivotHeadingX ) {
 					thisPage = content;
 
 				} else {
@@ -372,6 +388,9 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 						*/}
 
 						{/* //2022-01-31: Added Pivot Tiles */}
+
+						{ this.props.replacePanelHTML == '' ? null : <PivotItem headerText={pivotHeadingX} ariaLabel={pivotHeadingX} title={pivotHeadingX} itemKey={pivotHeadingX} itemIcon={ 'SunQuestionMark' }/> }
+
 						{ this.whyMe === null ? null : <PivotItem headerText={pivotHeading0} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ 'QandA' }/> }
 
 						{ this.gettingStarted === null ? null : <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }/> }

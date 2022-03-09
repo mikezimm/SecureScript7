@@ -3,6 +3,11 @@
 
 import { IExpandAudiences } from "@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando";
 
+import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
+import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
+
+import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker";
+
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 
 export const changeExpando = [ 
@@ -61,6 +66,21 @@ export interface ISecureScript7WebPartProps {
       showGoToHome: boolean;  //defaults to true
       showGoToParent: boolean;  //defaults to true
       homeParentGearAudience: IExpandAudiences;
+
+      fullPanelAudience : IExpandAudiences;
+      replacePanelHTML : any;  //This is the jsx sent to panel for User controled information (aka what reader will see when clicking 'info' button)
+
+      //These are added for the minimum User Panel component ( which turns into the replacePanelHTML component )
+      panelMessageDescription1: string; //
+      panelMessageSupport: string;
+      panelMessageDocumentation: string;
+      documentationLinkDesc: string;
+      documentationLinkUrl: string;
+      documentationIsValid: boolean;
+      supportContacts: IPropertyFieldGroupOrPerson[];
+
+      //ADDED FOR WEBPART HISTORY:  
+      webpartHistory: IWebpartHistory;
 
       bannerHoverEffect: boolean;
       showTricks: boolean;

@@ -11,6 +11,10 @@ import {
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
+import { BaseComponentContext } from '@microsoft/sp-component-base';
+
+import { PropertyFieldPeoplePicker, PrincipalType } from '@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker';
+
 import { SPComponentLoader } from '@microsoft/sp-loader';
 
 import { createFPSWindowProps, initializeFPSSection, initializeFPSPage, webpartInstance, initializeMinimalStyle } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSDocument';
@@ -60,8 +64,14 @@ import { createAdvSecProfile } from './components/Security20/functions';  //secu
 import { fetchSnippetMike } from './components/Security20/FetchCode';
 import { executeScript } from './components/Security20/EvalScripts';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
+import { visitorPanelInfo } from './SecureScriptVisitorPanel';
+
+import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
+import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
+
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
+
 
 export const repoLink: IRepoLinks = links.gitRepoSecureScript7Small;
 
@@ -117,6 +127,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private approvedSites = approvedSites;
   private approvedWebs = [];
 
+  //ADDED FOR WEBPART HISTORY:  
+  private thisHistoryInstance: IWebpartHistoryItem = null;
+
   private snippet: string = '';
   private fetchInfo: IFetchInfo = null;
 
@@ -126,6 +139,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private scriptElement : HTMLDivElement;
 
   protected onInit(): Promise<void> {
+    
+
     this._environmentMessage = this._getEnvironmentMessage();
 
     this.bannerElement = document.createElement('div');
@@ -136,6 +151,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.domElement.innerHTML = '<div></div>';
     this.domElement.appendChild(this.bannerElement);
     this.domElement.appendChild(this.scriptElement);
+
 
     return super.onInit().then(_ => {
       // other init code may be present
@@ -174,7 +190,26 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       setExpandoRamicMode( this.context.domElement, this.expandoDefault, expandoStyle,  false, false, padding );
       this.properties.showRepoLinks = false;
       this.properties.showExport = false;
+
+      if ( !this.properties.fullPanelAudience || this.properties.fullPanelAudience.length === 0 ) {
+        this.properties.fullPanelAudience = 'Everyone';
+      }
+      if ( !this.properties.documentationLinkDesc || this.properties.documentationLinkDesc.length === 0 ) {
+        this.properties.documentationLinkDesc = 'Documentation';
+      }
       
+      //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
+      this.thisHistoryInstance = createWebpartHistory( 'onInit' , 'new', this.context.pageContext.user.displayName );
+      let priorHistory : IWebpartHistoryItem[] = this.properties.webpartHistory ? this.properties.webpartHistory.history : [];
+      this.properties.webpartHistory = {
+        thisInstance: this.thisHistoryInstance,
+        history: priorHistory,
+      };
+
+      if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
+        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = '"fontSize":"large","color":"black","background":"white","fontWeight":"600"' ; }
+      }
+
     });
   }
 
@@ -182,7 +217,13 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   public async render() {
     this._unqiueId = this.context.instanceId;
 
+    this.properties.replacePanelHTML = visitorPanelInfo( this.properties );
+
     let errMessage = '';
+
+    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + this.properties.documentationLinkUrl ; }
+    if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; }
+
     let errorObjArray :  any[] =[];
 
     let libraryPicker = encodeDecodeString(this.properties.libraryPicker, 'decode');
@@ -199,10 +240,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       *                                                      
       *                                                      
       */
+
+    let replacePanelWarning = `Anyone with lower permissions than '${this.properties.fullPanelAudience}' will ONLY see this content in panel`;
     let buildBannerSettings : IBuildBannerSettings = {
 
       //this. related info
-      context: this.context,
+      context: this.context ,
       clientWidth: this.domElement.clientWidth,
       exportProps: buildExportProps( this.properties, this.wpInstanceID ),
 
@@ -218,6 +261,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       expandAlert: false,
       expandConsole: true,
 
+      replacePanelWarning: replacePanelWarning,
       //Error info
       errMessage: errMessage,
       errorObjArray: errorObjArray, //In the case of Pivot Tiles, this is manualLinks[],
@@ -228,18 +272,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   let showTricks: any = false;
   links.trickyEmails.map( getsTricks => {
     if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { 
-      showTricks = true ; 
+      showTricks = true ;
       this.properties.showRepoLinks = true; //Always show these users repo links
     }
     } );
 
-  this.properties.showBannerGear = verifyAudienceVsUser( this.context, showTricks, this.properties.homeParentGearAudience, null);
+  this.properties.showBannerGear = verifyAudienceVsUser( this.context , showTricks, this.properties.homeParentGearAudience, null);
   let bannerSetup = buildBannerProps( this.properties , buildBannerSettings, showTricks );
   errMessage = bannerSetup.errMessage;
   let bannerProps = bannerSetup.bannerProps;
   let expandoErrorObj = bannerSetup.errorObjArray;
 
-  let showCodeIcon = verifyAudienceVsUser( this.context, showTricks, this.properties.showCodeAudience , null );
+  let showCodeIcon = verifyAudienceVsUser( this.context , showTricks, this.properties.showCodeAudience , null );
 
   // let legacyPageContext = this.context.pageContext.legacyPageContext;
 
@@ -287,6 +331,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         //Banner related props
         errMessage: 'any',
         bannerProps: bannerProps,
+        webpartHistory: this.properties.webpartHistory,
 
         //SecureScript props
         securityProfile: this.securityProfile,
@@ -601,10 +646,37 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     }
   }
 
+  private async _LinkIsValid(url)
+  {
+      var http = new XMLHttpRequest();
+      http.open('HEAD', url, false);
+      let isValid = true;
+      try {
+        await http.send();
+        isValid = http.status!=404 ? true : false;
+      }catch(e) {
+        isValid = false;
+      }
+
+      return isValid;
+  } 
+
   // This API is invoked after updating the new value of the property in the property bag (Reactive mode). 
-  protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
+  protected async onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any) {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
 
+    if ( propertyPath === 'documentationLinkUrl' ) {
+      this.properties.documentationIsValid = await this._LinkIsValid( newValue );
+      console.log( `${newValue} ${ this.properties.documentationIsValid === true ? ' IS ' : ' IS NOT ' } Valid `);
+      
+    } else {
+      if ( !this.properties.documentationIsValid ) { this.properties.documentationIsValid = false; }
+    }
+
+    //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
+    this.properties.webpartHistory = updateWebpartHistory( this.properties.webpartHistory , propertyPath , newValue, this.context.pageContext.user.displayName );
+
+    // console.log('webpartHistory:', this.thisHistoryInstance, this.properties.webpartHistory );
 
     if ( propertyPath === 'fpsImportProps' ) {
 
@@ -751,6 +823,63 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   label: 'Show Code Audience',
                   options: expandAudienceChoicesAll,
                 }),
+              ]}, // this group
+            {
+              groupName: 'Visitor Help Info (required)',
+              isCollapsed: false,
+              groupFields: [
+
+                PropertyPaneDropdown('fullPanelAudience', <IPropertyPaneDropdownProps>{
+                  label: 'Full Help Panel Audience',
+                  options: expandAudienceChoicesAll,
+                }),
+
+                PropertyPaneTextField('panelMessageDescription1',{
+                  label: 'Panel Description',
+                  description: 'Optional message displayed at the top of the panel for the end user to see.'
+                }),
+
+                PropertyPaneTextField('panelMessageDocumentation',{
+                  label: 'Documentation message',
+                  description: 'Optional message to the user shown directly above the Documentation link',
+                }),
+
+                PropertyPaneTextField('documentationLinkUrl',{
+                  label: 'PASTE a Documentation Link',
+                  description: 'REQUIRED:  A valid link to documentation - DO NOT TYPE in or webpart will lage'
+                }),
+
+                PropertyPaneTextField('documentationLinkDesc',{
+                  label: 'Documentation Description',
+                  description: 'Optional:  Text user sees as the clickable documentation link',
+                }),
+
+                // PropertyPaneTextField('supportContacts',{
+                //   label: 'Support Contacts',
+                //   description: 'REQUIRED:  Contact information for issues '
+                // }),
+
+                PropertyFieldPeoplePicker('supportContacts', {
+                  label: 'Suppor Contacts',
+                  initialData: this.properties.supportContacts,
+                  allowDuplicate: false,
+                  principalType: [ PrincipalType.Users, ],
+                  onPropertyChange: this.onPropertyPaneFieldChanged,
+                  //Had to cast  to get it to work
+                  //https://github.com/pnp/sp-dev-fx-controls-react/issues/851#issuecomment-978990638
+                  context: this.context as any,
+                  properties: this.properties,
+                  onGetErrorMessage: null,
+                  deferredValidationTime: 0,
+                  key: 'peopleFieldId'
+                }),
+
+                PropertyPaneTextField('panelMessageSupport',{
+                  label: 'Support Message',
+                  description: 'Optional message to the user when looking for support',
+                }),
+
+
               ]}, // this group
               FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
               FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group

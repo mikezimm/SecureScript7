@@ -396,7 +396,15 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       showGoToParent={ this.props.bannerProps.showGoToParent }
       showGoToHome={ this.props.bannerProps.showGoToHome }
       onHomePage={ this.props.bannerProps.onHomePage }
+
+      webpartHistory={ this.props.webpartHistory }
+      
       showBannerGear={ this.props.bannerProps.showBannerGear }
+      
+      showFullPanel={ this.props.bannerProps.showFullPanel }
+      replacePanelHTML={ this.props.bannerProps.replacePanelHTML }
+      replacePanelWarning={ this.props.bannerProps.replacePanelWarning }
+
       hoverEffect={ this.props.bannerProps.hoverEffect }
       gitHubRepo={ this.props.bannerProps.gitHubRepo }
       earyAccess={ this.props.bannerProps.earyAccess }

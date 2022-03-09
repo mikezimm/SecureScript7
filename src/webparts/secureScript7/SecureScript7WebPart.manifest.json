@@ -38,6 +38,7 @@
       "showGoToParent": true,
       "homeParentGearAudience": "Site Owners",
       "bannerHoverEffect": "",
+      "documentationIsValid": false,
       "quickLaunchHide": false,
       "pageHeaderHide": false,
       "allSectionMaxWidthEnable": false,
