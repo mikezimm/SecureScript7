@@ -210,7 +210,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     let errMessage = '';
 
-    if ( !this.properties.documentationLinkUrl || this.properties.documentationLinkUrl.length < 10 ) { errMessage += ' Need valid documentation Link' ; }
+    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + this.properties.documentationLinkUrl ; }
     if ( !this.properties.supportContacts || this.properties.supportContacts.length < 10 ) { errMessage += ' Need valid Support Contacts' ; }
 
     let errorObjArray :  any[] =[];
@@ -633,10 +633,33 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     }
   }
 
+  private async _LinkIsValid(url)
+  {
+      var http = new XMLHttpRequest();
+      http.open('HEAD', url, false);
+      let isValid = true;
+      try {
+        await http.send();
+        isValid = http.status!=404 ? true : false;
+      }catch(e) {
+        isValid = false;
+      }
+
+      return isValid;
+  } 
+
   // This API is invoked after updating the new value of the property in the property bag (Reactive mode). 
-  protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
+  protected async onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any) {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
 
+    if ( propertyPath === 'documentationLinkUrl' ) {
+      this.properties.documentationIsValid = await this._LinkIsValid( newValue );
+      console.log( `${newValue} ${ this.properties.documentationIsValid === true ? ' IS ' : ' IS NOT ' } Valid `);
+      
+    } else {
+      if ( !this.properties.documentationIsValid ) { this.properties.documentationIsValid = false }
+    }
+    
     //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
     this.properties.webpartHistory = updateWebpartHistory( this.properties.webpartHistory , propertyPath , newValue, this.context.pageContext.user.displayName );
 
@@ -804,12 +827,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                 }),
 
                 PropertyPaneTextField('documentationLinkUrl',{
-                  label: 'Documentation Link',
-                  description: 'REQUIRED:  A valid link to documentation'
+                  label: 'PASTE a Documentation Link',
+                  description: 'REQUIRED:  A valid link to documentation - DO NOT TYPE in or webpart will lage'
                 }),
 
                 PropertyPaneTextField('documentationLinkDesc',{
-                  label: 'Documentation Link',
+                  label: 'Documentation Description',
                   description: 'Optional:  Text user sees as the clickable documentation link',
                 }),
 

@@ -74,6 +74,7 @@ export interface ISecureScript7WebPartProps {
       panelMessageDocumentation: string;
       documentationLinkDesc: string;
       documentationLinkUrl: string;
+      documentationIsValid: boolean;
       supportContacts: string;
 
       //ADDED FOR WEBPART HISTORY:  

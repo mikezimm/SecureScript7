@@ -90,6 +90,6 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo ) {
 }
 
 function onLinkClick( gotoLink: string ) {
-    alert('Going to ' + gotoLink );
+    // alert('Going to ' + gotoLink );
     window.open( gotoLink, '_none' ) ;
 }
