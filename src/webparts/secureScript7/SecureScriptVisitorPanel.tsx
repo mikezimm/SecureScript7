@@ -1,7 +1,10 @@
 import * as React from 'react';
 
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
+import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker";
+import { WebPartContext } from "@microsoft/sp-webpart-base";
 
+// import { LivePersona, Persona } from "@pnp/spfx-controls-react/lib/LivePersona";
 
 /**
  *
@@ -22,12 +25,12 @@ export interface IMinWPVisitorPanelInfo {
     documentationLinkDesc: string;
     documentationLinkUrl: string;
 
-    supportContacts: string;
+    supportContacts: IPropertyFieldGroupOrPerson[];
 
 }
 
 
-export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo ) {
+export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
     const {
         bannerTitle,
         documentationLinkDesc,
@@ -53,8 +56,19 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo ) {
     const DocumentationMessage = !panelMessageDocumentation ? null : 
         <div style={ subHeadingStylesAround }>{ panelMessageDocumentation }</div>;
 
+    // const liveContacts = supportContacts.map( contact => {
+    //     return <LivePersona upn={ contact.email }
+    //     template={
+    //       <>
+    //         <Persona text={ contact.fullName } secondaryText={ contact.email } coinSize={48} />
+    //       </>
+    //     }
+    //    serviceScope={context.serviceScope}
+    //   />
+    // })
+
     const ContactInfo = <div style={ contactStyles }>
-        { supportContacts }
+        { JSON.stringify( supportContacts ) }
     </div>;
 
     let validLink = panelMessageDocumentation && panelMessageDocumentation.length > 0 && 

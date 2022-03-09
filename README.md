@@ -10,6 +10,7 @@ Short summary on functionality and used technologies.
 npm install @mikezimm/npmfunctions@1.0.167 (or whatever is the latest version)
 npm install react-json-view
 npm install @pnp/spfx-property-controls --save --save-exact
+npm install @pnp/spfx-controls-react --save --save-exact  //For the persona card
 
 
 ## Used SharePoint Framework Version

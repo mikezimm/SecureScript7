@@ -6,6 +6,8 @@ import { IExpandAudiences } from "@mikezimm/npmfunctions/dist/Services/PropPane/
 import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
 
+import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker";
+
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 
 export const changeExpando = [ 
@@ -75,7 +77,7 @@ export interface ISecureScript7WebPartProps {
       documentationLinkDesc: string;
       documentationLinkUrl: string;
       documentationIsValid: boolean;
-      supportContacts: string;
+      supportContacts: IPropertyFieldGroupOrPerson[];
 
       //ADDED FOR WEBPART HISTORY:  
       webpartHistory: IWebpartHistory;

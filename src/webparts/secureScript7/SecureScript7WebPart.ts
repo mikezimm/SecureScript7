@@ -11,6 +11,10 @@ import {
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
+import { BaseComponentContext } from '@microsoft/sp-component-base';
+
+import { PropertyFieldPeoplePicker, PrincipalType } from '@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker';
+
 import { SPComponentLoader } from '@microsoft/sp-loader';
 
 import { createFPSWindowProps, initializeFPSSection, initializeFPSPage, webpartInstance, initializeMinimalStyle } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSDocument';
@@ -186,7 +190,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       setExpandoRamicMode( this.context.domElement, this.expandoDefault, expandoStyle,  false, false, padding );
       this.properties.showRepoLinks = false;
       this.properties.showExport = false;
-      this.properties.fullPanelAudience = 'Item Editors';
+
+      if ( !this.properties.fullPanelAudience || this.properties.fullPanelAudience.length === 0 ) {
+        this.properties.fullPanelAudience = 'Everyone';
+      }
       if ( !this.properties.documentationLinkDesc || this.properties.documentationLinkDesc.length === 0 ) {
         this.properties.documentationLinkDesc = 'Documentation';
       }
@@ -198,6 +205,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         thisInstance: this.thisHistoryInstance,
         history: priorHistory,
       };
+
+      if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
+        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = '"fontSize":"large","color":"black","background":"white","fontWeight":"600"' ; }
+      }
 
     });
   }
@@ -229,10 +240,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       *                                                      
       *                                                      
       */
+
+    let replacePanelWarning = `Anyone with lower permissions than '${this.properties.fullPanelAudience}' will ONLY see this content in panel`;
     let buildBannerSettings : IBuildBannerSettings = {
 
       //this. related info
-      context: this.context,
+      context: this.context as any,
       clientWidth: this.domElement.clientWidth,
       exportProps: buildExportProps( this.properties, this.wpInstanceID ),
 
@@ -248,7 +261,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       expandAlert: false,
       expandConsole: true,
 
-      replacePanelWarning: '<h2>replacePanelWarning</h2>',
+      replacePanelWarning: replacePanelWarning,
       //Error info
       errMessage: errMessage,
       errorObjArray: errorObjArray, //In the case of Pivot Tiles, this is manualLinks[],
@@ -259,18 +272,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   let showTricks: any = false;
   links.trickyEmails.map( getsTricks => {
     if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { 
-      showTricks = true ; 
+      showTricks = true ;
       this.properties.showRepoLinks = true; //Always show these users repo links
     }
     } );
 
-  this.properties.showBannerGear = verifyAudienceVsUser( this.context, showTricks, this.properties.homeParentGearAudience, null);
+  this.properties.showBannerGear = verifyAudienceVsUser( this.context as any, showTricks, this.properties.homeParentGearAudience, null);
   let bannerSetup = buildBannerProps( this.properties , buildBannerSettings, showTricks );
   errMessage = bannerSetup.errMessage;
   let bannerProps = bannerSetup.bannerProps;
   let expandoErrorObj = bannerSetup.errorObjArray;
 
-  let showCodeIcon = verifyAudienceVsUser( this.context, showTricks, this.properties.showCodeAudience , null );
+  let showCodeIcon = verifyAudienceVsUser( this.context as any, showTricks, this.properties.showCodeAudience , null );
 
   // let legacyPageContext = this.context.pageContext.legacyPageContext;
 
@@ -657,9 +670,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       console.log( `${newValue} ${ this.properties.documentationIsValid === true ? ' IS ' : ' IS NOT ' } Valid `);
       
     } else {
-      if ( !this.properties.documentationIsValid ) { this.properties.documentationIsValid = false }
+      if ( !this.properties.documentationIsValid ) { this.properties.documentationIsValid = false; }
     }
-    
+
     //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
     this.properties.webpartHistory = updateWebpartHistory( this.properties.webpartHistory , propertyPath , newValue, this.context.pageContext.user.displayName );
 
@@ -816,6 +829,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
               isCollapsed: false,
               groupFields: [
 
+                PropertyPaneDropdown('fullPanelAudience', <IPropertyPaneDropdownProps>{
+                  label: 'Full Help Panel Audience',
+                  options: expandAudienceChoicesAll,
+                }),
+
                 PropertyPaneTextField('panelMessageDescription1',{
                   label: 'Panel Description',
                   description: 'Optional message displayed at the top of the panel for the end user to see.'
@@ -836,9 +854,24 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   description: 'Optional:  Text user sees as the clickable documentation link',
                 }),
 
-                PropertyPaneTextField('supportContacts',{
-                  label: 'Support Contacts',
-                  description: 'REQUIRED:  Contact information for issues '
+                // PropertyPaneTextField('supportContacts',{
+                //   label: 'Support Contacts',
+                //   description: 'REQUIRED:  Contact information for issues '
+                // }),
+
+                PropertyFieldPeoplePicker('supportContacts', {
+                  label: 'Suppor Contacts',
+                  initialData: this.properties.supportContacts,
+                  allowDuplicate: false,
+                  principalType: [ PrincipalType.Users, ],
+                  onPropertyChange: this.onPropertyPaneFieldChanged,
+                  //Had to cast as any to get it to work
+                  //https://github.com/pnp/sp-dev-fx-controls-react/issues/851#issuecomment-978990638
+                  context: this.context as any,
+                  properties: this.properties,
+                  onGetErrorMessage: null,
+                  deferredValidationTime: 0,
+                  key: 'peopleFieldId'
                 }),
 
                 PropertyPaneTextField('panelMessageSupport',{

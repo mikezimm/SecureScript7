@@ -49,7 +49,7 @@ const pivotStyles = {
 	//   textAlign: "center"
 	}};
 
-const pivotHeadingX = 'X';  //2022-01-31: Added Pivot Tiles
+const pivotHeadingX = '';  //2022-01-31: Added Pivot Tiles
 
 const pivotHeading0 = 'Why';  //2022-01-31: Added Pivot Tiles
 const pivotHeading1 = 'Getting started';  //Templates
@@ -280,8 +280,6 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			if ( showPanel === true && this.props.showFullPanel !== true ) {
 
 				//This is a message above the replacePanelHTML that is visible to those who can see all panel content
-				panelContent = this.props.replacePanelWarning;
-
 				panelContent = this.props.replacePanelHTML;
 
 			} else if ( showPanel === true ) {
@@ -301,7 +299,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				if ( this.state.selectedKey === pivotHeadingX ) {
 					console.log('Banner component -build content');
 					content = <div>
-						<div>{ this.props.replacePanelWarning }</div>
+						<div style={{ padding: '10px 20px 20px 20px', background: 'yellow', marginTop: '20px' }}>{ this.props.replacePanelWarning }</div>
 						<div>{ this.props.replacePanelHTML }</div>
 					</div>;
 				} else if ( this.state.selectedKey === pivotHeading1 ) {
