@@ -245,7 +245,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     let buildBannerSettings : IBuildBannerSettings = {
 
       //this. related info
-      context: this.context as any,
+      context: this.context ,
       clientWidth: this.domElement.clientWidth,
       exportProps: buildExportProps( this.properties, this.wpInstanceID ),
 
@@ -277,13 +277,13 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     }
     } );
 
-  this.properties.showBannerGear = verifyAudienceVsUser( this.context as any, showTricks, this.properties.homeParentGearAudience, null);
+  this.properties.showBannerGear = verifyAudienceVsUser( this.context , showTricks, this.properties.homeParentGearAudience, null);
   let bannerSetup = buildBannerProps( this.properties , buildBannerSettings, showTricks );
   errMessage = bannerSetup.errMessage;
   let bannerProps = bannerSetup.bannerProps;
   let expandoErrorObj = bannerSetup.errorObjArray;
 
-  let showCodeIcon = verifyAudienceVsUser( this.context as any, showTricks, this.properties.showCodeAudience , null );
+  let showCodeIcon = verifyAudienceVsUser( this.context , showTricks, this.properties.showCodeAudience , null );
 
   // let legacyPageContext = this.context.pageContext.legacyPageContext;
 
@@ -865,9 +865,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   allowDuplicate: false,
                   principalType: [ PrincipalType.Users, ],
                   onPropertyChange: this.onPropertyPaneFieldChanged,
-                  //Had to cast as any to get it to work
+                  //Had to cast  to get it to work
                   //https://github.com/pnp/sp-dev-fx-controls-react/issues/851#issuecomment-978990638
-                  context: this.context as any,
+                  context: this.context ,
                   properties: this.properties,
                   onGetErrorMessage: null,
                   deferredValidationTime: 0,
