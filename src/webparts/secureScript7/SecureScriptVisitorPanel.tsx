@@ -77,14 +77,14 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
     };
 
 
-    const contactList = supportContacts.map( contact => {
+    const contactList = !supportContacts ? [] : supportContacts.map( contact => {
         return <div style={ cardStyles }>
             <img src={contact.imageUrl} alt={`Picture of ${ contact.fullName}`} width={ 30 } height={ 30 } style={{borderRadius: '50%' }}  />
             <a style={{ paddingLeft: '20px', paddingRight: '20px' }} href={ `mailto:${contact.email}`}>Email</a>
             <div style={{ paddingLeft: '20px', paddingRight: '20px' }}>{ contact.fullName }</div>
         </div>;
     });
-    const ContactInfo = <div style={ contactStyles }>
+    const ContactInfo = contactList.length === 0 ? null : <div style={ contactStyles }>
         { contactList }
     </div>;
 
