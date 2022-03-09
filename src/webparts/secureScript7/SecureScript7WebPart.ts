@@ -867,7 +867,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   onPropertyChange: this.onPropertyPaneFieldChanged,
                   //Had to cast  to get it to work
                   //https://github.com/pnp/sp-dev-fx-controls-react/issues/851#issuecomment-978990638
-                  context: this.context ,
+                  context: this.context as any,
                   properties: this.properties,
                   onGetErrorMessage: null,
                   deferredValidationTime: 0,

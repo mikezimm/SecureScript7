@@ -67,9 +67,28 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
     //   />
     // })
 
+    const cardStyles : React.CSSProperties = {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        padding: '5px',
+
+    };
+
+
+    const contactList = supportContacts.map( contact => {
+        return <div style={ cardStyles }>
+            <img src={contact.imageUrl} alt={`Picture of ${ contact.fullName}`} width={ 30 } height={ 30 } style={{borderRadius: '50%' }}  />
+            <a style={{ paddingLeft: '20px', paddingRight: '20px' }} href={ `mailto:${contact.email}`}>Email</a>
+            <div style={{ paddingLeft: '20px', paddingRight: '20px' }}>{ contact.fullName }</div>
+        </div>;
+    });
     const ContactInfo = <div style={ contactStyles }>
-        { JSON.stringify( supportContacts ) }
+        { contactList }
     </div>;
+
+    // const ContactInfo = supportContacts[0].fullName;
 
     let validLink = panelMessageDocumentation && panelMessageDocumentation.length > 0 && 
         (
@@ -90,7 +109,8 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
 
         <div style={ headingStyles }>If the webpart displays a warning</div>
         <div style={ subHeadingStyles }> - please notify someone listed below</div>
-        { ContactInfo }
+
+        <div>{ ContactInfo }</div>  
 
         <div style={ headingStyles }>Please review our support documentation</div>
         <div style={ subHeadingStyles }> - before asking for additional support</div>
@@ -99,7 +119,7 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
         { docsLink }
         <div style={ headingStyles }>If you still have issues...</div>
         <div style={ subHeadingStyles }> - please contact the owner of this webpart before submitting an incident.</div>
-        { ContactInfo }
+        <div>{ ContactInfo }</div>  
     </div>;
 }
 
