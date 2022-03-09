@@ -222,7 +222,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     let errMessage = '';
 
     if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + this.properties.documentationLinkUrl ; }
-    if ( !this.properties.supportContacts || this.properties.supportContacts.length < 10 ) { errMessage += ' Need valid Support Contacts' ; }
+    if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; }
 
     let errorObjArray :  any[] =[];
 
