@@ -321,13 +321,13 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
 
     allTags.map( tag => {
-        if ( SourceNameRank[ tag.rank ] ==='ExternalBlock' ) { result.blocks.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='ExternalWarn' ) { result.warns.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='ExtBlock' ) { result.blocks.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='ExtWarn' ) { result.warns.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='Nothing' ) { result.nothing.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='SecureCDN' ) { result.secure.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='Local' ) { result.local.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='Tenant' ) { result.tenant.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='ExternalApproved' ) { result.extApp.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='ExtApproved' ) { result.extApp.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='WWW' ) { result.www.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='Verify' ) { result.verify.push( tag ) ; }
 
@@ -340,11 +340,11 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     ///SecureScriptTesting/Gulpy/SitePages/Site-Audit-Test.aspx?debug=true&noredir=true&debugManifestsFile=https%3a//localhost%3a4321/temp/manifests.js
 
     //This determines the default tab selected in Code Pane Tags
-    if ( result.blocks.length > 0 ) { result.selectedKey = 'ExternalBlock' ; } else
-    if ( result.warns.length > 0 ) { result.selectedKey = 'ExternalWarn' ; } else
+    if ( result.blocks.length > 0 ) { result.selectedKey = 'ExtBlock' ; } else
+    if ( result.warns.length > 0 ) { result.selectedKey = 'ExtWarn' ; } else
     if ( result.verify.length > 0 ) { result.selectedKey = 'Verify' ; } else
     if ( result.www.length > 0 ) { result.selectedKey = 'WWW' ; } else
-    if ( result.extApp.length > 0 ) { result.selectedKey = 'ExternalApproved' ; } else
+    if ( result.extApp.length > 0 ) { result.selectedKey = 'ExtApproved' ; } else
     if ( result.local.length > 0 ) { result.selectedKey = 'Local' ; } else
     if ( result.secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
     if ( result.nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }
@@ -439,7 +439,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     //"<img style="padding-left:20px;vertical-align:text-bottom" src="https://tenant.sharepoint.com/sites/CRS/Templates/icons/SharePointParentSiteUpArrowIcon.jpg">"
     file = file.replace('"','');
 
-    //export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExternalApproved' ,  'ExternalWarn',   'Verify',     'WWW' ,  'ExternalBlock' ];
+    //export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExtApproved' ,  'ExtWarn',   'Verify',     'WWW' ,  'ExtBlock' ];
 
     let rank = SourceNameRank.indexOf( fileLocaton );
 
@@ -515,7 +515,7 @@ function isLocationExtApp( lcFile: string, prevLocation: ICDNCheck, SecureFilePr
 
     SecureFileProfile.cdns.approved.map( site => {
         let idx = lcFile.indexOf( site.toLowerCase() );
-        if ( idx === 0 ) { fileLocaton = 'ExternalApproved' ; } 
+        if ( idx === 0 ) { fileLocaton = 'ExtApproved' ; } 
     });
 
     return fileLocaton;
@@ -529,7 +529,7 @@ function isLocationWarnBlock( lcFile: string, prevLocation: ICDNCheck, SecureFil
     SecureFileProfile.cdns[level].map( site => {
         let idx = lcFile.indexOf( site.toLowerCase() );
         if ( idx === 0 ) { 
-            fileLocaton = level === 'warn' ? 'ExternalWarn' : level === 'block' ? 'ExternalBlock' : 'TBD';
+            fileLocaton = level === 'warn' ? 'ExtWarn' : level === 'block' ? 'ExtBlock' : 'TBD';
             policyFlags = { cdn: site, level: level, type: type, key: `${level}: ${type}-${site}`, verify: [] }  ;
         }
     });

@@ -57,10 +57,10 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
         Nothing: 0,
         SecureCDN: 0,
         Tenant: 0,
-        ExternalApproved: 0,
-        ExternalWarn: 0,
+        ExtApproved: 0,
+        ExtWarn: 0,
         WWW: 0,
-        ExternalBlock: 0,
+        ExtBlock: 0,
       },
       colors: [],
       level: {

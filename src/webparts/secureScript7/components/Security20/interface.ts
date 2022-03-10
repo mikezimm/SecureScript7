@@ -121,10 +121,10 @@ export interface ITagInfo {
   }
 
   
-  export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Local' | 'Tenant' | 'ExternalApproved' | 'ExternalWarn' | 'ExternalBlock' | 'Verify' | 'WWW' | 'TBD' | '';
+  export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Local' | 'Tenant' | 'ExtApproved' | 'ExtWarn' | 'ExtBlock' | 'Verify' | 'WWW' | 'TBD' | '';
 
   //This tells the rank order from Highest security to lowest
-  export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExternalApproved' ,  'ExternalWarn',   'Verify',     'WWW' ,  'ExternalBlock' ];
+  export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExtApproved' ,  'ExtWarn',   'Verify',     'WWW' ,  'ExtBlock' ];
   export const SourceSecurityRankIcons: string[] = [ 'CircleShape' , 'BlockedSiteSolid12' , 'SharepointLogo',   'SharepointLogo' ,  'GlobeFavorite' ,     'ErrorBadge',     'TagUnknown', 'Globe' ,       'BlockedSiteSolid12' ];
   export const SourceSecurityRankColor: string[] = [ 'black' ,       'green' ,              'blue',             'blue' ,            'purple' ,            'black',          'black',      'black' ,  'red' ];
   export const SourceSecurityRankBackG: string[] = [ 'lightgray' ,   'white' ,              'white',            'white' ,           'white' ,             'yellow',         'yellow',     'white' ,  'yellow' ];
@@ -140,11 +140,11 @@ export interface ITagInfo {
   export const SourceSecure:  ISourceInfo = { name: 'SecureCDN',    icon: 'BlockedSiteSolid12' ,  color: 'green',   backg: 'white' };
   export const SourceLocal:   ISourceInfo = { name: 'Local',        icon: 'SharepointLogo' ,      color: 'blue',    backg: 'white' };
   export const SourceTenant:  ISourceInfo = { name: 'Tenant',       icon: 'SharepointLogo' ,      color: 'blue',    backg: 'white' };
-  export const SourceExtApp:  ISourceInfo = { name: 'ExternalApproved', icon: 'GlobeFavorite' ,   color: 'purple',  backg: 'white' };
-  export const SourceExtWarn: ISourceInfo = { name: 'ExternalWarn', icon: 'ErrorBadge' ,          color: 'black',   backg: 'yellow' };
+  export const SourceExtApp:  ISourceInfo = { name: 'ExtApproved', icon: 'GlobeFavorite' ,   color: 'purple',  backg: 'white' };
+  export const SourceExtWarn: ISourceInfo = { name: 'ExtWarn', icon: 'ErrorBadge' ,          color: 'black',   backg: 'yellow' };
   export const SourceVerify:  ISourceInfo = { name: 'Verify',       icon: 'TagUnknown' ,          color: 'black',   backg: 'yellow' };
   export const SourceWWW:     ISourceInfo = { name: 'WWW',          icon: 'Globe' ,               color: 'black',   backg: 'white' };
-  export const SourceBlock:   ISourceInfo = { name: 'ExternalBlock', icon: 'BlockedSiteSolid12' , color: 'red',     backg: 'yellow' };
+  export const SourceBlock:   ISourceInfo = { name: 'ExtBlock', icon: 'BlockedSiteSolid12' , color: 'red',     backg: 'yellow' };
 
   export const SourceInfo : ISourceRank = {
     ranks: [
@@ -193,10 +193,10 @@ export interface ITagInfo {
       Nothing: number;
       SecureCDN: number;
       Tenant: number;
-      ExternalApproved: number;
-      ExternalWarn: number;
+      ExtApproved: number;
+      ExtWarn: number;
       WWW: number;
-      ExternalBlock: number;
+      ExtBlock: number;
     };
     level: {
       warn: ICDNCheck;

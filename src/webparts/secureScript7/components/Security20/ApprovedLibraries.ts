@@ -5,14 +5,14 @@ import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN, IApprovedCDNs, 
  * This will let you block JS files from anywhere except SecureCDN yet allow images from anywhere on the internet
  */
 export const SecureProfile  : ISecurityProfile = {
-    cssWarn: 'ExternalWarn',
-    cssBlock: 'ExternalBlock',
+    cssWarn: 'ExtWarn',
+    cssBlock: 'ExtBlock',
     jsWarn: '',
     jsBlock: 'Local',
-    imgWarn: 'ExternalWarn',
-    imgBlock: 'ExternalBlock',
+    imgWarn: 'ExtWarn',
+    imgBlock: 'ExtBlock',
     linkWarn: 'WWW',
-    linkBlock: 'ExternalBlock',
+    linkBlock: 'ExtBlock',
     htmlWarn: 'Nothing',
     htmBlock: 'Tenant',
   };

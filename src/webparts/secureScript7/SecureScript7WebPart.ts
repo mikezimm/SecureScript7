@@ -118,12 +118,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private fetchInstance: string = Math.floor(Math.random() * 79797979 ).toString();
 
   // private SecureProfile: ISecurityProfile = {
-  //   cssWarn: 'ExternalWarn', 
-  //   cssBlock: 'ExternalBlock', 
+  //   cssWarn: 'ExtWarn', 
+  //   cssBlock: 'ExtBlock', 
   //   jsWarn: 'Nothing', 
   //   jsBlock: 'Tenant', 
-  //   imgWarn: 'ExternalWarn', 
-  //   imgBlock: 'ExternalBlock',
+  //   imgWarn: 'ExtWarn', 
+  //   imgBlock: 'ExtBlock',
   // };
 
   private expandoErrorObj = {
@@ -425,7 +425,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     ReactDom.render(element, this.bannerElement);
     this.scriptElement.innerHTML = this.fetchInfo.snippet;
 
-    if ( this.fetchInfo.selectedKey !== 'ExternalBlock' ) {
+    if ( this.fetchInfo.selectedKey !== 'ExtBlock' ) {
       if ( this.displayMode === DisplayMode.Read ) {
         executeScript(this.scriptElement, this._unqiueId, document );
       }

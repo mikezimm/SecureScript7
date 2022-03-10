@@ -24,11 +24,11 @@ import { tdProperties } from 'office-ui-fabric-react';
 
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
-const pivotHeading0 : ICDNCheck = 'ExternalBlock';  //2022-01-31: Added Pivot Tiles
-const pivotHeading1 : ICDNCheck = 'ExternalWarn';  //Templates
+const pivotHeading0 : ICDNCheck = 'ExtBlock';  //2022-01-31: Added Pivot Tiles
+const pivotHeading1 : ICDNCheck = 'ExtWarn';  //Templates
 const pivotHeading2 : ICDNCheck = 'WWW';  //Templates
 const pivotHeadingV : ICDNCheck = 'Verify';  //Templates
-const pivotHeading3 : ICDNCheck = 'ExternalApproved';  //Templates
+const pivotHeading3 : ICDNCheck = 'ExtApproved';  //Templates
 const pivotHeading4 : ICDNCheck = 'Tenant';  //Templates
 const pivotHeadingL : ICDNCheck = 'Local';  //Templates
 const pivotHeading5 : ICDNCheck = 'SecureCDN';  //Templates
@@ -319,7 +319,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  */
 
     let blockHTML = null;
-    if ( fetchInfo.selectedKey === 'ExternalBlock' ) {
+    if ( fetchInfo.selectedKey === 'ExtBlock' ) {
       let blockHeight = this.state.fullBlockedHeight === true ? null : '50px';
       blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden', cursor: 'pointer' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
         <h2>Some content could not be loaded because it was blocked for security reasons</h2>
