@@ -17,7 +17,10 @@ import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} fro
 import { approvedSites, } from './Security20/ApprovedLibraries';
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IPolicyFlag, IPolicyFlagLevel } from './Security20/interface';
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IPolicyFlag, IPolicyFlagLevel, SourceInfo,  } from './Security20/interface';
+
+import { buildSourceRankArray,  } from './Security20/functions';
+import { tdProperties } from 'office-ui-fabric-react';
 
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
@@ -50,6 +53,8 @@ const fileButtonStyles = {
 };
 
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
+
+  private SourceNameRank = buildSourceRankArray();
 
   private currentPageUrl = this.props.bannerProps.pageContext.web.absoluteUrl + this.props.bannerProps.pageContext.site.serverRequestPath;
 
@@ -365,6 +370,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( this.state.selectedKey === pivotHeading13 ) { 
           thisPage = <div>
             <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+            <ReactJson src={ SourceInfo } name={ 'SourceInfo' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+            { this.getProfilePage() }
           </div> ;
          }
 
@@ -508,6 +515,41 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       </section>
     );
   }
+
+
+private getProfilePage() {
+
+  // <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+  // <ReactJson src={ SourceInfo } name={ 'SourceInfo' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+
+  let rows: any[] = [];
+  let headings = [<th>Type</th>];
+
+  SourceInfo.ranks.map( rank => {
+    headings.push( <th>{ rank.name } </th> );
+  });
+
+  rows.push( <tr>{ headings } </tr>  );
+
+  this.props.securityProfile.sort.map( typeExt => {
+    let cells: any[] = [];
+    let thisType = this.props.securityProfile[typeExt];
+    cells.push( <td>{ thisType.title }</td>);
+    thisType.colors.map ( ( color, idx ) => {
+      const icon = <Icon iconName={ SourceInfo.ranks[ idx ].icon } style={ { color: color } } ></Icon>;
+      cells.push( <td>{ } { icon }</td>);
+    });
+
+    rows.push( <tr>{ cells }</tr> );
+
+  });
+
+  return <table className = {styles.secProfile }>{ rows }</table>;//A row of table cells
+
+
+}
+
+
 
 /***
  *     d888b  d88888b d888888b      d888888b  .d8b.   d888b        .o88b.  .d88b.  db       .d88b.  d8888b. 

@@ -14,6 +14,8 @@ import { approvedSites, } from './ApprovedLibraries';
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
   IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel } from './interface';
 
+import { buildSourceRankArray } from './functions';
+
 /***
  *    d8888b. d88888b  d888b  d88888b db    db 
  *    88  `8D 88'     88' Y8b 88'     `8b  d8' 
@@ -137,13 +139,7 @@ export function baseFetchInfo( warning: string ) {
  *                                                                                                                             
  */
 
-export function buildSourceRankArray(){
-    let SourceNameRank: ICDNCheck[] = SourceInfo.ranks.map( rank => {
-        return rank.name;
-    });
 
-    return SourceNameRank;
-}
 
 export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile  ) {
 
@@ -209,7 +205,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     });
 
     let cssTags = cleanHtmlFragment.match(hrefCSSRegex2);
-    let css : ITagInfo[] = cssTags === null ? [] : cssTags.map( tag => { 
+    let css : ITagInfo[] = cssTags === null ? [] : cssTags.map( tag => {
         let matchTag = tag.match(hrefCSSRegex);
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
@@ -323,20 +319,20 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
     let allTags = [ ...scripts, ...css, ...img, ...link ];
 
-    //export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExternalApproved' ,  'ExternalWarn',   'Verify',     'WWW' ,  'ExternalBlock' ];
+
     allTags.map( tag => {
-        if ( tag.rank === 0 ) { result.nothing.push( tag ) ; } else
-        if ( tag.rank === 1 ) { result.secure.push( tag ) ; } else
-        if ( tag.rank === 2 ) { result.local.push( tag ) ; } else
-        if ( tag.rank === 3 ) { result.tenant.push( tag ) ; } else
-        if ( tag.rank === 4 ) { result.extApp.push( tag ) ; } else
-        if ( tag.rank === 5 ) { result.warns.push( tag ) ; } else
-        if ( tag.rank === 6 ) { result.verify.push( tag ) ; } else
-        if ( tag.rank === 7 ) { result.www.push( tag ) ; } else
-        if ( tag.rank === 8 ) { result.blocks.push( tag ) ; }
+        if ( SourceNameRank[ tag.rank ] ==='ExternalBlock' ) { result.blocks.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='ExternalWarn' ) { result.warns.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Nothing' ) { result.nothing.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='SecureCDN' ) { result.secure.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Local' ) { result.local.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Tenant' ) { result.tenant.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='ExternalApproved' ) { result.extApp.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='WWW' ) { result.www.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Verify' ) { result.verify.push( tag ) ; }
 
         //This will catch everything previously put in other arrays like 
-        if ( tag.rank !== 6 && tag.policyFlags.verify.length > 0 ) { result.verify.push( tag ) ; }
+        if ( SourceNameRank[ tag.rank ] !=='Verify' && tag.policyFlags.verify.length > 0 ) { result.verify.push( tag ) ; }
 
     });
 
@@ -445,7 +441,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
 
     //export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExternalApproved' ,  'ExternalWarn',   'Verify',     'WWW' ,  'ExternalBlock' ];
 
-    let rank = SourceSecurityRank.indexOf( fileLocaton );
+    let rank = SourceNameRank.indexOf( fileLocaton );
 
     let result : ITagInfo = {
         tag: tag,
@@ -456,9 +452,9 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
         regex: regex,
         styleTag: styleTag,
         rank: rank,
-        icon: SourceSecurityRankIcons[rank],
-        color: SourceSecurityRankColor[rank],
-        background: SourceSecurityRankBackG[rank],
+        icon: SourceInfo.ranks[rank].icon,
+        color: SourceInfo.ranks[rank].color,
+        background: SourceInfo.ranks[rank].backg,
         label: '',
         eleStyle: '',
         location: fileLocaton,

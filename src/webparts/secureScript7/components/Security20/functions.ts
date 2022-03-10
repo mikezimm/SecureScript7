@@ -1,4 +1,4 @@
-import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN , ICDNCheck, IFileTypeCDN } from './interface';
+import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN , ICDNCheck, IFileTypeCDN, SourceInfo } from './interface';
 import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternalCDNs, SecureProfile, jsCDNs, cssCDNs, imgCDNs, linkCDNs, htmlCDNs } from './ApprovedLibraries';
 
 
@@ -28,6 +28,13 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
  *                                                                                                                                       
  */
 
+ export function buildSourceRankArray(){
+  let SourceNameRank: ICDNCheck[] = SourceInfo.ranks.map( rank => {
+      return rank.name;
+  });
+
+  return SourceNameRank;
+}
 
   export function createFileTypeSecurity( ext: string, icon: string, title: string, fileTypeCDN: IFileTypeCDN, text1: string = 'text1', text2: string = 'text2' ){
     
@@ -55,12 +62,25 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
         WWW: 0,
         ExternalBlock: 0,
       },
+      colors: [],
       level: {
         warn: ext === '*' ? 'TBD' : SecureProfile[`${ext}Warn`],
         block: ext === '*' ? 'TBD' : SecureProfile[`${ext}Block`],
       },
       cdns: fullCDNs,
     };
+
+
+    //This is the overall ranks of the buckets from NOTHING to BLOCK as highest rank
+    let SourceNameRank = buildSourceRankArray();
+
+    let latestColor = 'green';
+
+    SourceNameRank.map ( rankName => {
+      if ( result.level.warn === rankName ) { latestColor = 'yellow' ; }
+      if ( result.level.block === rankName ) { latestColor = 'red' ; }
+      result.colors.push( latestColor);
+    });
 
     return result;
 
@@ -91,11 +111,11 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
     let result :IAdvancedSecurityProfile = {
       sort: ['js', 'css', 'html', 'img', 'link', 'all' ],
       all: createFileTypeSecurity('*', '', 'All', masterCDNs ),
-      js: createFileTypeSecurity('js', 'JS', '', jsCDNs ),
-      css: createFileTypeSecurity('css', 'CSS', 'All', cssCDNs ),
-      html: createFileTypeSecurity('html', 'FileHTML', 'All', htmlCDNs ),
-      img: createFileTypeSecurity('img', 'Photo2', 'All', imgCDNs ),
-      link: createFileTypeSecurity('link', 'Link', 'All', linkCDNs ),
+      js: createFileTypeSecurity('js', 'JS', 'js', jsCDNs ),
+      css: createFileTypeSecurity('css', 'CSS', 'css', cssCDNs ),
+      html: createFileTypeSecurity('html', 'FileHTML', 'html', htmlCDNs ),
+      img: createFileTypeSecurity('img', 'Photo2', 'img', imgCDNs ),
+      link: createFileTypeSecurity('link', 'Link', 'link', linkCDNs ),
     };
 
     return result;

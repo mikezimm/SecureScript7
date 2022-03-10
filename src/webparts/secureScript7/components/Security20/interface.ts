@@ -121,7 +121,7 @@ export interface ITagInfo {
   }
 
   
-  export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Local' | 'Tenant' | 'ExternalApproved' | 'ExternalWarn' | 'ExternalBlock' | 'Verify' | 'WWW' | 'TBD';
+  export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Local' | 'Tenant' | 'ExternalApproved' | 'ExternalWarn' | 'ExternalBlock' | 'Verify' | 'WWW' | 'TBD' | '';
 
   //This tells the rank order from Highest security to lowest
   export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExternalApproved' ,  'ExternalWarn',   'Verify',     'WWW' ,  'ExternalBlock' ];
@@ -202,6 +202,7 @@ export interface ITagInfo {
       warn: ICDNCheck;
       block: ICDNCheck;
     };
+    colors: string[];
     cdns: {
       approved: string[];
       warn: string[];
