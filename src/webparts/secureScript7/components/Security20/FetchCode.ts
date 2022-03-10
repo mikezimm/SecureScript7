@@ -204,7 +204,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let matchTag = tag.match(srcRegex);
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'js', createTag, fileOriginal, securityProfile.js, SourceNameRank ,'srcRegex' );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'js', createTag, fileOriginal, securityProfile.js, SourceNameRank ,'<scr src=*.js' );
         return tagInfo;
     });
 
@@ -213,7 +213,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let matchTag = tag.match(hrefCSSRegex);
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'css', createTag, fileOriginal, securityProfile.css, SourceNameRank, 'hrefCSSRegex'  );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'css', createTag, fileOriginal, securityProfile.css, SourceNameRank, 'href=*.css'  );
         return tagInfo;
     });
 
@@ -222,7 +222,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let matchTag = tag.match(srcRegex);
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('\"','"');
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'img', createTag , fileOriginal, securityProfile.img, SourceNameRank, 'imgSrcRegex');
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'img', createTag , fileOriginal, securityProfile.img, SourceNameRank, 'src=""');
         return tagInfo;
     });
 
@@ -243,11 +243,11 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         if ( matchTag1 !== null ) {
             fileOriginal=  matchTag1[0];
             createTag =  matchTag1[0].replace('href="',"").replace('"',"");
-            foundRegex = 'matchTag1';
+            foundRegex = 'href="x"';
         } else if ( matchTag2 !== null ) {
             fileOriginal=  matchTag2[0];
             createTag = matchTag2[0].replace("href='","").replace("'","");
-            foundRegex = 'matchTag2';
+            foundRegex = "href='x'";
         } else {
             alert(`Strange Tag: ${tag}` );
         }
