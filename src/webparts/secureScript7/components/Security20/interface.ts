@@ -7,14 +7,17 @@ import {
 export const FetchLibString = 'FetchLibraries';
 export const TenantCDN = '/sites/SecureCDN';
 
-export interface IApprovedCDNs extends IPropertyPaneDropdownOption {
+  /***
+ *    d888888b  .d8b.   d888b  .d8888. 
+ *    `~~88~~' d8' `8b 88' Y8b 88'  YP 
+ *       88    88ooo88 88      `8bo.   
+ *       88    88~~~88 88  ooo   `Y8b. 
+ *       88    88   88 88. ~8~ db   8D 
+ *       YP    YP   YP  Y888P  `8888Y' 
+ *                                     
+ *                                     
+ */
 
-    key: string;
-    siteRelativeURL: string;
-    library: string;
-    text: string;
-    subsites?: boolean;
-  }
 
 export interface ITagInfo {
     tag: string;
@@ -58,6 +61,17 @@ export interface ITagInfo {
     key: string;
   }
 
+  /***
+ *    d88888b d88888b d888888b  .o88b. db   db      d888888b d8b   db d88888b  .d88b.  
+ *    88'     88'     `~~88~~' d8P  Y8 88   88        `88'   888o  88 88'     .8P  Y8. 
+ *    88ooo   88ooooo    88    8P      88ooo88         88    88V8o 88 88ooo   88    88 
+ *    88~~~   88~~~~~    88    8b      88~~~88         88    88 V8o88 88~~~   88    88 
+ *    88      88.        88    Y8b  d8 88   88        .88.   88  V888 88      `8b  d8' 
+ *    YP      Y88888P    YP     `Y88P' YP   YP      Y888888P VP   V8P YP       `Y88P'  
+ *                                                                                     
+ *                                                                                     
+ */
+
   export interface IFetchInfo {
         snippet: string;
         selectedKey: ICDNCheck | IApprovedFileType | 'raw';
@@ -84,6 +98,28 @@ export interface ITagInfo {
         policyFlags: IPolicyFlags;
   }
 
+
+  /***
+ *    .d8888. d88888b  .o88b. db    db d8888b. d888888b d888888b db    db 
+ *    88'  YP 88'     d8P  Y8 88    88 88  `8D   `88'   `~~88~~' `8b  d8' 
+ *    `8bo.   88ooooo 8P      88    88 88oobY'    88       88     `8bd8'  
+ *      `Y8b. 88~~~~~ 8b      88    88 88`8b      88       88       88    
+ *    db   8D 88.     Y8b  d8 88b  d88 88 `88.   .88.      88       88    
+ *    `8888Y' Y88888P  `Y88P' ~Y8888P' 88   YD Y888888P    YP       YP    
+ *                                                                        
+ *                                                                        
+ */
+
+   export interface IApprovedCDNs extends IPropertyPaneDropdownOption {
+
+    key: string;
+    siteRelativeURL: string;
+    library: string;
+    text: string;
+    subsites?: boolean;
+  }
+
+  
   export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Local' | 'Tenant' | 'ExternalApproved' | 'ExternalWarn' | 'ExternalBlock' | 'Verify' | 'WWW' | 'TBD';
 
   //This tells the rank order from Highest security to lowest

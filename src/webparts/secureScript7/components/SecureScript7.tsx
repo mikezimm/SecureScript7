@@ -7,6 +7,8 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
 
+import ReactJson from "react-json-view";
+
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
 import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
@@ -34,6 +36,7 @@ const pivotHeading9 : IApprovedFileType = 'html';  //Templates
 const pivotHeading10 : IApprovedFileType = 'img';  //Templates
 const pivotHeading11 : IApprovedFileType = 'link';  //Templates
 const pivotHeading12 : string = 'raw';  //Templates
+const pivotHeading13 : string = 'profile';  //Templates
 
 const fileButtonStyles = {
   backgroundColor: 'transparent',
@@ -145,6 +148,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pivotIMG = <PivotItem headerText={ null } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={pivotHeading10} itemIcon={ 'Photo2' }/>;
   private pivotLINK = <PivotItem headerText={ null } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={pivotHeading11} itemIcon={ 'Link' }/>;
   private pivotRAW = <PivotItem headerText={ 'raw' } ariaLabel={'raw'} title={'raw'} itemKey={'raw'} itemIcon={ 'Embed' }/>;
+  private pivotPROF = <PivotItem headerText={ null } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={pivotHeading13} itemIcon={ 'Encryption' }/>;
 
 
   private nearBannerElements = this.buildNearBannerElements();
@@ -298,6 +302,17 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       scriptHTML = fetchInfo.errorHTML ? `${fetchInfo.errorHTML}` : fetchInfo.snippet;
     }
     
+    /***
+ *    d8888b. db       .d88b.   .o88b. db   dD      db   db d888888b .88b  d88. db      
+ *    88  `8D 88      .8P  Y8. d8P  Y8 88 ,8P'      88   88 `~~88~~' 88'YbdP`88 88      
+ *    88oooY' 88      88    88 8P      88,8P        88ooo88    88    88  88  88 88      
+ *    88~~~b. 88      88    88 8b      88`8b        88~~~88    88    88  88  88 88      
+ *    88   8D 88booo. `8b  d8' Y8b  d8 88 `88.      88   88    88    88  88  88 88booo. 
+ *    Y8888P' Y88888P  `Y88P'   `Y88P' YP   YD      YP   YP    YP    YP  YP  YP Y88888P 
+ *                                                                                      
+ *                                                                                      
+ */
+
     let blockHTML = null;
     if ( fetchInfo.selectedKey === 'ExternalBlock' ) {
       let blockHeight = this.state.fullBlockedHeight === true ? null : '50px';
@@ -311,6 +326,18 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         </ul>
       </div>;
     }
+
+
+    /***
+ *     .o88b.  .d88b.  d8888b. d88888b      d8888b.  .d8b.  d8b   db d88888b      db   db d888888b .88b  d88. db      
+ *    d8P  Y8 .8P  Y8. 88  `8D 88'          88  `8D d8' `8b 888o  88 88'          88   88 `~~88~~' 88'YbdP`88 88      
+ *    8P      88    88 88   88 88ooooo      88oodD' 88ooo88 88V8o 88 88ooooo      88ooo88    88    88  88  88 88      
+ *    8b      88    88 88   88 88~~~~~      88~~~   88~~~88 88 V8o88 88~~~~~      88~~~88    88    88  88  88 88      
+ *    Y8b  d8 `8b  d8' 88  .8D 88.          88      88   88 88  V888 88.          88   88    88    88  88  88 88booo. 
+ *     `Y88P'  `Y88P'  Y8888D' Y88888P      88      YP   YP VP   V8P Y88888P      YP   YP    YP    YP  YP  YP Y88888P 
+ *                                                                                                                    
+ *                                                                                                                    
+ */
 
     if ( this.state.showOriginalHtml ) {
       let directLink = <a href={ this.props.fileRelativeUrl } target='none'>{ this.props.libraryItemPicker }</a>;
@@ -335,6 +362,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( this.state.selectedKey === pivotHeading11 ) { thisPage = this.page11[toggleTag]; } else 
 
         if ( this.state.selectedKey === 'raw' ) { thisPage = <div>{ fetchInfo.snippet }</div> ; }
+        if ( this.state.selectedKey === pivotHeading13 ) { 
+          thisPage = <div>
+            <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+          </div> ;
+         }
 
         let pivotItems: any [] = [];
 
@@ -356,6 +388,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( fetchInfo.link.length > 0 ) { pivotItems.push( this.pivotLINK ); }
         if ( fetchInfo.snippet ) { pivotItems.push( this.pivotRAW ); }
 
+        pivotItems.push( this.pivotPROF );
+
         let pivotContent = <div><Pivot
             // styles={ pivotStyles }
             linkFormat={PivotLinkFormat.links}
@@ -366,6 +400,17 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         </Pivot>
         { thisPage }
       </div>;
+
+/***
+ *    db      d888888b d8888b. d8888b.  .d8b.  d8888b. db    db      db      d888888b d8b   db db   dD .d8888. 
+ *    88        `88'   88  `8D 88  `8D d8' `8b 88  `8D `8b  d8'      88        `88'   888o  88 88 ,8P' 88'  YP 
+ *    88         88    88oooY' 88oobY' 88ooo88 88oobY'  `8bd8'       88         88    88V8o 88 88,8P   `8bo.   
+ *    88         88    88~~~b. 88`8b   88~~~88 88`8b      88         88         88    88 V8o88 88`8b     `Y8b. 
+ *    88booo.   .88.   88   8D 88 `88. 88   88 88 `88.    88         88booo.   .88.   88  V888 88 `88. db   8D 
+ *    Y88888P Y888888P Y8888P' 88   YD YP   YP 88   YD    YP         Y88888P Y888888P VP   V8P YP   YD `8888Y' 
+ *                                                                                                             
+ *                                                                                                             
+ */
 
       let libViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.libraryPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open library ]</span>;
 
@@ -382,6 +427,17 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         }
       </div>;
     }
+
+  /***
+ *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b.      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
+ *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 
+ *    88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY'      88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    
+ *    88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b        88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88    
+ *    88   8D 88   88 88  V888 88  V888 88.     88 `88.      88.     88booo. 88.     88  88  88 88.     88  V888    88    
+ *    Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD      Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    
+ *                                                                                                                        
+ *                                                                                                                        
+ */
 
     let Banner = <WebpartBanner 
       exportProps={ this.props.bannerProps.exportProps }
@@ -431,6 +487,17 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let termsOfUse = this.props.fetchInfo == null || this.props.fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
     
+/***
+ *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
+ *    88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
+ *    88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
+ *    88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
+ *    88 `88. 88.        88    88b  d88 88 `88. 88  V888 
+ *    88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
+ *                                                       
+ *                                                       
+ */
+
     return (
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
@@ -443,6 +510,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     );
   }
 
+/***
+ *     d888b  d88888b d888888b      d888888b  .d8b.   d888b        .o88b.  .d88b.  db       .d88b.  d8888b. 
+ *    88' Y8b 88'     `~~88~~'      `~~88~~' d8' `8b 88' Y8b      d8P  Y8 .8P  Y8. 88      .8P  Y8. 88  `8D 
+ *    88      88ooooo    88            88    88ooo88 88           8P      88    88 88      88    88 88oobY' 
+ *    88  ooo 88~~~~~    88            88    88~~~88 88  ooo      8b      88    88 88      88    88 88`8b   
+ *    88. ~8~ 88.        88            88    88   88 88. ~8~      Y8b  d8 `8b  d8' 88booo. `8b  d8' 88 `88. 
+ *     Y888P  Y88888P    YP            YP    YP   YP  Y888P        `Y88P'  `Y88P'  Y88888P  `Y88P'  88   YD 
+ *                                                                                                          
+ *                                                                                                          
+ */
 
   private getTagColor( level: IPolicyFlagLevel ) {
     let color = '';
@@ -451,6 +528,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     if ( level === 'verify' ) { color = 'blue' ; }
     return color;
   }
+
+
+  /***
+ *    d8888b. db    db d888888b db      d8888b.      d888888b  .d8b.   d888b       d8888b.  .d8b.   d888b  d88888b 
+ *    88  `8D 88    88   `88'   88      88  `8D      `~~88~~' d8' `8b 88' Y8b      88  `8D d8' `8b 88' Y8b 88'     
+ *    88oooY' 88    88    88    88      88   88         88    88ooo88 88           88oodD' 88ooo88 88      88ooooo 
+ *    88~~~b. 88    88    88    88      88   88         88    88~~~88 88  ooo      88~~~   88~~~88 88  ooo 88~~~~~ 
+ *    88   8D 88b  d88   .88.   88booo. 88  .8D         88    88   88 88. ~8~      88      88   88 88. ~8~ 88.     
+ *    Y8888P' ~Y8888P' Y888888P Y88888P Y8888D'         YP    YP   YP  Y888P       88      YP   YP  Y888P  Y88888P 
+ *                                                                                                                 
+ *                                                                                                                 
+ */
+
 
   private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'verify' | '' = '' ) {
 
@@ -503,6 +593,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   }
 
+
+  /***
+ *     d888b  d88888b d888888b       .o88b.  .d88b.  db       .d88b.  d8888b.      .d8888. d888888b db    db db      d88888b 
+ *    88' Y8b 88'     `~~88~~'      d8P  Y8 .8P  Y8. 88      .8P  Y8. 88  `8D      88'  YP `~~88~~' `8b  d8' 88      88'     
+ *    88      88ooooo    88         8P      88    88 88      88    88 88oobY'      `8bo.      88     `8bd8'  88      88ooooo 
+ *    88  ooo 88~~~~~    88         8b      88    88 88      88    88 88`8b          `Y8b.    88       88    88      88~~~~~ 
+ *    88. ~8~ 88.        88         Y8b  d8 `8b  d8' 88booo. `8b  d8' 88 `88.      db   8D    88       88    88booo. 88.     
+ *     Y888P  Y88888P    YP          `Y88P'  `Y88P'  Y88888P  `Y88P'  88   YD      `8888Y'    YP       YP    Y88888P Y88888P 
+ *                                                                                                                           
+ *                                                                                                                           
+ */
+
+
   private getColorStyle ( color: string ) {
     return {
       backgroundColor: 'transparent',
@@ -520,6 +623,18 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
 
   }
+
+  /***
+ *    .d8888. d88888b db      d88888b  .o88b. d888888b      d888888b d8b   db d8888b. d88888b db    db 
+ *    88'  YP 88'     88      88'     d8P  Y8 `~~88~~'        `88'   888o  88 88  `8D 88'     `8b  d8' 
+ *    `8bo.   88ooooo 88      88ooooo 8P         88            88    88V8o 88 88   88 88ooooo  `8bd8'  
+ *      `Y8b. 88~~~~~ 88      88~~~~~ 8b         88            88    88 V8o88 88   88 88~~~~~  .dPYb.  
+ *    db   8D 88.     88booo. 88.     Y8b  d8    88           .88.   88  V888 88  .8D 88.     .8P  Y8. 
+ *    `8888Y' Y88888P Y88888P Y88888P  `Y88P'    YP         Y888888P VP   V8P Y8888D' Y88888P YP    YP 
+ *                                                                                                     
+ *                                                                                                     
+ */
+
   private _selectedIndex = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;
@@ -530,11 +645,33 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 		
 	}
 
+  /***
+ *     .d88b.  d8b   db      d88888b d888888b db      d88888b       .o88b. db      d888888b  .o88b. db   dD 
+ *    .8P  Y8. 888o  88      88'       `88'   88      88'          d8P  Y8 88        `88'   d8P  Y8 88 ,8P' 
+ *    88    88 88V8o 88      88ooo      88    88      88ooooo      8P      88         88    8P      88,8P   
+ *    88    88 88 V8o88      88~~~      88    88      88~~~~~      8b      88         88    8b      88`8b   
+ *    `8b  d8' 88  V888      88        .88.   88booo. 88.          Y8b  d8 88booo.   .88.   Y8b  d8 88 `88. 
+ *     `Y88P'  VP   V8P      YP      Y888888P Y88888P Y88888P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD 
+ *                                                                                                          
+ *                                                                                                          
+ */
+
   private onFileClick( url: string ) : void {
     let e: any = event;
     url += e.altKey === true ? '&p=5' : '';
     window.open( url, 'none' );
   }
+
+  /***
+ *    d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
+ *    `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
+ *       88    88    88 88      88      88      88ooooo `8bo.   
+ *       88    88    88 88  ooo 88  ooo 88      88~~~~~   `Y8b. 
+ *       88    `8b  d8' 88. ~8~ 88. ~8~ 88booo. 88.     db   8D 
+ *       YP     `Y88P'   Y888P   Y888P  Y88888P Y88888P `8888Y' 
+ *                                                              
+ *                                                              
+ */
 
   private toggleBlockWarnHeight( ) : void {
     let newSetting = this.state.fullBlockedHeight === true ? false : true;

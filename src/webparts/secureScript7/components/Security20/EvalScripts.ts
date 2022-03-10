@@ -1,7 +1,17 @@
 
 import { SPComponentLoader } from '@microsoft/sp-loader';
 
-    
+/***
+ *    d88888b db    db  .d8b.  db           .d8888.  .o88b. d8888b. d888888b d8888b. d888888b 
+ *    88'     88    88 d8' `8b 88           88'  YP d8P  Y8 88  `8D   `88'   88  `8D `~~88~~' 
+ *    88ooooo Y8    8P 88ooo88 88           `8bo.   8P      88oobY'    88    88oodD'    88    
+ *    88~~~~~ `8b  d8' 88~~~88 88             `Y8b. 8b      88`8b      88    88~~~      88    
+ *    88.      `8bd8'  88   88 88booo.      db   8D Y8b  d8 88 `88.   .88.   88         88    
+ *    Y88888P    YP    YP   YP Y88888P      `8888Y'  `Y88P' 88   YD Y888888P 88         YP    
+ *                                                                                            
+ *                                                                                            
+ */
+
 export async function evalScript(elem, _unqiueId: string, thisDocument: Document) {
     console.log('Secure trace:  evalScript');
   const data = (elem.text || elem.textContent || elem.innerHTML || "");
@@ -30,6 +40,18 @@ export async function evalScript(elem, _unqiueId: string, thisDocument: Document
 
   headTag.insertBefore(scriptTag, headTag.firstChild);
 }
+
+
+/***
+ *    d88888b db    db d88888b  .o88b. db    db d888888b d88888b      .d8888.  .o88b. d8888b. d888888b d8888b. d888888b 
+ *    88'     `8b  d8' 88'     d8P  Y8 88    88 `~~88~~' 88'          88'  YP d8P  Y8 88  `8D   `88'   88  `8D `~~88~~' 
+ *    88ooooo  `8bd8'  88ooooo 8P      88    88    88    88ooooo      `8bo.   8P      88oobY'    88    88oodD'    88    
+ *    88~~~~~  .dPYb.  88~~~~~ 8b      88    88    88    88~~~~~        `Y8b. 8b      88`8b      88    88~~~      88    
+ *    88.     .8P  Y8. 88.     Y8b  d8 88b  d88    88    88.          db   8D Y8b  d8 88 `88.   .88.   88         88    
+ *    Y88888P YP    YP Y88888P  `Y88P' ~Y8888P'    YP    Y88888P      `8888Y'  `Y88P' 88   YD Y888888P 88         YP    
+ *                                                                                                                      
+ *                                                                                                                      
+ */
 
 // Finds and executes scripts in a newly added element's body.
 // Needed since innerHTML does not run scripts.

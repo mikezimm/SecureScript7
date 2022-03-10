@@ -14,6 +14,17 @@ import { approvedSites, } from './ApprovedLibraries';
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
   IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags } from './interface';
 
+/***
+ *    d8888b. d88888b  d888b  d88888b db    db 
+ *    88  `8D 88'     88' Y8b 88'     `8b  d8' 
+ *    88oobY' 88ooooo 88      88ooooo  `8bd8'  
+ *    88`8b   88~~~~~ 88  ooo 88~~~~~  .dPYb.  
+ *    88 `88. 88.     88. ~8~ 88.     .8P  Y8. 
+ *    88   YD Y88888P  Y888P  Y88888P YP    YP 
+ *                                             
+ *                                             
+ */
+
 // let scriptRegex = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
 // let scriptSrcRegex = /<script.+?src=[\"'](.+?)[\"'].*?>/gi;
 // let linkHrefRegex = /<link.+?href=[\"'](.+?)[\"'].*?>/gi;
@@ -54,6 +65,18 @@ export const linkHrefRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?<\/a>/gi;
 export const linkHrefSingleQuoteRegex = /<a[\s\S]*?href\=[\"](.+?)[\"].*?<\/a>/gi;
 export const linkHrefDoubleQuoteRegex = /<a[\s\S]*?href\=['](.+?)['].*?<\/a>/gi;
 
+/***
+ *    d8888b.  .d8b.  .d8888. d88888b      d88888b d88888b d888888b  .o88b. db   db      d888888b d8b   db d88888b  .d88b.  
+ *    88  `8D d8' `8b 88'  YP 88'          88'     88'     `~~88~~' d8P  Y8 88   88        `88'   888o  88 88'     .8P  Y8. 
+ *    88oooY' 88ooo88 `8bo.   88ooooo      88ooo   88ooooo    88    8P      88ooo88         88    88V8o 88 88ooo   88    88 
+ *    88~~~b. 88~~~88   `Y8b. 88~~~~~      88~~~   88~~~~~    88    8b      88~~~88         88    88 V8o88 88~~~   88    88 
+ *    88   8D 88   88 db   8D 88.          88      88.        88    Y8b  d8 88   88        .88.   88  V888 88      `8b  d8' 
+ *    Y8888P' YP   YP `8888Y' Y88888P      YP      Y88888P    YP     `Y88P' YP   YP      Y888888P VP   V8P YP       `Y88P'  
+ *                                                                                                                          
+ *                                                                                                                          
+ */
+
+
 export function baseFetchInfo( warning: string ) {
     let base: IFetchInfo = {
         snippet: '',
@@ -90,6 +113,17 @@ export function baseFetchInfo( warning: string ) {
 
 }
 
+/***
+ *    d88888b d88888b d888888b  .o88b. db   db      .d8888. d8b   db d888888b d8888b.      .88b  d88. d888888b db   dD d88888b 
+ *    88'     88'     `~~88~~' d8P  Y8 88   88      88'  YP 888o  88   `88'   88  `8D      88'YbdP`88   `88'   88 ,8P' 88'     
+ *    88ooo   88ooooo    88    8P      88ooo88      `8bo.   88V8o 88    88    88oodD'      88  88  88    88    88,8P   88ooooo 
+ *    88~~~   88~~~~~    88    8b      88~~~88        `Y8b. 88 V8o88    88    88~~~        88  88  88    88    88`8b   88~~~~~ 
+ *    88      88.        88    Y8b  d8 88   88      db   8D 88  V888   .88.   88           88  88  88   .88.   88 `88. 88.     
+ *    YP      Y88888P    YP     `Y88P' YP   YP      `8888Y' VP   V8P Y888888P 88           YP  YP  YP Y888888P YP   YD Y88888P 
+ *                                                                                                                             
+ *                                                                                                                             
+ */
+
 export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile  ) {
 
     if ( !webUrl || webUrl.length < 1 ) {
@@ -120,6 +154,19 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     // console.log('fetchSnippetMike: htmlFragment', htmlFragment );
 
     let postFetchTime = new Date();
+
+
+/***
+ *              d888888b  .d8b.   d888b       d888888b d8888b. d88888b d8b   db d888888b d888888b d88888b db    db 
+ *              `~~88~~' d8' `8b 88' Y8b        `88'   88  `8D 88'     888o  88 `~~88~~'   `88'   88'     `8b  d8' 
+ *                 88    88ooo88 88              88    88   88 88ooooo 88V8o 88    88       88    88ooo    `8bd8'  
+ *                 88    88~~~88 88  ooo         88    88   88 88~~~~~ 88 V8o88    88       88    88~~~      88    
+ *                 88    88   88 88. ~8~        .88.   88  .8D 88.     88  V888    88      .88.   88         88    
+ *                 YP    YP   YP  Y888P       Y888888P Y8888D' Y88888P VP   V8P    YP    Y888888P YP         YP    
+ *                                                                                                                 
+ *                                                                                                                 
+ */
+
 
     let cleanHtmlFragment = htmlFragment.replace('\\\"','"');
 
@@ -164,6 +211,16 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         return tagInfo;
     });
 
+/***
+ *              d8888b.  .d88b.  db      d888888b  .o88b. db    db      .d8888. db    db .88b  d88. .88b  d88.  .d8b.  d8888b. db    db 
+ *              88  `8D .8P  Y8. 88        `88'   d8P  Y8 `8b  d8'      88'  YP 88    88 88'YbdP`88 88'YbdP`88 d8' `8b 88  `8D `8b  d8' 
+ *              88oodD' 88    88 88         88    8P       `8bd8'       `8bo.   88    88 88  88  88 88  88  88 88ooo88 88oobY'  `8bd8'  
+ *              88~~~   88    88 88         88    8b         88           `Y8b. 88    88 88  88  88 88  88  88 88~~~88 88`8b      88    
+ *              88      `8b  d8' 88booo.   .88.   Y8b  d8    88         db   8D 88b  d88 88  88  88 88  88  88 88   88 88 `88.    88    
+ *              88       `Y88P'  Y88888P Y888888P  `Y88P'    YP         `8888Y' ~Y8888P' YP  YP  YP YP  YP  YP YP   YP 88   YD    YP    
+ *                                                                                                                                      
+ *                                                                                                                                      
+ */
 
     let policyFlags: IPolicyFlags = {
         warn: [],
@@ -181,6 +238,18 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     });
 
     let postRegexTime = new Date();
+
+/***
+ *              d88888b d88888b d888888b  .o88b. db   db      d888888b d8b   db d88888b  .d88b.       d8888b. db    db d888888b db      d8888b. 
+ *              88'     88'     `~~88~~' d8P  Y8 88   88        `88'   888o  88 88'     .8P  Y8.      88  `8D 88    88   `88'   88      88  `8D 
+ *              88ooo   88ooooo    88    8P      88ooo88         88    88V8o 88 88ooo   88    88      88oooY' 88    88    88    88      88   88 
+ *              88~~~   88~~~~~    88    8b      88~~~88         88    88 V8o88 88~~~   88    88      88~~~b. 88    88    88    88      88   88 
+ *              88      88.        88    Y8b  d8 88   88        .88.   88  V888 88      `8b  d8'      88   8D 88b  d88   .88.   88booo. 88  .8D 
+ *              YP      Y88888P    YP     `Y88P' YP   YP      Y888888P VP   V8P YP       `Y88P'       Y8888P' ~Y8888P' Y888888P Y88888P Y8888D' 
+ *                                                                                                                                              
+ *                                                                                                                                              
+ */
+
     let result :  IFetchInfo= {
         selectedKey: 'raw',
         snippet: htmlFragment,
@@ -244,6 +313,19 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     return result;
 
 }
+
+
+/***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d888888b  .d8b.   d888b       d888888b d8b   db d88888b  .d88b.       d888888b d888888b d88888b .88b  d88. 
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          `~~88~~' d8' `8b 88' Y8b        `88'   888o  88 88'     .8P  Y8.        `88'   `~~88~~' 88'     88'YbdP`88 
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo         88    88ooo88 88              88    88V8o 88 88ooo   88    88         88       88    88ooooo 88  88  88 
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~         88    88~~~88 88  ooo         88    88 V8o88 88~~~   88    88         88       88    88~~~~~ 88  88  88 
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.             88    88   88 88. ~8~        .88.   88  V888 88      `8b  d8'        .88.      88    88.     88  88  88 
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P         YP    YP   YP  Y888P       Y888888P VP   V8P YP       `Y88P'       Y888888P    YP    Y88888P YP  YP  YP 
+ *                                                                                                                                                                     
+ *                                                                                                                                                                     
+ */
+
 
 //This will get all instances of '+' except any '++' or '+=' or '+-'
 export const regexJustPlus = /[^\+]\+[^\+\=\-]/gi;

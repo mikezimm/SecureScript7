@@ -76,6 +76,18 @@ require('../../services/propPane/GrayPropPaneAccordions.css');
 export const repoLink: IRepoLinks = links.gitRepoSecureScript7Small;
 
 export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureScript7WebPartProps> {
+
+  /***
+ *    d8888b. d8888b. d888888b db    db  .d8b.  d888888b d88888b .d8888. 
+ *    88  `8D 88  `8D   `88'   88    88 d8' `8b `~~88~~' 88'     88'  YP 
+ *    88oodD' 88oobY'    88    Y8    8P 88ooo88    88    88ooooo `8bo.   
+ *    88~~~   88`8b      88    `8b  d8' 88~~~88    88    88~~~~~   `Y8b. 
+ *    88      88 `88.   .88.    `8bd8'  88   88    88    88.     db   8D 
+ *    88      88   YD Y888888P    YP    YP   YP    YP    Y88888P `8888Y' 
+ *                                                                       
+ *                                                                       
+ */
+
   private _unqiueId;
   private cdnMode:  ICDNMode = 'Webs';
   private cdnValid:  boolean = false;
@@ -137,6 +149,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private bannerElement : HTMLDivElement;
   private scriptElement : HTMLDivElement;
+
+
+  /***
+ *     .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
+ *    .8P  Y8. 888o  88   `88'   888o  88   `88'   `~~88~~' 
+ *    88    88 88V8o 88    88    88V8o 88    88       88    
+ *    88    88 88 V8o88    88    88 V8o88    88       88    
+ *    `8b  d8' 88  V888   .88.   88  V888   .88.      88    
+ *     `Y88P'  VP   V8P Y888888P VP   V8P Y888888P    YP    
+ *                                                          
+ *                                                          
+ */
 
   protected onInit(): Promise<void> {
     
@@ -212,6 +236,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     });
   }
+
+
+  /***
+ *    d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
+ *    88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
+ *    88oobY' 88ooooo 88V8o 88 88   88 88ooooo 88oobY' 
+ *    88`8b   88~~~~~ 88 V8o88 88   88 88~~~~~ 88`8b   
+ *    88 `88. 88.     88  V888 88  .8D 88.     88 `88. 
+ *    88   YD Y88888P VP   V8P Y8888D' Y88888P 88   YD 
+ *                                                     
+ *                                                     
+ */
+
 
   // public render(): void {
   public async render() {
@@ -299,6 +336,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   //   showCodeIcon = true;
   // }
 
+  /***
+ *    d88888b d88888b d888888b  .o88b. db   db      d88888b d888888b db      d88888b 
+ *    88'     88'     `~~88~~' d8P  Y8 88   88      88'       `88'   88      88'     
+ *    88ooo   88ooooo    88    8P      88ooo88      88ooo      88    88      88ooooo 
+ *    88~~~   88~~~~~    88    8b      88~~~88      88~~~      88    88      88~~~~~ 
+ *    88      88.        88    Y8b  d8 88   88      88        .88.   88booo. 88.     
+ *    YP      Y88888P    YP     `Y88P' YP   YP      YP      Y888888P Y88888P Y88888P 
+ *                                                                                   
+ *                                                                                   
+ */
+
   approvedSites.map( site => {
     if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { this.cdnValid = true; }
   });
@@ -311,6 +359,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     //Reset fetchInstance which triggers some updates in react component
     this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
   }
+
+
+  /***
+ *     .o88b.  .d88b.  d8b   db .d8888. d888888b      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
+ *    d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~'      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 
+ *    8P      88    88 88V8o 88 `8bo.      88         88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    
+ *    8b      88    88 88 V8o88   `Y8b.    88         88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88    
+ *    Y8b  d8 `8b  d8' 88  V888 db   8D    88         88.     88booo. 88.     88  88  88 88.     88  V888    88    
+ *     `Y88P'  `Y88P'  VP   V8P `8888Y'    YP         Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    
+ *                                                                                                                 
+ *                                                                                                                 
+ */
 
 
     const element: React.ReactElement<ISecureScript7Props> = React.createElement(
@@ -349,6 +409,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
       }
     );
+
+
+    /***
+ *    d8888b.  .d88b.  .88b  d88.      d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
+ *    88  `8D .8P  Y8. 88'YbdP`88      88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
+ *    88   88 88    88 88  88  88      88oobY' 88ooooo 88V8o 88 88   88 88ooooo 88oobY' 
+ *    88   88 88    88 88  88  88      88`8b   88~~~~~ 88 V8o88 88   88 88~~~~~ 88`8b   
+ *    88  .8D `8b  d8' 88  88  88      88 `88. 88.     88  V888 88  .8D 88.     88 `88. 
+ *    Y8888D'  `Y88P'  YP  YP  YP      88   YD Y88888P VP   V8P Y8888D' Y88888P 88   YD 
+ *                                                                                      
+ *                                                                                      
+ */
 
     ReactDom.render(element, this.bannerElement);
     this.scriptElement.innerHTML = this.fetchInfo.snippet;
@@ -481,6 +553,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 //   }
 // }
 
+/***
+ *    d888888b db   db d88888b .88b  d88. d88888b 
+ *    `~~88~~' 88   88 88'     88'YbdP`88 88'     
+ *       88    88ooo88 88ooooo 88  88  88 88ooooo 
+ *       88    88~~~88 88~~~~~ 88  88  88 88~~~~~ 
+ *       88    88   88 88.     88  88  88 88.     
+ *       YP    YP   YP Y88888P YP  YP  YP Y88888P 
+ *                                                
+ *                                                
+ */
+
 
   private _getEnvironmentMessage(): string {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams
@@ -513,6 +596,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     return Version.parse('1.0');
   }
 
+
+  /***
+ *     d888b  d88888b d888888b      db      d888888b d8888b. d8888b.  .d8b.  d8888b. d888888b d88888b .d8888. 
+ *    88' Y8b 88'     `~~88~~'      88        `88'   88  `8D 88  `8D d8' `8b 88  `8D   `88'   88'     88'  YP 
+ *    88      88ooooo    88         88         88    88oooY' 88oobY' 88ooo88 88oobY'    88    88ooooo `8bo.   
+ *    88  ooo 88~~~~~    88         88         88    88~~~b. 88`8b   88~~~88 88`8b      88    88~~~~~   `Y8b. 
+ *    88. ~8~ 88.        88         88booo.   .88.   88   8D 88 `88. 88   88 88 `88.   .88.   88.     db   8D 
+ *     Y888P  Y88888P    YP         Y88888P Y888888P Y8888P' 88   YD YP   YP 88   YD Y888888P Y88888P `8888Y' 
+ *                                                                                                            
+ *                                                                                                            
+ */
 
 
   // Dropdown gets disabled while retrieving items asynchronously
@@ -562,6 +656,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       .then(data => data.value);
   }
 
+
+  /***
+ *     d888b  d88888b d888888b      d88888b d888888b db      d88888b .d8888. 
+ *    88' Y8b 88'     `~~88~~'      88'       `88'   88      88'     88'  YP 
+ *    88      88ooooo    88         88ooo      88    88      88ooooo `8bo.   
+ *    88  ooo 88~~~~~    88         88~~~      88    88      88~~~~~   `Y8b. 
+ *    88. ~8~ 88.        88         88        .88.   88booo. 88.     db   8D 
+ *     Y888P  Y88888P    YP         YP      Y888888P Y88888P Y88888P `8888Y' 
+ *                                                                           
+ *                                                                           
+ */
+
+
   // Asynchronous library query
   // Copied from CherryPickedCE
   private getLibraryItemsList = (filesLocation) => {
@@ -574,6 +681,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       .then((response: SPHttpClientResponse) => response.json())
       .then(data => data.value);
   }
+
+
+/***
+ *    d8888b. d8888b.  .d88b.  d8888b.      d8888b.  .d8b.  d8b   db d88888b      .d8888. d888888b  .d8b.  d8888b. d888888b 
+ *    88  `8D 88  `8D .8P  Y8. 88  `8D      88  `8D d8' `8b 888o  88 88'          88'  YP `~~88~~' d8' `8b 88  `8D `~~88~~' 
+ *    88oodD' 88oobY' 88    88 88oodD'      88oodD' 88ooo88 88V8o 88 88ooooo      `8bo.      88    88ooo88 88oobY'    88    
+ *    88~~~   88`8b   88    88 88~~~        88~~~   88~~~88 88 V8o88 88~~~~~        `Y8b.    88    88~~~88 88`8b      88    
+ *    88      88 `88. `8b  d8' 88           88      88   88 88  V888 88.          db   8D    88    88   88 88 `88.    88    
+ *    88      88   YD  `Y88P'  88           88      YP   YP VP   V8P Y88888P      `8888Y'    YP    YP   YP 88   YD    YP    
+ *                                                                                                                          
+ *                                                                                                                          
+ */
 
 
   // Runs before getting the Property Pane configuration
@@ -660,6 +779,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
       return isValid;
   } 
+
+  /***
+ *    d8888b. d8888b.  .d88b.  d8888b.      d8888b.  .d8b.  d8b   db d88888b       .o88b. db   db  .d8b.  d8b   db  d888b  d88888b 
+ *    88  `8D 88  `8D .8P  Y8. 88  `8D      88  `8D d8' `8b 888o  88 88'          d8P  Y8 88   88 d8' `8b 888o  88 88' Y8b 88'     
+ *    88oodD' 88oobY' 88    88 88oodD'      88oodD' 88ooo88 88V8o 88 88ooooo      8P      88ooo88 88ooo88 88V8o 88 88      88ooooo 
+ *    88~~~   88`8b   88    88 88~~~        88~~~   88~~~88 88 V8o88 88~~~~~      8b      88~~~88 88~~~88 88 V8o88 88  ooo 88~~~~~ 
+ *    88      88 `88. `8b  d8' 88           88      88   88 88  V888 88.          Y8b  d8 88   88 88   88 88  V888 88. ~8~ 88.     
+ *    88      88   YD  `Y88P'  88           88      YP   YP VP   V8P Y88888P       `Y88P' YP   YP YP   YP VP   V8P  Y888P  Y88888P 
+ *                                                                                                                                 
+ *                                                                                                                                 
+ */
 
   // This API is invoked after updating the new value of the property in the property bag (Reactive mode). 
   protected async onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any) {
@@ -766,6 +896,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.render();
   }
 
+
+  /***
+ *    d8888b. d8888b.  .d88b.  d8888b.      d8888b.  .d8b.  d8b   db d88888b       d888b  d88888b d888888b 
+ *    88  `8D 88  `8D .8P  Y8. 88  `8D      88  `8D d8' `8b 888o  88 88'          88' Y8b 88'     `~~88~~' 
+ *    88oodD' 88oobY' 88    88 88oodD'      88oodD' 88ooo88 88V8o 88 88ooooo      88      88ooooo    88    
+ *    88~~~   88`8b   88    88 88~~~        88~~~   88~~~88 88 V8o88 88~~~~~      88  ooo 88~~~~~    88    
+ *    88      88 `88. `8b  d8' 88           88      88   88 88  V888 88.          88. ~8~ 88.        88    
+ *    88      88   YD  `Y88P'  88           88      YP   YP VP   V8P Y88888P       Y888P  Y88888P    YP    
+ *                                                                                                         
+ *                                                                                                         
+ */
+
+  
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
 
     return {
