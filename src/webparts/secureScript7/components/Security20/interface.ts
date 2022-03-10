@@ -128,6 +128,41 @@ export interface ITagInfo {
   export const SourceSecurityRankColor: string[] = [ 'black' ,       'green' ,              'blue',             'blue' ,            'purple' ,            'black',          'black',      'black' ,  'red' ];
   export const SourceSecurityRankBackG: string[] = [ 'lightgray' ,   'white' ,              'white',            'white' ,           'white' ,             'yellow',         'yellow',     'white' ,  'yellow' ];
 
+  export interface ISourceInfo {
+    rank: ICDNCheck;
+    icon: string;
+    color: string;
+    backg: string;
+  }
+
+  export const SourceNothing: ISourceInfo = { rank: 'Nothing',      icon: 'CircleShape' ,         color: 'black',   backg: 'lightgray' };
+  export const SourceSecure:  ISourceInfo = { rank: 'SecureCDN',    icon: 'BlockedSiteSolid12' ,  color: 'green',   backg: 'white' };
+  export const SourceLocal:   ISourceInfo = { rank: 'Local',        icon: 'SharepointLogo' ,      color: 'blue',    backg: 'white' };
+  export const SourceTenant:  ISourceInfo = { rank: 'Tenant',       icon: 'SharepointLogo' ,      color: 'blue',    backg: 'white' };
+  export const SourceExtApp:  ISourceInfo = { rank: 'ExternalApproved', icon: 'GlobeFavorite' ,   color: 'purple',  backg: 'white' };
+  export const SourceExtWarn: ISourceInfo = { rank: 'ExternalWarn', icon: 'ErrorBadge' ,          color: 'black',   backg: 'yellow' };
+  export const SourceVerify:  ISourceInfo = { rank: 'Verify',       icon: 'TagUnknown' ,          color: 'black',   backg: 'yellow' };
+  export const SourceWWW:     ISourceInfo = { rank: 'WWW',          icon: 'Globe' ,               color: 'black',   backg: 'white' };
+  export const SourceBlock:   ISourceInfo = { rank: 'ExternalBlock', icon: 'BlockedSiteSolid12' , color: 'red',     backg: 'yellow' };
+
+  export const SourceInfo : ISourceRank = {
+    ranks: [
+      SourceNothing,
+      SourceSecure,
+      SourceLocal,
+      SourceTenant,
+      SourceExtApp,
+      SourceWWW,
+      SourceVerify,
+      SourceExtWarn,
+      SourceBlock,
+    ]
+  }
+
+  export interface ISourceRank {
+    ranks: ISourceInfo[];
+  }
+
   export interface ISecurityProfile {
     cssWarn: ICDNCheck;
     cssBlock: ICDNCheck;
