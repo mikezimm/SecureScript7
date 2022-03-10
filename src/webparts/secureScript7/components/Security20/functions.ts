@@ -1,4 +1,4 @@
-import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN , ICDNCheck, IFileTypeCDN, SourceInfo, PolicyFlagStyles, IPolicyFlagStyle, IPolicyFlagStyles } from './interface';
+import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN , ICDNCheck, IFileTypeCDN, SourceInfo, PolicyFlagStyles, IPolicyFlagStyle, IPolicyFlagStyles, IApprovedFileType } from './interface';
 import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternalCDNs, SecureProfile, jsCDNs, cssCDNs, imgCDNs, linkCDNs, htmlCDNs } from './ApprovedLibraries';
 
 
@@ -36,12 +36,12 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
   return SourceNameRank;
 }
 
-  export function createFileTypeSecurity( ext: string, icon: string, title: string, fileTypeCDN: IFileTypeCDN, text1: string = 'text1', text2: string = 'text2' ){
+  export function createFileTypeSecurity( ext: IApprovedFileType, icon: string, title: string, fileTypeCDN: IFileTypeCDN, text1: string = 'text1', text2: string = 'text2' ){
     
     //parsing this just to be sure it's not mutated
     let fullCDNs = JSON.parse(JSON.stringify( masterCDNs )) ;
 
-    if ( ext !== '*' ) {
+    if ( ext !== 'all' ) {
       fileTypeCDN.approved.map( cdn => { fullCDNs.approved.push(cdn ) ; } );
       fileTypeCDN.warn.map( cdn => { fullCDNs.warn.push(cdn ) ; } );
       fileTypeCDN.block.map( cdn => { fullCDNs.block.push(cdn ) ; } );
@@ -66,8 +66,8 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
       },
       styles: [],
       level: {
-        warn: ext === '*' ? 'TBD' : SecureProfile[`${ext}Warn`],
-        block: ext === '*' ? 'TBD' : SecureProfile[`${ext}Block`],
+        warn: ext === 'all' ? 'TBD' : SecureProfile[`${ext}Warn`],
+        block: ext === 'all' ? 'TBD' : SecureProfile[`${ext}Block`],
       },
       cdns: fullCDNs,
     };
@@ -120,7 +120,7 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
   export function createAdvSecProfile () {
     let result :IAdvancedSecurityProfile = {
       sort: ['js', 'css', 'html', 'img', 'link', 'all' ],
-      all: createFileTypeSecurity('*', '', 'All', masterCDNs ),
+      all: createFileTypeSecurity('all', '', 'All', masterCDNs ),
       js: createFileTypeSecurity('js', 'JS', 'js', jsCDNs ),
       css: createFileTypeSecurity('css', 'CSS', 'css', cssCDNs ),
       html: createFileTypeSecurity('html', 'FileHTML', 'html', htmlCDNs ),

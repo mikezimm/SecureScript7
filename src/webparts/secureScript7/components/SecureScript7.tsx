@@ -6,6 +6,7 @@ import { ISecureScript7Props, ISecureScript7State } from './ISecureScript7Props'
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
+import { Panel, IPanelProps, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 import ReactJson from "react-json-view";
 
@@ -213,6 +214,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       selectedKey: this.props.fetchInfo.selectedKey,
       fullBlockedHeight: true,
       showProfileLogic: false,
+      showPanel: false,
+      panelFileType: 'all',
+      panelSource: 'TBD',
     };
 
   }
@@ -500,6 +504,25 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let termsOfUse = this.props.fetchInfo == null || this.props.fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
     
+
+
+    let panelContent = <div style={{ paddingBottom: '50px', display: 'flex' } }>
+        { this.state.panelFileType }
+        { this.state.panelSource }
+      </div>;
+
+    let bannerPanel = <div><Panel
+        isOpen={ this.state.showPanel }
+        // this prop makes the panel non-modal
+        isBlocking={true}
+        onDismiss={ this._closePanel.bind(this) }
+        closeButtonAriaLabel="Close"
+        // type = { this.state.panelType }
+        isLightDismiss = { true }
+      >
+      { panelContent }
+    </Panel></div>;
+
 /***
  *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
  *    88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
@@ -519,6 +542,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         { originalInfo }
         { termsOfUse }
         { actualElement }
+        { bannerPanel }
       </section>
     );
   }
@@ -576,7 +600,7 @@ private getProfilePage() {
       counts = counts === 0 ? '-' : counts;
       style = JSON.parse(JSON.stringify( style ) );
       style.fontWeight = counts > 0 ? 'bold' : '';
-      cells.push( <td  style={ style }> { icon } { counts }</td>);
+      cells.push( <td  style={ style } onClick={() => this._showPanel( thisType.ext, SourceInfo.ranks[ idx ].name )} > { icon } { counts }</td>);
     });
 
     rows.push( <tr>{ cells }</tr> );
@@ -643,7 +667,7 @@ private getProfilePage() {
     });
 
     let policyMessage =  policyFlags.length === 0 ? null : <div style={{paddingBottom: '30px' }}>
-      <div style={{fontSize: 'larger', fontWeight: 'bold' }}>Policies detected</div>
+      <div style={{fontSize: 'larger', fontWeight: 'bold' }}>Policies triggered</div>
       <table>
         { policies }
       </table>
@@ -728,6 +752,20 @@ private getProfilePage() {
     url += e.altKey === true ? '&p=5' : '';
     window.open( url, 'none' );
   }
+
+  private _closePanel ( )  {
+    this.setState({ showPanel: false,});
+	}
+
+  private _showPanel ( panelFileType: IApprovedFileType, panelSource: ICDNCheck)  {
+
+    this.setState({ 
+      showPanel: true,
+      panelFileType: panelFileType,
+      panelSource: panelSource,
+    
+    });
+	}
 
   /***
  *    d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 

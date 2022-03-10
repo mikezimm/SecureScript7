@@ -207,7 +207,7 @@ export interface ITagInfo {
    */
   export interface IFileTypeSecurity {
     icon: string;
-    ext: string;
+    ext: IApprovedFileType;
     title: string;
     text1?: string;
     text2?: string;
@@ -248,5 +248,5 @@ export interface ITagInfo {
   
   //Issue #7
   //NOTE:  ALWAYS Have approvedFileTypes in lower case for filtering purposes
-  export type IApprovedFileType = 'html' | 'css' | 'js' | 'img' | 'link' | 'raw' ;
+  export type IApprovedFileType = 'html' | 'css' | 'js' | 'img' | 'link' | 'raw' | 'all' ;
   export const approvedFileTypes : IApprovedFileType[] = [ 'html', 'css', 'js', 'img' , 'link' ];
