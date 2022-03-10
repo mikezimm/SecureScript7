@@ -9,7 +9,7 @@ import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 import { convertIssuesMarkdownStringToSpan } from '@mikezimm/npmfunctions/dist/Elements/Markdown';
 
-export const panelVersionNumber = '2022-03-09 -  1.0.1.07'; //Added to show in panel
+export const panelVersionNumber = '2022-03-10 -  1.0.1.08'; //Added to show in panel
 
 export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
 
@@ -18,6 +18,9 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
         headers: ['Date','Version','Focus'],
         rows: [],
     };
+
+    table.rows.push( createAboutRow('2022-03-10',"1.0.1.08","", showRepoLinks === true ? repoLinks : null ) );
+
 
     table.rows.push( createAboutRow('2022-03-09',"1.0.1.07","#32, #33, #34, #35, #36, Add webpartHistory, Add Visitor Panel,", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('2022-03-08',"1.0.1.06","#27, #21 - Add File Type security", showRepoLinks === true ? repoLinks : null ) );

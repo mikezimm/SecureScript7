@@ -12,7 +12,7 @@ import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/String
 import { approvedSites, } from './ApprovedLibraries';
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags } from './interface';
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo } from './interface';
 
 /***
  *    d8888b. d88888b  d888b  d88888b db    db 
@@ -124,7 +124,18 @@ export function baseFetchInfo( warning: string ) {
  *                                                                                                                             
  */
 
+export function buildSourceRankArray(){
+    let SourceNameRank: ICDNCheck[] = SourceInfo.ranks.map( rank => {
+        return rank.name;
+    });
+
+    return SourceNameRank;
+}
+
 export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile  ) {
+
+    //This is just a handy array of Rank Names in order to get rank index:  SourceInfo
+    let SourceNameRank: ICDNCheck[] = buildSourceRankArray();
 
     if ( !webUrl || webUrl.length < 1 ) {
         console.log('fetchSnippetMike Err 0:', webUrl, libraryPicker, libraryItemPicker );
@@ -301,8 +312,8 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     //This determines the default tab selected in Code Pane Tags
     if ( result.blocks.length > 0 ) { result.selectedKey = 'ExternalBlock' ; } else
     if ( result.warns.length > 0 ) { result.selectedKey = 'ExternalWarn' ; } else
-    if ( result.www.length > 0 ) { result.selectedKey = 'WWW' ; } else
     if ( result.verify.length > 0 ) { result.selectedKey = 'Verify' ; } else
+    if ( result.www.length > 0 ) { result.selectedKey = 'WWW' ; } else
     if ( result.extApp.length > 0 ) { result.selectedKey = 'ExternalApproved' ; } else
     if ( result.local.length > 0 ) { result.selectedKey = 'Local' ; } else
     if ( result.secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
@@ -431,3 +442,4 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
 
     return result;
 }
+
