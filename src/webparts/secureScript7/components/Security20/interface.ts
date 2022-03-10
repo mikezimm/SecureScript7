@@ -45,6 +45,28 @@ export interface ITagInfo {
 
   export type IPolicyFlagLevel = 'warn' | 'block' | 'verify' | 'none';
 
+  export interface IPolicyFlagStyle {
+    color: string;
+    background: string;
+    fontWeight: string;
+    fontSize: string;
+  }
+
+  export interface IPolicyFlagStyles {
+    block: IPolicyFlagStyle;
+    warn: IPolicyFlagStyle;
+    verify: IPolicyFlagStyle;
+    none: IPolicyFlagStyle;
+  }
+
+
+  export const PolicyFlagStyles: IPolicyFlagStyles = {
+    block: {color: 'crimson', background: 'yellow', fontWeight: '', fontSize: '' },
+    warn: {color: 'darkviolet', background: 'LightYellow', fontWeight: '', fontSize: '' },
+    verify: {color: 'blue', background: 'AliceBlue', fontWeight: '', fontSize: '' },
+    none: {color: 'green', background: '#e9ffc7', fontWeight: '', fontSize: '' },
+  };
+
   export interface IPolicyFlags {
     block: IPolicyFlag[];
     warn: IPolicyFlag[];
@@ -97,6 +119,7 @@ export interface ITagInfo {
         verify:ITagInfo[];
         www:ITagInfo[];
         policyFlags: IPolicyFlags;
+        securityProfile: IAdvancedSecurityProfile;
   }
 
 
@@ -120,14 +143,13 @@ export interface ITagInfo {
     subsites?: boolean;
   }
 
-  
   export type ICDNCheck = 'Nothing' | 'SecureCDN' | 'Local' | 'Tenant' | 'ExtApproved' | 'ExtWarn' | 'ExtBlock' | 'Verify' | 'WWW' | 'TBD' | '';
 
-  //This tells the rank order from Highest security to lowest
-  export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExtApproved' ,  'ExtWarn',   'Verify',     'WWW' ,  'ExtBlock' ];
-  export const SourceSecurityRankIcons: string[] = [ 'CircleShape' , 'BlockedSiteSolid12' , 'SharepointLogo',   'SharepointLogo' ,  'GlobeFavorite' ,     'ErrorBadge',     'TagUnknown', 'Globe' ,       'BlockedSiteSolid12' ];
-  export const SourceSecurityRankColor: string[] = [ 'black' ,       'green' ,              'blue',             'blue' ,            'purple' ,            'black',          'black',      'black' ,  'red' ];
-  export const SourceSecurityRankBackG: string[] = [ 'lightgray' ,   'white' ,              'white',            'white' ,           'white' ,             'yellow',         'yellow',     'white' ,  'yellow' ];
+  // //This tells the rank order from Highest security to lowest
+  // export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExtApproved' ,  'ExtWarn',   'Verify',     'WWW' ,  'ExtBlock' ];
+  // export const SourceSecurityRankIcons: string[] = [ 'CircleShape' , 'BlockedSiteSolid12' , 'SharepointLogo',   'SharepointLogo' ,  'GlobeFavorite' ,     'ErrorBadge',     'TagUnknown', 'Globe' ,       'BlockedSiteSolid12' ];
+  // export const SourceSecurityRankColor: string[] = [ 'black' ,       'green' ,              'blue',             'blue' ,            'purple' ,            'black',          'black',      'black' ,  'red' ];
+  // export const SourceSecurityRankBackG: string[] = [ 'lightgray' ,   'white' ,              'white',            'white' ,           'white' ,             'yellow',         'yellow',     'white' ,  'yellow' ];
 
   export interface ISourceInfo {
     name: ICDNCheck;
@@ -137,7 +159,7 @@ export interface ITagInfo {
   }
 
   export const SourceNothing: ISourceInfo = { name: 'Nothing',      icon: 'CircleShape' ,         color: 'black',   backg: 'lightgray' };
-  export const SourceSecure:  ISourceInfo = { name: 'SecureCDN',    icon: 'BlockedSiteSolid12' ,  color: 'green',   backg: 'white' };
+  export const SourceSecure:  ISourceInfo = { name: 'SecureCDN',    icon: 'Encryption' ,  color: 'green',   backg: 'white' };
   export const SourceLocal:   ISourceInfo = { name: 'Local',        icon: 'SharepointLogo' ,      color: 'blue',    backg: 'white' };
   export const SourceTenant:  ISourceInfo = { name: 'Tenant',       icon: 'SharepointLogo' ,      color: 'blue',    backg: 'white' };
   export const SourceExtApp:  ISourceInfo = { name: 'ExtApproved', icon: 'GlobeFavorite' ,   color: 'purple',  backg: 'white' };
@@ -192,8 +214,10 @@ export interface ITagInfo {
     counts: {
       Nothing: number;
       SecureCDN: number;
+      Local: number;
       Tenant: number;
       ExtApproved: number;
+      Verify: number;
       ExtWarn: number;
       WWW: number;
       ExtBlock: number;
@@ -202,7 +226,7 @@ export interface ITagInfo {
       warn: ICDNCheck;
       block: ICDNCheck;
     };
-    colors: string[];
+    styles: IPolicyFlagStyle[];
     cdns: {
       approved: string[];
       warn: string[];

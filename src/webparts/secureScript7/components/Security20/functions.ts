@@ -1,4 +1,4 @@
-import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN , ICDNCheck, IFileTypeCDN, SourceInfo } from './interface';
+import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN , ICDNCheck, IFileTypeCDN, SourceInfo, PolicyFlagStyles, IPolicyFlagStyle, IPolicyFlagStyles } from './interface';
 import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternalCDNs, SecureProfile, jsCDNs, cssCDNs, imgCDNs, linkCDNs, htmlCDNs } from './ApprovedLibraries';
 
 
@@ -56,13 +56,15 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
       counts: {
         Nothing: 0,
         SecureCDN: 0,
+        Local: 0,
         Tenant: 0,
         ExtApproved: 0,
-        ExtWarn: 0,
         WWW: 0,
+        Verify: 0,
+        ExtWarn: 0,
         ExtBlock: 0,
       },
-      colors: [],
+      styles: [],
       level: {
         warn: ext === '*' ? 'TBD' : SecureProfile[`${ext}Warn`],
         block: ext === '*' ? 'TBD' : SecureProfile[`${ext}Block`],
@@ -74,12 +76,20 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
     //This is the overall ranks of the buckets from NOTHING to BLOCK as highest rank
     let SourceNameRank = buildSourceRankArray();
 
-    let latestColor = 'green';
+    let latestColor: IPolicyFlagStyle = PolicyFlagStyles.none;
 
     SourceNameRank.map ( rankName => {
-      if ( result.level.warn === rankName ) { latestColor = 'yellow' ; }
-      if ( result.level.block === rankName ) { latestColor = 'red' ; }
-      result.colors.push( latestColor);
+
+
+      if ( rankName === 'Verify' ) {
+        result.styles.push( PolicyFlagStyles.verify );
+
+      } else {
+        if ( result.level.warn === rankName ) { latestColor =  PolicyFlagStyles.warn; }
+        if ( result.level.block === rankName ) { latestColor = PolicyFlagStyles.block ; }
+        result.styles.push( latestColor);
+      }
+
     });
 
     return result;

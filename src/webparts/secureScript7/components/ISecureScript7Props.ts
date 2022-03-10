@@ -7,8 +7,7 @@ import { DisplayMode, Version } from '@microsoft/sp-core-library';
 
 import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './Security20/interface';
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes } from './Security20/interface';
 
 import { IAdvancedSecurityProfile } from './Security20/interface';
  
@@ -62,6 +61,7 @@ export interface ISecureScript7Props {
   fetchInstance: string;
   showCodeIcon: boolean;
 
+
     //ADDED FOR WEBPART HISTORY:  
     webpartHistory: IWebpartHistory;
 
@@ -87,6 +87,8 @@ export interface ISecureScript7State {
   showOriginalHtml: boolean;
   showApprovedLocations: boolean;
   showRawHTML: boolean;
+  showProfileLogic: boolean;
+  
   fullBlockedHeight: boolean;
   toggleTag: 'files' | 'tags';
 

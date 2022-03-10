@@ -16,8 +16,17 @@ import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/String
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { approvedSites, } from './Security20/ApprovedLibraries';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IPolicyFlag, IPolicyFlagLevel, SourceInfo,  } from './Security20/interface';
+import { IApprovedCDNs, IFetchInfo, ITagInfo, IApprovedFileType, ICDNCheck , IPolicyFlag, IPolicyFlagLevel, SourceInfo, IAdvancedSecurityProfile, IFileTypeSecurity, PolicyFlagStyles  } from './Security20/interface';
+
+import { SourceNothing,
+      SourceSecure,
+      SourceLocal,
+      SourceTenant,
+      SourceExtApp,
+      SourceWWW,
+      SourceVerify,
+      SourceExtWarn,
+      SourceBlock, } from './Security20/interface';
 
 import { buildSourceRankArray,  } from './Security20/functions';
 import { tdProperties } from 'office-ui-fabric-react';
@@ -135,17 +144,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pageV = this.buildTagPage( this.props.fetchInfo.verify, this.tagPageNoteVERIFY, [], 'verify' );
 
 
+  private pivotBlocked = <PivotItem headerText={'Blocked'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceBlock.icon }/>;
+  private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceExtWarn.icon }/>;
+  private pivotWWW = <PivotItem headerText={'WWW'} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ SourceWWW.icon }/>;
+  private pivotExtApp = <PivotItem headerText={'ExtApp'} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ SourceExtApp.icon }/>;
+  private pivotTenant = <PivotItem headerText={'Tenant'} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ SourceTenant.icon }/>;
+  private pivotSecure = <PivotItem headerText={'Secure'} ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ SourceSecure.icon }/>;
+  private pivotNothing = <PivotItem headerText={ 'Nothing' } ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={pivotHeading6} itemIcon={ SourceNothing.icon }/>;
 
-  private pivotBlocked = <PivotItem headerText={'Blocked'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading0)] }/>;
-  private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading1)] }/>;
-  private pivotWWW = <PivotItem headerText={'WWW'} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading2)] }/>;
-  private pivotExtApp = <PivotItem headerText={'ExtApp'} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading3)] }/>;
-  private pivotTenant = <PivotItem headerText={'Tenant'} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading4)] }/>;
-  private pivotSecure = <PivotItem headerText={'Secure'} ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading5)] }/>;
-  private pivotNothing = <PivotItem headerText={ 'Nothing' } ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={pivotHeading6} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading6)] }/>;
-
-  private pivotVerify = <PivotItem headerText={ 'Verify' } ariaLabel={pivotHeadingV} title={pivotHeadingV} itemKey={pivotHeadingV} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeadingV)] }/>;
-  private pivotLocal = <PivotItem headerText={ 'Local' } ariaLabel={pivotHeadingL} title={pivotHeadingL} itemKey={pivotHeadingL} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeadingL)] }/>;
+  private pivotVerify = <PivotItem headerText={ 'Verify' } ariaLabel={pivotHeadingV} title={pivotHeadingV} itemKey={pivotHeadingV} itemIcon={ SourceVerify.icon }/>;
+  private pivotLocal = <PivotItem headerText={ 'Local' } ariaLabel={pivotHeadingL} title={pivotHeadingL} itemKey={pivotHeadingL} itemIcon={ SourceLocal.icon }/>;
 
   private pivotJS = <PivotItem headerText={ null } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={pivotHeading7} itemIcon={ 'JS' }/>;
   private pivotCSS = <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'CSS' }/>;
@@ -153,7 +161,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pivotIMG = <PivotItem headerText={ null } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={pivotHeading10} itemIcon={ 'Photo2' }/>;
   private pivotLINK = <PivotItem headerText={ null } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={pivotHeading11} itemIcon={ 'Link' }/>;
   private pivotRAW = <PivotItem headerText={ 'raw' } ariaLabel={'raw'} title={'raw'} itemKey={'raw'} itemIcon={ 'Embed' }/>;
-  private pivotPROF = <PivotItem headerText={ null } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={pivotHeading13} itemIcon={ 'Encryption' }/>;
+  private pivotPROF = <PivotItem headerText={ null } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={pivotHeading13} itemIcon={ 'BookAnswers' }/>;
 
 
   private nearBannerElements = this.buildNearBannerElements();
@@ -204,6 +212,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       toggleTag: 'files',
       selectedKey: this.props.fetchInfo.selectedKey,
       fullBlockedHeight: true,
+      showProfileLogic: false,
     };
 
   }
@@ -369,8 +378,6 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( this.state.selectedKey === 'raw' ) { thisPage = <div>{ fetchInfo.snippet }</div> ; }
         if ( this.state.selectedKey === pivotHeading13 ) { 
           thisPage = <div>
-            <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
-            <ReactJson src={ SourceInfo } name={ 'SourceInfo' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
             { this.getProfilePage() }
           </div> ;
          }
@@ -525,20 +532,31 @@ private getProfilePage() {
   let rows: any[] = [];
   let headings = [<th>Type</th>];
 
-  const profileHeading = <div className={{ styles.profileHeading }}>
-    <h3>Security Profile parsing logic - what causes code to be blocked.</h3>
-    <ul>
-      <li>From Left &gt; Right, Left side is more controled/secure, Right is more risky.</li>
-      <li>Each file type has it's own profile and rules.</li>
+  const profileHeading = <div className={ styles.secProfile }>
+    <div onClick={ this.toggleLogic.bind(this) } className={ styles.profHeading} >Click me for Security Profile parsing logic - what causes code to be blocked.</div>
+    <div className={ [ styles.logicContent , this.state.showProfileLogic === true ? null : styles.logicContentHide ].join( ' ')}>
       <ul>
+        <li>From Left &gt; Right, Left side is more controled/secure, Right is more risky.</li>
+        <li>Each file type ( js, css, image etc... ) has it's own profile and rules.</li>
         <li>Each type has a general 'threashold' for Warning and Block based on the location (column)</li>
+        <ul>
+          <li>Green cells are approved locations, bright yellow are blocked, the rest are considered a Warning (higher risk) </li>
+          <li>Each cell has an icon that matches the tabs above where you can see all tags in that category.</li>
+
+        </ul>
         <li>Each type can have individual blocked/approved/warn list of locations.</li>
+        <ul>
+          <li>Number to right of file type says how many apply.</li>
+        </ul>
         <li>Blocking and Warning is determined in the following order... the first that is found is one that is applied</li>
-        <li>Blocked &gt; Warned &gt; Approved  &gt; SecureCDN  &gt; Local  &gt; Tenant  &gt; WWW</li>
-        <li>Items marked as Verify may also be found in other categories.  They have some anomoly that was detected.</li>
+        <ul>
+          <li>Blocked &gt; Warned &gt; Approved  &gt; SecureCDN  &gt; Local  &gt; Tenant  &gt; WWW</li>
+        </ul>
+        <li>Items marked as Verify may also be found in other categories.  They just have some anomoly that was detected.</li>
       </ul>
-    </ul>
-  </div>
+    </div>
+
+  </div>;
 
   SourceInfo.ranks.map( rank => {
     headings.push( <th>{ rank.name } </th> );
@@ -548,45 +566,37 @@ private getProfilePage() {
 
   this.props.securityProfile.sort.map( typeExt => {
     let cells: any[] = [];
-    let thisType = this.props.securityProfile[typeExt];
-    cells.push( <td>{ thisType.title }</td>);
-    thisType.colors.map ( ( color, idx ) => {
-      const icon = <Icon iconName={ SourceInfo.ranks[ idx ].icon } style={ { color: color } } ></Icon>;
-      cells.push( <td>{ } { icon }</td>);
+    let thisType: IFileTypeSecurity = this.props.securityProfile[typeExt];
+    let cdns: string | number = thisType.cdns.approved.length +thisType.cdns.warn.length  +thisType.cdns.block.length ;
+    cdns = cdns === 0 ? '-' : cdns;
+    cells.push( <td>{ thisType.title } ( { cdns } )</td>);
+    thisType.styles.map ( ( style, idx ) => {
+      const icon = <Icon iconName={ SourceInfo.ranks[ idx ].icon } ></Icon>;
+      let counts: number | string = thisType.counts [ SourceInfo.ranks[ idx ].name ];
+      counts = counts === 0 ? '-' : counts;
+      style = JSON.parse(JSON.stringify( style ) );
+      style.fontWeight = counts > 0 ? 'bold' : '';
+      cells.push( <td  style={ style }> { icon } { counts }</td>);
     });
 
     rows.push( <tr>{ cells }</tr> );
 
   });
 
-  return <table className = {styles.secProfile }>{ rows }</table>;//A row of table cells
+  let pane = <div>
+    { profileHeading }
+    <table className = {styles.secProfile }>{ rows }</table>
+    <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+    <ReactJson src={ SourceInfo } name={ 'SourceInfo' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+  </div> ;
+
+  return pane;
 
 
 }
 
 
-
 /***
- *     d888b  d88888b d888888b      d888888b  .d8b.   d888b        .o88b.  .d88b.  db       .d88b.  d8888b. 
- *    88' Y8b 88'     `~~88~~'      `~~88~~' d8' `8b 88' Y8b      d8P  Y8 .8P  Y8. 88      .8P  Y8. 88  `8D 
- *    88      88ooooo    88            88    88ooo88 88           8P      88    88 88      88    88 88oobY' 
- *    88  ooo 88~~~~~    88            88    88~~~88 88  ooo      8b      88    88 88      88    88 88`8b   
- *    88. ~8~ 88.        88            88    88   88 88. ~8~      Y8b  d8 `8b  d8' 88booo. `8b  d8' 88 `88. 
- *     Y888P  Y88888P    YP            YP    YP   YP  Y888P        `Y88P'  `Y88P'  Y88888P  `Y88P'  88   YD 
- *                                                                                                          
- *                                                                                                          
- */
-
-  private getTagColor( level: IPolicyFlagLevel ) {
-    let color = '';
-    if ( level === 'block' ) { color = 'crimson' ; } else
-    if ( level === 'warn' ) { color = 'darkviolet' ; } else
-    if ( level === 'verify' ) { color = 'blue' ; }
-    return color;
-  }
-
-
-  /***
  *    d8888b. db    db d888888b db      d8888b.      d888888b  .d8b.   d888b       d8888b.  .d8b.   d888b  d88888b 
  *    88  `8D 88    88   `88'   88      88  `8D      `~~88~~' d8' `8b 88' Y8b      88  `8D d8' `8b 88' Y8b 88'     
  *    88oooY' 88    88    88    88      88   88         88    88ooo88 88           88oodD' 88ooo88 88      88ooooo 
@@ -602,11 +612,11 @@ private getProfilePage() {
 
     let files = tagsInfo.map( ( tag, idx ) => {
       // return <tr><td>{ idx }</td><td>{ tag.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
-      let color = this.getTagColor( tag.policyFlags.level ) ;
+      let policyFlagStyle = PolicyFlagStyles[ tag.policyFlags.level ];
       let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
-      const newStyle = this.getColorStyle( color );
+      const newStyle = this.getColorStyle( policyFlagStyle.color );
       let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
-      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
+      return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
     });
 
     let fileTable = <table>
@@ -615,12 +625,13 @@ private getProfilePage() {
 
     let tags = tagsInfo.map( ( tag, idx ) => {
       let parts = tag.tag.split( tag.fileOriginal );
-      let color = this.getTagColor( tag.policyFlags.level ) ;
+      // let color = this.getTagColor( tag.policyFlags.level ) ;
+      let policyFlagStyle = PolicyFlagStyles[ tag.policyFlags.level ];
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
       let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
-      const newStyle = this.getColorStyle( color );
+      const newStyle = this.getColorStyle( policyFlagStyle.color );
       let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
-      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
+      return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
     });
 
     let tagTable = <table>
@@ -737,6 +748,11 @@ private getProfilePage() {
   private toggleOriginal( ) : void {
     let newSetting = this.state.showOriginalHtml === true ? false : true;
     this.setState( { showOriginalHtml: newSetting } );
+  }
+
+  private toggleLogic( ) : void {
+    let showProfileLogic = this.state.showProfileLogic === true ? false : true;
+    this.setState( { showProfileLogic: showProfileLogic } );
   }
 
   private toggleRaw( ) : void {

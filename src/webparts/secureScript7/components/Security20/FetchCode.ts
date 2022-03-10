@@ -11,8 +11,7 @@ import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/String
 
 import { approvedSites, } from './ApprovedLibraries';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel } from './interface';
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel } from './interface';
 
 import { buildSourceRankArray } from './functions';
 
@@ -92,7 +91,7 @@ export const linkOpenCloseRegex = /<a.*?href=.*?>/gi;
  */
 
 
-export function baseFetchInfo( warning: string ) {
+export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecurityProfile) {
     let base: IFetchInfo = {
         snippet: '',
         selectedKey: 'raw',
@@ -122,6 +121,7 @@ export function baseFetchInfo( warning: string ) {
             none: [],
             verify: [],
         },
+        securityProfile: securityProfile,
     };
 
     return base;
@@ -148,13 +148,13 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
     if ( !webUrl || webUrl.length < 1 ) {
         console.log('fetchSnippetMike Err 0:', webUrl, libraryPicker, libraryItemPicker );
-        return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Web URL is not valid.</div>' ) ;
+        return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Web URL is not valid.</div>', securityProfile ) ;
     } else if ( !libraryPicker || libraryPicker.length < 1 ) {
         console.log('fetchSnippetMike Err 1:', webUrl, libraryPicker, libraryItemPicker );
-        return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid library.</div>') ;
+        return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid library.</div>', securityProfile) ;
     } else if ( !libraryItemPicker || libraryItemPicker.length < 1 ) {
         console.log('fetchSnippetMike Err 2:', webUrl, libraryPicker, libraryItemPicker );
-        return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid Filename.</div>' );
+        return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid Filename.</div>', securityProfile );
     }
 
     if ( webUrl === '' ) { webUrl = '/sites/SecureCDN'; }
@@ -201,6 +201,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('"',"");
         let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'js', createTag, fileOriginal, securityProfile.js, SourceNameRank ,'<scr src=*.js' );
+        securityProfile.js.counts[ tagInfo.location ] ++;
         return tagInfo;
     });
 
@@ -210,6 +211,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
         let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'css', createTag, fileOriginal, securityProfile.css, SourceNameRank, 'href=*.css'  );
+        securityProfile.css.counts[ tagInfo.location ] ++;
         return tagInfo;
     });
 
@@ -219,6 +221,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('\"','"');
         let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'img', createTag , fileOriginal, securityProfile.img, SourceNameRank, 'src=""');
+        securityProfile.img.counts[ tagInfo.location ] ++;
         return tagInfo;
     });
 
@@ -249,6 +252,9 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         }
 
         let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'link', createTag , fileOriginal, securityProfile.link, SourceNameRank, foundRegex );
+
+        securityProfile.link.counts[ tagInfo.location ] ++;
+
         return tagInfo;
     });
 
@@ -315,6 +321,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         verify: [],
         www: [],
         policyFlags: policyFlags,
+        securityProfile: securityProfile,
     };
 
     let allTags = [ ...scripts, ...css, ...img, ...link ];
