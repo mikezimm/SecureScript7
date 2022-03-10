@@ -24,6 +24,7 @@ export interface ITagInfo {
     file: string;
     fileOriginal: string;
     type: IApprovedFileType;
+    regex: string;
     status: string;
     styleTag: string;
     icon: string;

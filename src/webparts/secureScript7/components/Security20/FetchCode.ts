@@ -12,7 +12,7 @@ import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/String
 import { approvedSites, } from './ApprovedLibraries';
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo } from './interface';
+  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel } from './interface';
 
 /***
  *    d8888b. d88888b  d888b  d88888b db    db 
@@ -61,10 +61,23 @@ export const linkSrcRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?>/gi;
 
 //This gets all a tags and finds the hrefs in them
 //For this, get match and then look for src tag to get the extension
-export const linkHrefRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?<\/a>/gi;
-export const linkHrefSingleQuoteRegex = /<a[\s\S]*?href\=[\"](.+?)[\"].*?<\/a>/gi;
-export const linkHrefDoubleQuoteRegex = /<a[\s\S]*?href\=['](.+?)['].*?<\/a>/gi;
 
+//These look for attributes with the closing tag, which is not always the case
+// export const linkHrefRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?<\/a>/gi;
+// export const linkHrefSingleQuoteRegex = /<a[\s\S]*?href\=[\"](.+?)[\"].*?<\/a>/gi;
+// export const linkHrefDoubleQuoteRegex = /<a[\s\S]*?href\=['](.+?)['].*?<\/a>/gi;
+
+//These look for attributes and just look for closing the opening tag
+export const linkHrefRegex = /<a[\s\S]*?href=[\"'](.+?)[\"'].*?>/gi;
+export const linkHrefSingleQuoteRegex = /<a[\s\S]*?href\=\"[(.+?)\"].*?>/gi;
+export const linkHrefDoubleQuoteRegex = /<a[\s\S]*?href\='(.+?)'.*?>/gi;
+
+export const linkHref2SingleQuoteRegex = /<a.*?href\=''.*?>/gi;
+export const linkHref2DoubleQuoteRegex = /<a.*?href\=\"\".*?>/gi;
+
+export const hrefEqualDoubleQuotes = /href=\".*?\"/gi;
+export const hrefEqualSingleQuotes = /href='.*?'/gi;
+export const linkOpenCloseRegex = /<a.*?href=.*?>/gi;
 /***
  *    d8888b.  .d8b.  .d8888. d88888b      d88888b d88888b d888888b  .o88b. db   db      d888888b d8b   db d88888b  .d88b.  
  *    88  `8D d8' `8b 88'  YP 88'          88'     88'     `~~88~~' d8P  Y8 88   88        `88'   888o  88 88'     .8P  Y8. 
@@ -179,7 +192,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
  */
 
 
-    let cleanHtmlFragment = htmlFragment.replace('\\\"','"');
+    let cleanHtmlFragment = htmlFragment.replace('\\\"','"').replace('\n','').replace('\r','');
 
     let scriptTags2 = cleanHtmlFragment.match(srcJSRegex2);
     let scriptTags3 = cleanHtmlFragment.match(srcJSRegex3);
@@ -191,7 +204,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let matchTag = tag.match(srcRegex);
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'js', createTag, fileOriginal, securityProfile.js  );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'js', createTag, fileOriginal, securityProfile.js, SourceNameRank ,'srcRegex' );
         return tagInfo;
     });
 
@@ -200,7 +213,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let matchTag = tag.match(hrefCSSRegex);
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'css', createTag, fileOriginal, securityProfile.css  );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'css', createTag, fileOriginal, securityProfile.css, SourceNameRank, 'hrefCSSRegex'  );
         return tagInfo;
     });
 
@@ -209,16 +222,37 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let matchTag = tag.match(srcRegex);
         let fileOriginal= matchTag === null ? '' : matchTag[0];
         let createTag = matchTag === null ? '' : matchTag[0].replace('src="',"").replace('\"','"');
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'img', createTag , fileOriginal, securityProfile.img );
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'img', createTag , fileOriginal, securityProfile.img, SourceNameRank, 'imgSrcRegex');
         return tagInfo;
     });
 
-    let linkTags = cleanHtmlFragment.match(linkSrcRegex);
+    let linkTags = cleanHtmlFragment.match(linkOpenCloseRegex);
     let link : ITagInfo[] = linkTags === null ? [] : linkTags.map( tag => { 
-        let matchTag = tag.match(hrefRegex);
-        let fileOriginal= matchTag === null ? '' : matchTag[0];
-        let createTag = matchTag === null ? '' : matchTag[0].replace('href="',"").replace('"',"");
-        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'link', createTag , fileOriginal, securityProfile.link );
+
+        // export const hrefRegex = /href=[\"'](.+?)[\"'].*?/gi;
+        // export const hrefEqualDoubleQuotes = /href=\".*?\"/gi;
+        // export const hrefEqualSingleQuotes = /href='.*?'/gigi;
+        // export const linkOpenCloseRegex = /<a.*?href=.*?>/gi;
+
+        let fileOriginal = '';
+        let createTag = '';
+        let matchTag1 = tag.match(hrefEqualDoubleQuotes);
+        let matchTag2 = tag.match(hrefEqualSingleQuotes);
+        let foundRegex = null;
+
+        if ( matchTag1 !== null ) {
+            fileOriginal=  matchTag1[0];
+            createTag =  matchTag1[0].replace('href="',"").replace('"',"");
+            foundRegex = 'matchTag1';
+        } else if ( matchTag2 !== null ) {
+            fileOriginal=  matchTag2[0];
+            createTag = matchTag2[0].replace("href='","").replace("'","");
+            foundRegex = 'matchTag2';
+        } else {
+            alert(`Strange Tag: ${tag}` );
+        }
+
+        let tagInfo: ITagInfo = createBaseTagInfoItem( tag, 'link', createTag , fileOriginal, securityProfile.link, SourceNameRank, foundRegex );
         return tagInfo;
     });
 
@@ -346,65 +380,47 @@ export const regexPlusMinus = /\+\-/gi;
 export const regexPlusEqual = /\+\=/gi;
 
 
-export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, file: string, fileOriginal: string, SecureFileProfile: IFileTypeSecurity ) {
+export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, file: string, fileOriginal: string, SecureFileProfile: IFileTypeSecurity, SourceNameRank: ICDNCheck[], regex: any ) {
     let styleRegex = /style=[\"'](.+?)[\"'].*?/gi;
     let styleTagCheck = tag.match(styleRegex);
     let styleTag = styleTagCheck === null ? '' : styleTagCheck[0];
     let lcFile = file.toLowerCase();
     let policyFlags: IPolicyFlag = { cdn: '', level: 'none', type: type, key: `none`, verify: [] };
 
+
+    /**
+     * 
+     * The order of getting the rank below needs to be executed in the same order as this.
+        export const SourceInfo : ISourceRank = {
+            ranks: [
+            SourceNothing,
+            SourceSecure,
+            SourceLocal,
+            SourceTenant,
+            SourceExtApp,
+            SourceWWW,
+            SourceVerify,
+            SourceExtWarn,
+            SourceBlock,
+            ]
+        };
+
+     */
+
     let fileLocaton : ICDNCheck = 'TBD';
-    approvedSites.map( site => {
-        if (lcFile.indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) === 0 ) { fileLocaton = 'SecureCDN';  } else 
-        if (lcFile.indexOf( `${window.origin}${site.siteRelativeURL.toLowerCase()}/` ) === 0 ) { fileLocaton = 'SecureCDN';  }   
-    });
 
-    if ( fileLocaton === 'TBD' ) {
-        if (lcFile.indexOf( `../../` ) === 0 ) { fileLocaton = 'Tenant' ; } else
-        if (lcFile.indexOf( `./` ) === 0 ) { fileLocaton = 'Local' ; } else
-        if (lcFile === '#' ) { fileLocaton = 'Local' ; } else
-        if (lcFile ==="href='#'" ) { fileLocaton = 'Local' ; } else
-        if (lcFile ==='href="#"' ) { fileLocaton = 'Local' ; } else
-        if (lcFile.indexOf( `../` ) === 0 ) { fileLocaton = 'Local' ; }
-    }
+    let warnOrBlock = { fileLocaton: fileLocaton as ICDNCheck, policyFlags: policyFlags } ;
 
-    if ( fileLocaton === 'TBD' ) {
-        if (lcFile.indexOf( `/sites/` ) === 0 ) { fileLocaton = 'Tenant' ; } else
-        if (lcFile.indexOf( `${window.origin}/sites/` ) === 0 ) { fileLocaton = 'Tenant' ; }
-    }
+    warnOrBlock = isLocationWarnBlock( lcFile, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'block' );
+    warnOrBlock = isLocationWarnBlock( lcFile, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'warn' );
 
-    if ( fileLocaton === 'TBD' ) {
-        SecureFileProfile.cdns.approved.map( site => {
-            let idx = lcFile.indexOf( site.toLowerCase() );
-            if ( idx === 0 ) { fileLocaton = 'ExternalApproved' ; } 
-        });
-    }
+    fileLocaton = warnOrBlock.fileLocaton;
+    policyFlags = warnOrBlock.policyFlags;
 
-    if ( fileLocaton === 'TBD' ) {
-        SecureFileProfile.cdns.warn.map( site => {
-            let idx = lcFile.indexOf( site.toLowerCase() );
-            if ( idx === 0 ) { 
-                fileLocaton = 'ExternalWarn' ;
-                policyFlags = { cdn: site, level: 'warn', type: type, key: `warn: ${type}-${site}`, verify: [] }  ;
-            }
-        });
-    }
-
-    if ( fileLocaton === 'TBD' ) {
-        SecureFileProfile.cdns.block.map( site => {
-            let idx = lcFile.indexOf( site.toLowerCase() );
-            if ( idx === 0 ) { 
-                fileLocaton = 'ExternalBlock' ;
-                policyFlags = { cdn: site, level: 'block', type: type, key: `block: ${type}-${site}`, verify: [] } ;
-            }
-        });
-    }
-
-    if ( fileLocaton === 'TBD' ) { 
-        fileLocaton = 'WWW';
-    }
-
-    let justPlus = file.match(regexJustPlus);
+    fileLocaton = isLocationSecure( lcFile, fileLocaton );
+    fileLocaton = isLocationLocal( lcFile, fileLocaton );
+    fileLocaton = isLocationTenant( lcFile, fileLocaton );
+    fileLocaton = isLocationExtApp( lcFile, fileLocaton, SecureFileProfile );
 
     if ( file.match(regexJustPlus) !== null ) { policyFlags.verify.push( '+' ) ; }
     if ( file.match(regexPlusPlus) !== null ) { policyFlags.verify.push( '++' ) ; }
@@ -413,7 +429,15 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     if ( file.match(regexJustEqual) !== null ) { policyFlags.verify.push( '=' ) ; }
     if ( tag.length > 255 ) { policyFlags.verify.push( 'length' ) ; }
 
-    if ( policyFlags.verify.length > 0 && policyFlags.level === 'none' ) { policyFlags.level = 'verify'; }
+    if ( policyFlags.verify.length > 0 && policyFlags.level === 'none' ) { 
+        policyFlags.level = 'verify';
+    }
+
+    if ( fileLocaton === 'TBD' && policyFlags.level === 'verify' ) { 
+        fileLocaton = 'Verify';
+    } else if ( fileLocaton === 'TBD' ){
+        fileLocaton = 'WWW';
+    }
 
     //Found an example where image file had extra " at the end of the string.
     //"<img style="padding-left:20px;vertical-align:text-bottom" src="https://tenant.sharepoint.com/sites/CRS/Templates/icons/SharePointParentSiteUpArrowIcon.jpg">"
@@ -429,6 +453,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
         fileOriginal: fileOriginal,
         type: type,
         status: '',
+        regex: regex,
         styleTag: styleTag,
         rank: rank,
         icon: SourceSecurityRankIcons[rank],
@@ -442,4 +467,79 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
 
     return result;
 }
+
+function isLocationSecure( lcFile: string, prevLocation: ICDNCheck ) {
+    if ( prevLocation !== 'TBD' ) { return prevLocation ; }
+    let fileLocaton: ICDNCheck = 'TBD';
+
+    approvedSites.map( site => {
+        if (lcFile.indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) === 0 ) { fileLocaton = 'SecureCDN';  } else
+        if (lcFile.indexOf( `${window.origin}${site.siteRelativeURL.toLowerCase()}/` ) === 0 ) { fileLocaton = 'SecureCDN';  }
+    });
+
+    return fileLocaton;
+
+}
+
+function isLocationLocal( lcFile: string, prevLocation: ICDNCheck ) {
+    if ( prevLocation !== 'TBD' ) { return prevLocation ; }
+    let fileLocaton: ICDNCheck = 'TBD';
+
+    if (lcFile.indexOf( `../../` ) === 0 ) { fileLocaton = 'Tenant' ; } else
+    if (lcFile.indexOf( `./` ) === 0 ) { fileLocaton = 'Local' ; } else
+    if (lcFile === '#' ) { fileLocaton = 'Local' ; } else
+    if (lcFile === '' ) { fileLocaton = 'Local' ; } else
+    if (lcFile.indexOf( "href=''" ) === 0 ) { fileLocaton = 'Local' ; } else
+    if (lcFile.indexOf( "href =''" ) === 0 ) { fileLocaton = 'Local' ; } else
+    if (lcFile.indexOf( "href= ''" ) === 0 ) { fileLocaton = 'Local' ; } else
+    if (lcFile.indexOf( "href = ''" ) === 0 ) { fileLocaton = 'Local' ; } else
+    if (lcFile ==="href='#'" ) { fileLocaton = 'Local' ; } else
+    if (lcFile ==='href="#"' ) { fileLocaton = 'Local' ; } else
+    if (lcFile.indexOf( `../` ) === 0 ) { fileLocaton = 'Local' ; }
+
+    return fileLocaton;
+
+}
+
+function isLocationTenant( lcFile: string, prevLocation: ICDNCheck ) {
+    if ( prevLocation !== 'TBD' ) { return prevLocation ; }
+    let fileLocaton: ICDNCheck = 'TBD';
+
+    if (lcFile.indexOf( `../../` ) === 0 ) { fileLocaton = 'Tenant' ; } else
+    if (lcFile.indexOf( `/sites/` ) === 0 ) { fileLocaton = 'Tenant' ; } else
+    if (lcFile.indexOf( `${window.origin}/sites/` ) === 0 ) { fileLocaton = 'Tenant' ; }
+
+    return fileLocaton;
+
+}
+
+function isLocationExtApp( lcFile: string, prevLocation: ICDNCheck, SecureFileProfile: IFileTypeSecurity ) {
+    if ( prevLocation !== 'TBD' ) { return prevLocation ; }
+    let fileLocaton: ICDNCheck = 'TBD';
+
+    SecureFileProfile.cdns.approved.map( site => {
+        let idx = lcFile.indexOf( site.toLowerCase() );
+        if ( idx === 0 ) { fileLocaton = 'ExternalApproved' ; } 
+    });
+
+    return fileLocaton;
+
+}
+
+function isLocationWarnBlock( lcFile: string, prevLocation: ICDNCheck, SecureFileProfile: IFileTypeSecurity, type: IApprovedFileType, policyFlags: IPolicyFlag, level: IPolicyFlagLevel ) {
+    if ( prevLocation !== 'TBD' ) { return { fileLocaton: prevLocation, policyFlags: policyFlags } ; }
+    let fileLocaton: ICDNCheck = 'TBD';
+
+    SecureFileProfile.cdns[level].map( site => {
+        let idx = lcFile.indexOf( site.toLowerCase() );
+        if ( idx === 0 ) { 
+            fileLocaton = level === 'warn' ? 'ExternalWarn' : level === 'block' ? 'ExternalBlock' : 'TBD';
+            policyFlags = { cdn: site, level: level, type: type, key: `${level}: ${type}-${site}`, verify: [] }  ;
+        }
+    });
+
+    return { fileLocaton: fileLocaton, policyFlags: policyFlags } ;
+
+}
+
 

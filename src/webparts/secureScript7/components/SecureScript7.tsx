@@ -372,14 +372,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
         if ( fetchInfo.blocks.length > 0 ) { pivotItems.push( this.pivotBlocked ); }
         if ( fetchInfo.warns.length > 0 ) { pivotItems.push( this.pivotWarn ); }
+        if ( fetchInfo.verify.length > 0 ) { pivotItems.push( this.pivotVerify ); }
         if ( fetchInfo.www.length > 0 ) { pivotItems.push( this.pivotWWW ); }
         if ( fetchInfo.extApp.length > 0 ) { pivotItems.push( this.pivotExtApp ); }
         if ( fetchInfo.tenant.length > 0 ) { pivotItems.push( this.pivotTenant ); }
         if ( fetchInfo.local.length > 0 ) { pivotItems.push( this.pivotLocal ); }
         if ( fetchInfo.secure.length > 0 ) { pivotItems.push( this.pivotSecure ); }
         if ( fetchInfo.nothing.length > 0 ) { pivotItems.push( this.pivotNothing ); }
-
-        if ( fetchInfo.verify.length > 0 ) { pivotItems.push( this.pivotVerify ); }
     
         if ( fetchInfo.js.length > 0 ) { pivotItems.push( this.pivotJS ); }
         if ( fetchInfo.css.length > 0 ) { pivotItems.push( this.pivotCSS ); }
