@@ -525,6 +525,21 @@ private getProfilePage() {
   let rows: any[] = [];
   let headings = [<th>Type</th>];
 
+  const profileHeading = <div className={{ styles.profileHeading }}>
+    <h3>Security Profile parsing logic - what causes code to be blocked.</h3>
+    <ul>
+      <li>From Left &gt; Right, Left side is more controled/secure, Right is more risky.</li>
+      <li>Each file type has it's own profile and rules.</li>
+      <ul>
+        <li>Each type has a general 'threashold' for Warning and Block based on the location (column)</li>
+        <li>Each type can have individual blocked/approved/warn list of locations.</li>
+        <li>Blocking and Warning is determined in the following order... the first that is found is one that is applied</li>
+        <li>Blocked &gt; Warned &gt; Approved  &gt; SecureCDN  &gt; Local  &gt; Tenant  &gt; WWW</li>
+        <li>Items marked as Verify may also be found in other categories.  They have some anomoly that was detected.</li>
+      </ul>
+    </ul>
+  </div>
+
   SourceInfo.ranks.map( rank => {
     headings.push( <th>{ rank.name } </th> );
   });
