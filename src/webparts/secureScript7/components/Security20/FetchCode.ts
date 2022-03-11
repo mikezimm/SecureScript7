@@ -106,20 +106,20 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
         postRegexTime: 0,
         fetchTime: 0,
         regexTime: 0,
-        nothing:[],
-        secure:[],
-        local:[],
-        tenant:[],
-        extApp:[],
-        warns:[],
-        blocks:[],
-        verify: [],
+        Nothing:[],
+        Secure:[],
+        Local:[],
+        Tenant:[],
+        Approved:[],
+        Warn:[],
+        Block:[],
+        Verify: [],
         www:[],
         policyFlags: {
-            warn: [],
-            block: [],
+            Warn: [],
+            Block: [],
+            Verify: [],
             none: [],
-            verify: [],
         },
         securityProfile: securityProfile,
     };
@@ -274,9 +274,9 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
  */
 
     let policyFlags: IPolicyFlags = {
-        warn: [],
-        block: [],
-        verify: [],
+        Warn: [],
+        Block: [],
+        Verify: [],
         none: [],
     };
 
@@ -315,14 +315,14 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         postRegexTime: postRegexTime.getTime(),
         fetchTime: postFetchTime.getTime() - preFetchTime.getTime(),
         regexTime: postRegexTime.getTime() - postFetchTime.getTime(),
-        nothing: [],
-        secure: [],
-        local: [],
-        tenant: [],
-        extApp: [],
-        warns: [],
-        blocks: [],
-        verify: [],
+        Nothing: [],
+        Secure: [],
+        Local: [],
+        Tenant: [],
+        Approved: [],
+        Warn: [],
+        Block: [],
+        Verify: [],
         www: [],
         policyFlags: policyFlags,
         securityProfile: securityProfile,
@@ -332,33 +332,33 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
 
     allTags.map( tag => {
-        if ( SourceNameRank[ tag.rank ] ==='ExtBlock' ) { result.blocks.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='ExtWarn' ) { result.warns.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='Nothing' ) { result.nothing.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='SecureCDN' ) { result.secure.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='Local' ) { result.local.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='Tenant' ) { result.tenant.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='ExtApproved' ) { result.extApp.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Block' ) { result.Block.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Warn' ) { result.Warn.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Nothing' ) { result.Nothing.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='SecureCDN' ) { result.Secure.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Local' ) { result.Local.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Tenant' ) { result.Tenant.push( tag ) ; } else
+        if ( SourceNameRank[ tag.rank ] ==='Approved' ) { result.Approved.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='WWW' ) { result.www.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='Verify' ) { result.verify.push( tag ) ; }
+        if ( SourceNameRank[ tag.rank ] ==='Verify' ) { result.Verify.push( tag ) ; }
 
         //This will catch everything previously put in other arrays like 
-        if ( SourceNameRank[ tag.rank ] !=='Verify' && tag.policyFlags.verify.length > 0 ) { result.verify.push( tag ) ; }
+        if ( SourceNameRank[ tag.rank ] !=='Verify' && tag.policyFlags.Verify.length > 0 ) { result.Verify.push( tag ) ; }
 
     });
 
     // CHECK WHY THIS DOES NOT GIVE VERIFY TAB ANY MORE
-    ///SecureScriptTesting/Gulpy/SitePages/Site-Audit-Test.aspx?debug=true&noredir=true&debugManifestsFile=https%3a//localhost%3a4321/temp/manifests.js
+    ///SecureScriptTesting/Gulpy/SitePages/Site-Audit-Test.aspx?debug=true&noredir=true&debugManifestsFile=https%3a//Localhost%3a4321/temp/manifests.js
 
     //This determines the default tab selected in Code Pane Tags
-    if ( result.blocks.length > 0 ) { result.selectedKey = 'ExtBlock' ; } else
-    if ( result.warns.length > 0 ) { result.selectedKey = 'ExtWarn' ; } else
-    if ( result.verify.length > 0 ) { result.selectedKey = 'Verify' ; } else
+    if ( result.Block.length > 0 ) { result.selectedKey = 'Block' ; } else
+    if ( result.Warn.length > 0 ) { result.selectedKey = 'Warn' ; } else
+    if ( result.Verify.length > 0 ) { result.selectedKey = 'Verify' ; } else
     if ( result.www.length > 0 ) { result.selectedKey = 'WWW' ; } else
-    if ( result.extApp.length > 0 ) { result.selectedKey = 'ExtApproved' ; } else
-    if ( result.local.length > 0 ) { result.selectedKey = 'Local' ; } else
-    if ( result.secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
-    if ( result.nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }
+    if ( result.Approved.length > 0 ) { result.selectedKey = 'Approved' ; } else
+    if ( result.Local.length > 0 ) { result.selectedKey = 'Local' ; } else
+    if ( result.Secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
+    if ( result.Nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }
 
     console.log( 'fetch results: ', result );
     console.log( 'fetch policyFlags: ', policyFlags );
@@ -392,7 +392,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     let styleTagCheck = tag.match(styleRegex);
     let styleTag = styleTagCheck === null ? '' : styleTagCheck[0];
     let lcFile = file.toLowerCase();
-    let policyFlags: IPolicyFlag = { cdn: '', level: 'none', type: type, key: `none`, verify: [] };
+    let policyFlags: IPolicyFlag = { cdn: '', level: 'none', type: type, key: `none`, Verify: [] };
 
 
     /**
@@ -407,7 +407,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
             SourceExtApp,
             SourceWWW,
             SourceVerify,
-            SourceExtWarn,
+            SourceWarn,
             SourceBlock,
             ]
         };
@@ -418,8 +418,8 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
 
     let warnOrBlock = { fileLocaton: fileLocaton as ICDNCheck, policyFlags: policyFlags } ;
 
-    warnOrBlock = isLocationWarnBlock( lcFile, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'block' );
-    warnOrBlock = isLocationWarnBlock( lcFile, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'warn' );
+    warnOrBlock = isLocationWarnBlock( lcFile, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'Block' );
+    warnOrBlock = isLocationWarnBlock( lcFile, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'Warn' );
 
     fileLocaton = warnOrBlock.fileLocaton;
     policyFlags = warnOrBlock.policyFlags;
@@ -429,18 +429,18 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     fileLocaton = isLocationTenant( lcFile, fileLocaton );
     fileLocaton = isLocationExtApp( lcFile, fileLocaton, SecureFileProfile );
 
-    if ( file.match(regexJustPlus) !== null ) { policyFlags.verify.push( '+' ) ; }
-    if ( file.match(regexPlusPlus) !== null ) { policyFlags.verify.push( '++' ) ; }
-    if ( file.match(regexPlusMinus) !== null  ) { policyFlags.verify.push( '+-' ) ; }
-    if ( file.match(regexPlusEqual) !== null ) { policyFlags.verify.push( '+=' ) ; }
-    if ( file.match(regexJustEqual) !== null ) { policyFlags.verify.push( '=' ) ; }
-    if ( tag.length > 255 ) { policyFlags.verify.push( 'length' ) ; }
+    if ( file.match(regexJustPlus) !== null ) { policyFlags.Verify.push( '+' ) ; }
+    if ( file.match(regexPlusPlus) !== null ) { policyFlags.Verify.push( '++' ) ; }
+    if ( file.match(regexPlusMinus) !== null  ) { policyFlags.Verify.push( '+-' ) ; }
+    if ( file.match(regexPlusEqual) !== null ) { policyFlags.Verify.push( '+=' ) ; }
+    if ( file.match(regexJustEqual) !== null ) { policyFlags.Verify.push( '=' ) ; }
+    if ( tag.length > 255 ) { policyFlags.Verify.push( 'length' ) ; }
 
-    if ( policyFlags.verify.length > 0 && policyFlags.level === 'none' ) { 
-        policyFlags.level = 'verify';
+    if ( policyFlags.Verify.length > 0 && policyFlags.level === 'none' ) { 
+        policyFlags.level = 'Verify';
     }
 
-    if ( fileLocaton === 'TBD' && policyFlags.level === 'verify' ) { 
+    if ( fileLocaton === 'TBD' && policyFlags.level === 'Verify' ) { 
         fileLocaton = 'Verify';
     } else if ( fileLocaton === 'TBD' ){
         fileLocaton = 'WWW';
@@ -450,7 +450,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     //"<img style="padding-left:20px;vertical-align:text-bottom" src="https://tenant.sharepoint.com/sites/CRS/Templates/icons/SharePointParentSiteUpArrowIcon.jpg">"
     file = file.replace('"','');
 
-    //export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'ExtApproved' ,  'ExtWarn',   'Verify',     'WWW' ,  'ExtBlock' ];
+    //export const SourceSecurityRank:   ICDNCheck[] = [ 'Nothing' ,     'SecureCDN' ,          'Local',            'Tenant' ,          'Approved' ,  'Warn',   'Verify',     'WWW' ,  'Block' ];
 
     let rank = SourceNameRank.indexOf( fileLocaton );
 
@@ -524,9 +524,9 @@ function isLocationExtApp( lcFile: string, prevLocation: ICDNCheck, SecureFilePr
     if ( prevLocation !== 'TBD' ) { return prevLocation ; }
     let fileLocaton: ICDNCheck = 'TBD';
 
-    SecureFileProfile.cdns.approved.map( site => {
+    SecureFileProfile.cdns.Approved.map( site => {
         let idx = lcFile.indexOf( site.toLowerCase() );
-        if ( idx === 0 ) { fileLocaton = 'ExtApproved' ; } 
+        if ( idx === 0 ) { fileLocaton = 'Approved' ; } 
     });
 
     return fileLocaton;
@@ -540,8 +540,8 @@ function isLocationWarnBlock( lcFile: string, prevLocation: ICDNCheck, SecureFil
     SecureFileProfile.cdns[level].map( site => {
         let idx = lcFile.indexOf( site.toLowerCase() );
         if ( idx === 0 ) { 
-            fileLocaton = level === 'warn' ? 'ExtWarn' : level === 'block' ? 'ExtBlock' : 'TBD';
-            policyFlags = { cdn: site, level: level, type: type, key: `${level}: ${type}-${site}`, verify: [] }  ;
+            fileLocaton = level === 'Warn' ? 'Warn' : level === 'Block' ? 'Block' : 'TBD';
+            policyFlags = { cdn: site, level: level, type: type, key: `${level}: ${type}-${site}`, Verify: [] }  ;
         }
     });
 

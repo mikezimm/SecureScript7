@@ -29,7 +29,7 @@ import { SourceNothing,
       SourceExtApp,
       SourceWWW,
       SourceVerify,
-      SourceExtWarn,
+      SourceWarn,
       SourceBlock, } from './Security20/interface';
 
 import { buildSourceRankArray,  } from './Security20/functions';
@@ -37,11 +37,11 @@ import { tdProperties } from 'office-ui-fabric-react';
 
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
-const pivotHeading0 : ICDNCheck = 'ExtBlock';  //2022-01-31: Added Pivot Tiles
-const pivotHeading1 : ICDNCheck = 'ExtWarn';  //Templates
+const pivotHeading0 : ICDNCheck = 'Block';  //2022-01-31: Added Pivot Tiles
+const pivotHeading1 : ICDNCheck = 'Warn';  //Templates
 const pivotHeading2 : ICDNCheck = 'WWW';  //Templates
 const pivotHeadingV : ICDNCheck = 'Verify';  //Templates
-const pivotHeading3 : ICDNCheck = 'ExtApproved';  //Templates
+const pivotHeading3 : ICDNCheck = 'Approved';  //Templates
 const pivotHeading4 : ICDNCheck = 'Tenant';  //Templates
 const pivotHeadingL : ICDNCheck = 'Local';  //Templates
 const pivotHeading5 : ICDNCheck = 'SecureCDN';  //Templates
@@ -115,7 +115,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         <li><span className={ styles.bad}>DO NOT</span> execute any Javascript to change any SharePoint or DOM elements above your html content div</li>
         <li><span className={ styles.bad}>DO NOT</span> load any CSS that changes any SharePoint or DOM element styling above your html content div</li>
         <br/>
-        <li>We can and do occasional audits to verify compliance with the terms of use.</li>
+        <li>We can and do occasional audits to Verify compliance with the terms of use.</li>
         <br/>
         <li style={{ fontWeight: 'bold', fontSize: 'large' }}>Breaking any of these Terms of Use will cause your CDN access to be revoked.  aka your code will no longer work.</li>
       </ul>
@@ -130,13 +130,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private tagPageNoteVERIFY = 'Verify Tags';
 
 
-  private page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.block ) ;
-  private page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns, this.props.fetchInfo.policyFlags.warn );
+  private page0 = this.buildTagPage( this.props.fetchInfo.Block, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.Block ) ;
+  private page1 = this.buildTagPage( this.props.fetchInfo.Warn, this.tagPageNoteWarns, this.props.fetchInfo.policyFlags.Warn );
   private page2 = this.buildTagPage( this.props.fetchInfo.www, this.tagPageNoteWWW );
-  private page3 = this.buildTagPage( this.props.fetchInfo.extApp, this.tagPageNoteExtApp );
-  private page4 = this.buildTagPage( this.props.fetchInfo.tenant, this.tagPageNoteTenant );
-  private page5 = this.buildTagPage( this.props.fetchInfo.secure, this.tagPageNoteSecure );
-  private page6 = this.buildTagPage( this.props.fetchInfo.nothing, this.tagPageNoteNothing );
+  private page3 = this.buildTagPage( this.props.fetchInfo.Approved, this.tagPageNoteExtApp );
+  private page4 = this.buildTagPage( this.props.fetchInfo.Tenant, this.tagPageNoteTenant );
+  private page5 = this.buildTagPage( this.props.fetchInfo.Secure, this.tagPageNoteSecure );
+  private page6 = this.buildTagPage( this.props.fetchInfo.Nothing, this.tagPageNoteNothing );
 
   private page7 = this.buildTagPage( this.props.fetchInfo.js, this.tagPageNoteJS );
   private page8 = this.buildTagPage( this.props.fetchInfo.css, this.tagPageNoteCSS );
@@ -144,12 +144,12 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private page10 = this.buildTagPage( this.props.fetchInfo.img, this.tagPageNoteIMG );
   private page11 = this.buildTagPage( this.props.fetchInfo.link, this.tagPageNoteLINK );
   
-  private pageL = this.buildTagPage( this.props.fetchInfo.local, this.tagPageNoteLOCAL );
-  private pageV = this.buildTagPage( this.props.fetchInfo.verify, this.tagPageNoteVERIFY, [], 'verify' );
+  private pageL = this.buildTagPage( this.props.fetchInfo.Local, this.tagPageNoteLOCAL );
+  private pageV = this.buildTagPage( this.props.fetchInfo.Verify, this.tagPageNoteVERIFY, [], 'Verify' );
 
 
-  private pivotBlocked = <PivotItem headerText={'Blocked'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceBlock.icon }/>;
-  private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceExtWarn.icon }/>;
+  private pivotBlock = <PivotItem headerText={'Block'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceBlock.icon }/>;
+  private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceWarn.icon }/>;
   private pivotWWW = <PivotItem headerText={'WWW'} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ SourceWWW.icon }/>;
   private pivotExtApp = <PivotItem headerText={'ExtApp'} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ SourceExtApp.icon }/>;
   private pivotTenant = <PivotItem headerText={'Tenant'} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ SourceTenant.icon }/>;
@@ -235,13 +235,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   private setStateFetchInfo( fetchInfo: IFetchInfo ) {
 
-    this.page0 = this.buildTagPage( fetchInfo.blocks, this.tagPageNoteBlocks, fetchInfo.policyFlags.block ) ;
-    this.page1 = this.buildTagPage( fetchInfo.warns, this.tagPageNoteWarns, fetchInfo.policyFlags.warn );
+    this.page0 = this.buildTagPage( fetchInfo.Block, this.tagPageNoteBlocks, fetchInfo.policyFlags.Block ) ;
+    this.page1 = this.buildTagPage( fetchInfo.Warn, this.tagPageNoteWarns, fetchInfo.policyFlags.Warn );
     this.page2 = this.buildTagPage( fetchInfo.www, this.tagPageNoteWWW );
-    this.page3 = this.buildTagPage( fetchInfo.extApp, this.tagPageNoteExtApp );
-    this.page4 = this.buildTagPage( fetchInfo.tenant, this.tagPageNoteTenant );
-    this.page5 = this.buildTagPage( fetchInfo.secure, this.tagPageNoteSecure );
-    this.page6 = this.buildTagPage( fetchInfo.nothing, this.tagPageNoteNothing );
+    this.page3 = this.buildTagPage( fetchInfo.Approved, this.tagPageNoteExtApp );
+    this.page4 = this.buildTagPage( fetchInfo.Tenant, this.tagPageNoteTenant );
+    this.page5 = this.buildTagPage( fetchInfo.Secure, this.tagPageNoteSecure );
+    this.page6 = this.buildTagPage( fetchInfo.Nothing, this.tagPageNoteNothing );
   
     this.page7 = this.buildTagPage( fetchInfo.js, this.tagPageNoteJS );
     this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS );
@@ -249,8 +249,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG );
     this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK );
 
-    this.pageL = this.buildTagPage( fetchInfo.local, this.tagPageNoteLOCAL );
-    this.pageV = this.buildTagPage( fetchInfo.verify, this.tagPageNoteVERIFY, [], 'verify' );
+    this.pageL = this.buildTagPage( fetchInfo.Local, this.tagPageNoteLOCAL );
+    this.pageV = this.buildTagPage( fetchInfo.Verify, this.tagPageNoteVERIFY, [], 'Verify' );
 
     let selectedKey = fetchInfo.selectedKey;
 
@@ -363,7 +363,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  */
 
     let blockHTML = null;
-    if ( fetchInfo.selectedKey === 'ExtBlock' ) {
+    if ( fetchInfo.selectedKey === 'Block' ) {
       let blockHeight = this.state.fullBlockedHeight === true ? null : '50px';
       blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden', cursor: 'pointer' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
         <h2>Some content could not be loaded because it was blocked for security reasons</h2>
@@ -419,15 +419,15 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
         let pivotItems: any [] = [];
 
-        if ( fetchInfo.blocks.length > 0 ) { pivotItems.push( this.pivotBlocked ); }
-        if ( fetchInfo.warns.length > 0 ) { pivotItems.push( this.pivotWarn ); }
-        if ( fetchInfo.verify.length > 0 ) { pivotItems.push( this.pivotVerify ); }
+        if ( fetchInfo.Block.length > 0 ) { pivotItems.push( this.pivotBlock ); }
+        if ( fetchInfo.Warn.length > 0 ) { pivotItems.push( this.pivotWarn ); }
+        if ( fetchInfo.Verify.length > 0 ) { pivotItems.push( this.pivotVerify ); }
         if ( fetchInfo.www.length > 0 ) { pivotItems.push( this.pivotWWW ); }
-        if ( fetchInfo.extApp.length > 0 ) { pivotItems.push( this.pivotExtApp ); }
-        if ( fetchInfo.tenant.length > 0 ) { pivotItems.push( this.pivotTenant ); }
-        if ( fetchInfo.local.length > 0 ) { pivotItems.push( this.pivotLocal ); }
-        if ( fetchInfo.secure.length > 0 ) { pivotItems.push( this.pivotSecure ); }
-        if ( fetchInfo.nothing.length > 0 ) { pivotItems.push( this.pivotNothing ); }
+        if ( fetchInfo.Approved.length > 0 ) { pivotItems.push( this.pivotExtApp ); }
+        if ( fetchInfo.Tenant.length > 0 ) { pivotItems.push( this.pivotTenant ); }
+        if ( fetchInfo.Local.length > 0 ) { pivotItems.push( this.pivotLocal ); }
+        if ( fetchInfo.Secure.length > 0 ) { pivotItems.push( this.pivotSecure ); }
+        if ( fetchInfo.Nothing.length > 0 ) { pivotItems.push( this.pivotNothing ); }
     
         if ( fetchInfo.js.length > 0 ) { pivotItems.push( this.pivotJS ); }
         if ( fetchInfo.css.length > 0 ) { pivotItems.push( this.pivotCSS ); }
@@ -543,20 +543,41 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       let currentCDNs = [];
       let currentFiles = [];
 
-      ['approved','warn','block'].map( cdn => {
+      ['Approved','Warn','Block'].map( cdn => {
         if ( securityProfile[ panelFileType].cdns[ cdn ].length > 0 ) {
           securityProfile[ panelFileType].cdns[ cdn ].map( ( url, idx ) => {
-            currentCDNs.push( <tr><td>{ idx }</td><td>{ cdn }</td><td>{ url }</td></tr> );
+            currentCDNs.push( <tr><td>{ cdn }</td><td>{ url }</td></tr> );
           });
         }
       });
 
+
+      if ( panelFileType !== 'all' ) {
+        if ( fetchInfo[ panelFileType].length > 0 ) {
+          let fileIdx = -1;
+          fetchInfo[ panelFileType].map( tag => {
+            if ( tag.location === panelSource ) {
+              fileIdx ++;
+              let rowStyle = securityProfile[ panelFileType ].styles[ tag.rank ];
+              // currentFiles.push( <tr style={PolicyFlagStyles[ tag.policyFlags.level ]}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ location }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr> );
+              currentFiles.push( <tr style={ rowStyle }><td>{ fileIdx }</td><td style={{ whiteSpace: 'nowrap'}}>{ tag.location }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr> );
+            }
+          });
+        }
+      }
+
+
+
       let panelContent = <div className={ styles.policyPanel } style={ null }>
-        <div style={{fontSize: 'larger', fontWeight: 'bold' }}>Policies for { panelFileType }</div>
+        <div className={ styles.tableHeading }>File type specific policies for { panelFileType } files</div>
         <table>
           { currentCDNs }
         </table>
-        { panelSource }
+        <div className={ styles.tableHeading }>{ `${panelFileType}` } Files found in { `${panelSource}` }</div>
+        <table>
+          { currentFiles }
+        </table>
+        
       </div>;
 
       bannerPanel = <div><Panel
@@ -627,7 +648,7 @@ private getProfilePage() {
         </ul>
         <li>Blocking and Warning is determined in the following order... the first that is found is one that is applied</li>
         <ul>
-          <li>Blocked &gt; Warned &gt; Approved  &gt; SecureCDN  &gt; Local  &gt; Tenant  &gt; WWW</li>
+          <li>Block &gt; Warned &gt; Approved  &gt; SecureCDN  &gt; Local  &gt; Tenant  &gt; WWW</li>
         </ul>
         <li>Items marked as Verify may also be found in other categories.  They just have some anomoly that was detected.</li>
       </ul>
@@ -644,7 +665,7 @@ private getProfilePage() {
   this.props.securityProfile.sort.map( typeExt => {
     let cells: any[] = [];
     let thisType: IFileTypeSecurity = this.props.securityProfile[typeExt];
-    let cdns: string | number = thisType.cdns.approved.length +thisType.cdns.warn.length  +thisType.cdns.block.length ;
+    let cdns: string | number = thisType.cdns.Approved.length +thisType.cdns.Warn.length  +thisType.cdns.Block.length ;
     cdns = cdns === 0 ? '-' : cdns;
     cells.push( <td>{ thisType.title } ( { cdns } )</td>);
     thisType.styles.map ( ( style, idx ) => {
@@ -685,15 +706,16 @@ private getProfilePage() {
  */
 
 
-  private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'verify' | '' = '' ) {
-
+  private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'Verify' | '' = '' ) {
+    let securityProfile = this.state ? this.state.fetchInfo.securityProfile : this.props.securityProfile;
     let files = tagsInfo.map( ( tag, idx ) => {
       // return <tr><td>{ idx }</td><td>{ tag.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
       let policyFlagStyle = PolicyFlagStyles[ tag.policyFlags.level ];
-      let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
-      const newStyle = this.getColorStyle( policyFlagStyle.color );
-      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
-      return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
+      let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
+      // const newStyle = this.getColorStyle( policyFlagStyle.color );
+      const newStyle2 = securityProfile[ tag.type ].styles[ tag.rank ];
+      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ null } title={`Open file: ${tag.file}`}></Icon>;
+      return <tr style={ newStyle2 }><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
     });
 
     let fileTable = <table>
@@ -705,7 +727,7 @@ private getProfilePage() {
       // let color = this.getTagColor( tag.policyFlags.level ) ;
       let policyFlagStyle = PolicyFlagStyles[ tag.policyFlags.level ];
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
-      let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
+      let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
       const newStyle = this.getColorStyle( policyFlagStyle.color );
       let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
       // return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;

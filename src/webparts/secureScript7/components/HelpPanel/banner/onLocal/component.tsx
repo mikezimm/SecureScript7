@@ -461,7 +461,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 	private _openPanel ( event: any )  {
 		let textCallback = event.currentTarget.dataset.callback;
 		if ( textCallback && textCallback.length > 0) {
-			//Do nothing
+			//Do Nothing
 		} else {
 			this.setState({ showPanel: true,});
 		}

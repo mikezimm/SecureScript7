@@ -6,13 +6,13 @@ import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN, IApprovedCDNs, 
  */
 export const SecureProfile  : ISecurityProfile = {
     cssWarn: 'WWW',
-    cssBlock: 'ExtBlock',
+    cssBlock: 'Block',
     jsWarn: '',
     jsBlock: 'Local',
     imgWarn: 'WWW',
-    imgBlock: 'ExtBlock',
+    imgBlock: 'Block',
     linkWarn: 'WWW',
-    linkBlock: 'ExtBlock',
+    linkBlock: 'Block',
     htmlWarn: 'Nothing',
     htmBlock: 'Tenant',
   };
@@ -69,33 +69,33 @@ export const masterBlockExternalCDNs: string[] = [
 ];
 
 export const jsCDNs : IFileTypeCDN = {
-    approved: ['https://js.approveme.com/','https://shell.cdn.office.net/shellux/','https://res-1.cdn.office.net:443/files/sp-client/','https://res.cdn.office.net/midgard/versionless/'],
-    warn: ['https://js.warnme.com/'],
-    block: ['https://js.blockme.com/'],
+  Approved: ['https://js.approveme.com/','https://shell.cdn.office.net/shellux/','https://res-1.cdn.office.net:443/files/sp-client/','https://res.cdn.office.net/midgard/versionless/'],
+  Warn: ['https://js.warnme.com/'],
+  Block: ['https://js.blockme.com/'],
 };
 
 export const cssCDNs : IFileTypeCDN = {
-  approved: ['https://css.approveme.com/'],
-  warn: ['https://css.warnme.com/'],
-  block: ['https://css.blockme.com/'],
+  Approved: ['https://css.approveme.com/'],
+  Warn: ['https://css.warnme.com/'],
+  Block: ['https://css.blockme.com/'],
 };
 
 export const imgCDNs : IFileTypeCDN = {
-  approved: ['https://img.approveme.com/'],
-  warn: ['https://img.warnme.com/'],
-  block: ['https://img.blockme.com/'],
+  Approved: ['https://img.approveme.com/'],
+  Warn: ['https://img.warnme.com/'],
+  Block: ['https://img.blockme.com/'],
 };
 
 export const linkCDNs : IFileTypeCDN = {
-  approved: ['https://link.approveme.com/', 'https://msdn.microsoft.com/'],
-  warn: ['https://link.warnme.com/'],
-  block: ['https://link.blockme.com/'],
+  Approved: ['https://link.approveme.com/', 'https://msdn.microsoft.com/'],
+  Warn: ['https://link.warnme.com/'],
+  Block: ['https://link.blockme.com/'],
 };
 
 //Currently only html from SecureCDN is valid.  This is just protecting for possible need
 export const htmlCDNs : IFileTypeCDN = {
-  approved: ['https://html.approveme.com/'],
-  warn: ['https://html.warnme.com/'],
-  block: ['https://html.blockme.com/'],
+  Approved: ['https://html.approveme.com/'],
+  Warn: ['https://html.warnme.com/'],
+  Block: ['https://html.blockme.com/'],
 };
 

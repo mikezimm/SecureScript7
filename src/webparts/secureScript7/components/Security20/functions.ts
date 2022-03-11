@@ -3,9 +3,9 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
 
 
  export const masterCDNs: IFileTypeCDN = {
-  approved: masterApprovedExternalCDNs,
-  warn: masterWarnExternalCDNs,
-  block: masterBlockExternalCDNs,
+  Approved: masterApprovedExternalCDNs,
+  Warn: masterWarnExternalCDNs,
+  Block: masterBlockExternalCDNs,
 };
 
 
@@ -42,9 +42,9 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
     let fullCDNs = JSON.parse(JSON.stringify( masterCDNs )) ;
 
     if ( ext !== 'all' ) {
-      fileTypeCDN.approved.map( cdn => { fullCDNs.approved.push(cdn ) ; } );
-      fileTypeCDN.warn.map( cdn => { fullCDNs.warn.push(cdn ) ; } );
-      fileTypeCDN.block.map( cdn => { fullCDNs.block.push(cdn ) ; } );
+      fileTypeCDN.Approved.map( cdn => { fullCDNs.Approved.push(cdn ) ; } );
+      fileTypeCDN.Warn.map( cdn => { fullCDNs.Warn.push(cdn ) ; } );
+      fileTypeCDN.Block.map( cdn => { fullCDNs.Block.push(cdn ) ; } );
     }
 
     let result : IFileTypeSecurity = {
@@ -58,16 +58,16 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
         SecureCDN: 0,
         Local: 0,
         Tenant: 0,
-        ExtApproved: 0,
+        Approved: 0,
         WWW: 0,
         Verify: 0,
-        ExtWarn: 0,
-        ExtBlock: 0,
+        Warn: 0,
+        Block: 0,
       },
       styles: [],
       level: {
-        warn: ext === 'all' ? 'TBD' : SecureProfile[`${ext}Warn`],
-        block: ext === 'all' ? 'TBD' : SecureProfile[`${ext}Block`],
+        Warn: ext === 'all' ? 'TBD' : SecureProfile[`${ext}Warn`],
+        Block: ext === 'all' ? 'TBD' : SecureProfile[`${ext}Block`],
       },
       cdns: fullCDNs,
     };
@@ -82,11 +82,11 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
 
 
       if ( rankName === 'Verify' ) {
-        result.styles.push( PolicyFlagStyles.verify );
+        result.styles.push( PolicyFlagStyles.Verify );
 
       } else {
-        if ( result.level.warn === rankName ) { latestColor =  PolicyFlagStyles.warn; }
-        if ( result.level.block === rankName ) { latestColor = PolicyFlagStyles.block ; }
+        if ( result.level.Warn === rankName ) { latestColor =  PolicyFlagStyles.Warn; }
+        if ( result.level.Block === rankName ) { latestColor = PolicyFlagStyles.Block ; }
         result.styles.push( latestColor);
       }
 
