@@ -113,6 +113,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private modifyBannerStyle = true ;
 
   private  expandoDefault = false;
+  private filesList: any = [];
 
   private fetchInstance: string = Math.floor(Math.random() * 79797979 ).toString();
 
@@ -747,7 +748,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   // store items
 
                   console.log('onPropertyPaneConfigurationStart: files', files );
-                  this.libraryItemsList = files.map(file => { return { key: file.Name, text: file.Name }; });
+                  this.filesList = [];
+                  this.libraryItemsList = files.map(file => { 
+                    this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
+                    return { key: file.Name, text: file.Name }; }
+                    );
+
                   this.itemsDropdownDisabled = false;
                   this.context.propertyPane.refresh();
                 });
@@ -877,12 +883,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
           if (files.length) {
             // store items
-            let items = files.map(file => { return { key: file.Name, text: file.Name }; });
+            this.filesList = [];
+            let items = files.map(file => { 
+              this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
+              return { key: file.Name, text: file.Name };
+             });
             //Issue #6 & #7
             let filteredItems = [];
+
             items.map( item => {
               let extension = item.key.substr(item.key.lastIndexOf(".") + 1).toLowerCase();
-              if ( extension && extension.length > 0 && approvedFileTypes.indexOf(extension) > -1 ) { filteredItems.push( item ) ; }
+              if ( extension && extension.length > 0 && approvedFileTypes.indexOf(extension) > -1 ) { 
+                filteredItems.push( item ) ;
+               }
             });
             this.libraryItemsList = sortObjectArrayByStringKey( filteredItems, 'asc', 'key' );
 
