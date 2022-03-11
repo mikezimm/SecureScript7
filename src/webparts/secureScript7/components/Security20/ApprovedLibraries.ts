@@ -69,7 +69,7 @@ export const masterBlockExternalCDNs: string[] = [
 ];
 
 export const jsCDNs : IFileTypeCDN = {
-    approved: ['https://js.approveme.com/'],
+    approved: ['https://js.approveme.com/','https://shell.cdn.office.net/shellux/','https://res-1.cdn.office.net:443/files/sp-client/','https://res.cdn.office.net/midgard/versionless/'],
     warn: ['https://js.warnme.com/'],
     block: ['https://js.blockme.com/'],
 };

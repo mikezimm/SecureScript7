@@ -80,6 +80,8 @@ export interface ISecureScript7Props {
 
 export interface ISecureScript7State {
 
+  fetchInfo: IFetchInfo;
+  
   lastStateChange: string;
   showDevHeader: boolean;
   isSiteAdmin: boolean;

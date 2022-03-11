@@ -18,6 +18,7 @@ import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} fro
 import { approvedSites, } from './Security20/ApprovedLibraries';
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, IApprovedFileType, ICDNCheck , IPolicyFlag, IPolicyFlagLevel, SourceInfo, IAdvancedSecurityProfile, IFileTypeSecurity, PolicyFlagStyles  } from './Security20/interface';
+import { analyzeShippet  } from './Security20/FetchCode';
 
 import { SourceNothing,
       SourceSecure,
@@ -185,7 +186,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     // showAll= { this.showAll.bind(this) }
 
     return [
-      // <Icon iconName='Search' onClick={ this.searchMe.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
+      <Icon iconName='DownloadDocument' onClick={ this.getEntirePage.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
       // <Icon iconName='ChromeMinimize' onClick={ this.minimizeTiles.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
       // <Icon iconName='ClearFilter' onClick={ this.showAll.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
     ];
@@ -217,6 +218,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       showPanel: false,
       panelFileType: 'all',
       panelSource: 'TBD',
+      fetchInfo: this.props.fetchInfo,
     };
 
   }
@@ -224,29 +226,49 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   public componentDidUpdate(prevProps){
 
     if ( prevProps.fetchInstance !== this.props.fetchInstance ) {
-      let fetchInfo = this.props.fetchInfo;
-      this.page0 = this.buildTagPage( fetchInfo.blocks, this.tagPageNoteBlocks, fetchInfo.policyFlags.block ) ;
-      this.page1 = this.buildTagPage( fetchInfo.warns, this.tagPageNoteWarns, fetchInfo.policyFlags.warn );
-      this.page2 = this.buildTagPage( fetchInfo.www, this.tagPageNoteWWW );
-      this.page3 = this.buildTagPage( fetchInfo.extApp, this.tagPageNoteExtApp );
-      this.page4 = this.buildTagPage( fetchInfo.tenant, this.tagPageNoteTenant );
-      this.page5 = this.buildTagPage( fetchInfo.secure, this.tagPageNoteSecure );
-      this.page6 = this.buildTagPage( fetchInfo.nothing, this.tagPageNoteNothing );
-    
-      this.page7 = this.buildTagPage( fetchInfo.js, this.tagPageNoteJS );
-      this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS );
-      this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML );
-      this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG );
-      this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK );
-
-      this.pageL = this.buildTagPage( fetchInfo.local, this.tagPageNoteLOCAL );
-      this.pageV = this.buildTagPage( fetchInfo.verify, this.tagPageNoteVERIFY, [], 'verify' );
-
-      this._updateStateOnPropsChange({});
+      this.setStateFetchInfo( this.props.fetchInfo );
     }
 
   }
+
+  private setStateFetchInfo( fetchInfo: IFetchInfo ) {
+
+    this.page0 = this.buildTagPage( fetchInfo.blocks, this.tagPageNoteBlocks, fetchInfo.policyFlags.block ) ;
+    this.page1 = this.buildTagPage( fetchInfo.warns, this.tagPageNoteWarns, fetchInfo.policyFlags.warn );
+    this.page2 = this.buildTagPage( fetchInfo.www, this.tagPageNoteWWW );
+    this.page3 = this.buildTagPage( fetchInfo.extApp, this.tagPageNoteExtApp );
+    this.page4 = this.buildTagPage( fetchInfo.tenant, this.tagPageNoteTenant );
+    this.page5 = this.buildTagPage( fetchInfo.secure, this.tagPageNoteSecure );
+    this.page6 = this.buildTagPage( fetchInfo.nothing, this.tagPageNoteNothing );
   
+    this.page7 = this.buildTagPage( fetchInfo.js, this.tagPageNoteJS );
+    this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS );
+    this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML );
+    this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG );
+    this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK );
+
+    this.pageL = this.buildTagPage( fetchInfo.local, this.tagPageNoteLOCAL );
+    this.pageV = this.buildTagPage( fetchInfo.verify, this.tagPageNoteVERIFY, [], 'verify' );
+
+    let selectedKey = fetchInfo.selectedKey;
+
+    this.setState({ 
+      fetchInfo: fetchInfo,
+      fullBlockedHeight: true,
+      showProfileLogic: false,
+      showPanel: false,
+      panelFileType: 'all',
+      panelSource: 'TBD',
+      selectedKey: selectedKey,
+     });
+  }
+  
+  private async getEntirePage() {
+    let htmlFragment = document.documentElement.innerHTML;
+    let times = new Date();
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, this.props.securityProfile  );
+    this.setStateFetchInfo( fetchInfo );
+  }
   
   /***
    *            db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b       .d88b.  d8b   db      d8888b. d8888b.  .d88b.  d8888b. .d8888.       .o88b. db   db  .d8b.  d8b   db  d888b  d88888b 
@@ -502,7 +524,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let devHeader = this.state.showDevHeader === true ? <div><b>Props: </b> { 'this.props.lastPropChange' + ', ' + 'this.props.lastPropDetailChange' } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
-    let termsOfUse = this.props.fetchInfo == null || this.props.fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
+    let termsOfUse = this.state.fetchInfo == null || this.state.fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
     
 
 
