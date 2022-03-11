@@ -86,9 +86,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
   private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
 
-  private tagPageNoteBlocks = 'Files BLOCKED due to a policy.';
+  private tagPageNoteBlocks = 'Files BLOCKED due to a specific policy.';
   private tagPageNoteWarns = 'Files in High Risk locations (due to a policy) but still work.';
-  private tagPageNoteWWW = 'Files elsewhere in the www.  Not blocked and not approved';
+  private tagPageNoteWWW = 'Files elsewhere in the www.';
   private tagPageNoteExtApp = 'Files in External locations/CDNs that are approved';
   private tagPageNoteTenant = 'Files in this Tenant but not in the SecureCDN';
   private tagPageNoteSecure = 'Files in the Tenant\'s SecureCDN site';
@@ -707,7 +707,7 @@ private getProfilePage() {
     let securityProfile = this.state ? this.state.fetchInfo.securityProfile : this.props.securityProfile;
     let files = tagsInfo.map( ( tag, idx ) => {
       // return <tr><td>{ idx }</td><td>{ tag.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
-      let policyFlagStyle = PolicyFlagStyles[ tag.policyFlags.level ];
+
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
       // const newStyle = this.getColorStyle( policyFlagStyle.color );
       const newStyle2 = securityProfile[ tag.type ].styles[ tag.rank ];
@@ -722,13 +722,12 @@ private getProfilePage() {
     let tags = tagsInfo.map( ( tag, idx ) => {
       let parts = tag.tag.split( tag.fileOriginal );
       // let color = this.getTagColor( tag.policyFlags.level ) ;
-      let policyFlagStyle = PolicyFlagStyles[ tag.policyFlags.level ];
+      // let policyFlagStyle = PolicyFlagStyles[ tag.policyFlags.level ];
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
-      const newStyle = this.getColorStyle( policyFlagStyle.color );
-      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
+      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ null } title={`Open file: ${tag.file}`}></Icon>;
       // return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
-      return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={ null }>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
+      return <tr style={ tag.fileStyle }><td>{ idx }</td><td style={ null }>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
     });
 
     let tagTable = <table>

@@ -99,9 +99,20 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
 
 
     const contactList = !supportContacts ? [] : supportContacts.map( contact => {
+        //&subject=Summer%20Party&body=You%20are%20invited%20to%20a%20big%20summer%20party!"
+        const lbreak = '%0D%0A';
+        let pageName = window.location.pathname.substring(window.location.pathname.lastIndexOf("/") + 1);
+        let mailTemplate = `mailto:${contact.email}`;
+        mailTemplate += `?subject=Secure Script Webpart Question or Issue on PAGE: ${ pageName }`;
+        mailTemplate += `&body=Add your question or comment here: ${ lbreak }${ lbreak }${ lbreak }`;
+        mailTemplate += `Page Name: ${ pageName }${ lbreak }${ lbreak }`;
+        mailTemplate += `Link to page:${ lbreak }${ window.location.href }${ lbreak }${ lbreak }`;
+        mailTemplate += `Best Regards, ${ lbreak }${ lbreak }`;
+
+
         return <div style={ cardStyles }>
             <img src={contact.imageUrl} alt={`Picture of ${ contact.fullName}`} width={ 30 } height={ 30 } style={{borderRadius: '50%' }}  />
-            <a style={{ paddingLeft: '20px', paddingRight: '20px' }} href={ `mailto:${contact.email}`}>Email</a>
+            <a style={{ paddingLeft: '20px', paddingRight: '20px' }} href={ mailTemplate }>Email</a>
             <div style={{ paddingLeft: '20px', paddingRight: '20px' }}>{ contact.fullName }</div>
         </div>;
     });
@@ -111,16 +122,19 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
 
     // const ContactInfo = supportContacts[0].fullName;
 
-    let validLink = panelMessageDocumentation && panelMessageDocumentation.length > 0 && 
+    let validLink = documentationLinkUrl && documentationLinkUrl.length > 0 && 
         (
-            panelMessageDocumentation.indexOf('./') === 0 ||
-            panelMessageDocumentation.indexOf('../') === 0 ||
-            panelMessageDocumentation.indexOf('/sites') === 0 ||
-            panelMessageDocumentation.indexOf(window.origin) === 0
+            documentationLinkUrl.indexOf('./') === 0 ||
+            documentationLinkUrl.indexOf('../') === 0 ||
+            documentationLinkUrl.indexOf('/sites') === 0 ||
+            documentationLinkUrl.indexOf(window.origin) === 0
         ) ? '' : 'Please Verify Link :(';
 
-    const docsLink = !panelMessageDocumentation ? null : <div style={ contactStyles }>
-        <span onClick={() => onLinkClick( documentationLinkUrl )} style={{ color: 'blue' , cursor: 'pointer', paddingRight: '30px' }} >{ documentationLinkDesc }</span><span>{validLink}</span>
+    const docsLink = !documentationLinkUrl ? null : <div style={ contactStyles }>
+        <span onClick={() => onLinkClick( documentationLinkUrl )} 
+        style={{ color: 'blue' , cursor: 'pointer', paddingRight: '30px' }}
+        title={ documentationLinkUrl }
+         >{ documentationLinkDesc }</span><span>{validLink}</span>
     </div>;
 
 
@@ -128,7 +142,7 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
  *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
  *    88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
  *    88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
- *    88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
+ *    88`8b   88~~~~~    88    8    88 88`8b   88 V8o88 
  *    88 `88. 88.        88    88b  d88 88 `88. 88  V888 
  *    88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
  *                                                       
@@ -142,17 +156,17 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
         { Description1 }
 
         <div style={ headingStyles }>If the webpart displays a warning</div>
-        <div style={ subHeadingStyles }> - please notify someone listed below</div>
+        <div style={ subHeadingStyles }> - please notify someone listed below in the contacts section</div>
 
-        <div>{ ContactInfo }</div>  
+        <div style={ headingStyles }>Before asking for additional support</div>
+        <div style={ subHeadingStyles }> - please review our support documentation</div>
 
-        <div style={ headingStyles }>Please review our support documentation</div>
-        <div style={ subHeadingStyles }> - before asking for additional support</div>
         { Support }
         { DocumentationMessage }
         { docsLink }
         <div style={ headingStyles }>If you still have issues...</div>
         <div style={ subHeadingStyles }> - please contact the owner of this webpart before submitting an incident.</div>
+        <div style={ headingStyles }>Contact(s) for primary support or issues</div>
         <div>{ ContactInfo }</div>  
     </div>;
 }

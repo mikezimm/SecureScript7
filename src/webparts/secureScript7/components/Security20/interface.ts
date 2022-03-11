@@ -32,7 +32,7 @@ export interface ITagInfo {
     background: string;
     rank: number;
     label: string;
-    eleStyle: string;
+    fileStyle: IPolicyFlagStyle;
     location: ICDNCheck;
     policyFlags: IPolicyFlag;
   }

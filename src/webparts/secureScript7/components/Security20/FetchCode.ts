@@ -467,7 +467,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
         color: SourceInfo.ranks[rank].color,
         background: SourceInfo.ranks[rank].backg,
         label: '',
-        eleStyle: '',
+        fileStyle: SecureFileProfile.styles[rank],
         location: fileLocaton,
         policyFlags: policyFlags,
     };
