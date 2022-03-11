@@ -143,39 +143,42 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
 
 export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile  ) {
 
-    //This is just a handy array of Rank Names in order to get rank index:  SourceInfo
-    let SourceNameRank: ICDNCheck[] = buildSourceRankArray();
+        if ( !webUrl || webUrl.length < 1 ) {
+            console.log('fetchSnippetMike Err 0:', webUrl, libraryPicker, libraryItemPicker );
+            return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Web URL is not valid.</div>', securityProfile ) ;
+        } else if ( !libraryPicker || libraryPicker.length < 1 ) {
+            console.log('fetchSnippetMike Err 1:', webUrl, libraryPicker, libraryItemPicker );
+            return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid library.</div>', securityProfile) ;
+        } else if ( !libraryItemPicker || libraryItemPicker.length < 1 ) {
+            console.log('fetchSnippetMike Err 2:', webUrl, libraryPicker, libraryItemPicker );
+            return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid Filename.</div>', securityProfile );
+        }
 
-    if ( !webUrl || webUrl.length < 1 ) {
-        console.log('fetchSnippetMike Err 0:', webUrl, libraryPicker, libraryItemPicker );
-        return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Web URL is not valid.</div>', securityProfile ) ;
-    } else if ( !libraryPicker || libraryPicker.length < 1 ) {
-        console.log('fetchSnippetMike Err 1:', webUrl, libraryPicker, libraryItemPicker );
-        return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid library.</div>', securityProfile) ;
-    } else if ( !libraryItemPicker || libraryItemPicker.length < 1 ) {
-        console.log('fetchSnippetMike Err 2:', webUrl, libraryPicker, libraryItemPicker );
-        return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid Filename.</div>', securityProfile );
+        if ( webUrl === '' ) { webUrl = '/sites/SecureCDN'; }
+
+        let fileURL = libraryPicker + "/" + libraryItemPicker;
+
+        const snippetURLQuery = webUrl + `/_api/web/getFileByServerRelativeUrl('${fileURL}')/$value`;
+
+        console.log('fetchSnippetMike: webUrl', webUrl );
+        console.log('fetchSnippetMike: fileURL', fileURL );
+
+        let preFetchTime = new Date();
+
+        const htmlFragment = await context.spHttpClient.get(snippetURLQuery, SPHttpClient.configurations.v1)
+        .then((response: SPHttpClientResponse) => response.text());
+
+        // console.log('fetchSnippetMike: htmlFragment', htmlFragment );
+
+        let postFetchTime = new Date();
+
+        let result :  IFetchInfo= await analyzeShippet (htmlFragment, preFetchTime, postFetchTime, securityProfile );
+
+        return result;
+        
     }
 
-    if ( webUrl === '' ) { webUrl = '/sites/SecureCDN'; }
-
-    let fileURL = libraryPicker + "/" + libraryItemPicker;
-
-    const snippetURLQuery = webUrl + `/_api/web/getFileByServerRelativeUrl('${fileURL}')/$value`;
-
-    console.log('fetchSnippetMike: webUrl', webUrl );
-    console.log('fetchSnippetMike: fileURL', fileURL );
-
-    let preFetchTime = new Date();
-
-    const htmlFragment = await context.spHttpClient.get(snippetURLQuery, SPHttpClient.configurations.v1)
-    .then((response: SPHttpClientResponse) => response.text());
-
-    // console.log('fetchSnippetMike: htmlFragment', htmlFragment );
-
-    let postFetchTime = new Date();
-
-
+    export async function analyzeShippet( htmlFragment: string , preFetchTime: any, postFetchTime: any, securityProfile: IAdvancedSecurityProfile  ) {
 /***
  *              d888888b  .d8b.   d888b       d888888b d8888b. d88888b d8b   db d888888b d888888b d88888b db    db 
  *              `~~88~~' d8' `8b 88' Y8b        `88'   88  `8D 88'     888o  88 `~~88~~'   `88'   88'     `8b  d8' 
@@ -186,7 +189,8 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
  *                                                                                                                 
  *                                                                                                                 
  */
-
+    //This is just a handy array of Rank Names in order to get rank index:  SourceInfo
+    let SourceNameRank: ICDNCheck[] = buildSourceRankArray();
 
     let cleanHtmlFragment = htmlFragment.replace('\\\"','"').replace('\n','').replace('\r','');
 
