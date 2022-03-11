@@ -79,6 +79,25 @@
   color: rgb(180, 0, 0);
 }
 
+
+.policyPanel {
+
+  padding: 15px 20px 20px 20px;
+
+  tr {
+
+    td{
+      padding-right: 20px;
+      padding-top: 3px;
+      padding-bottom: 5px;
+    }
+  }
+  tr:hover {
+    // color: darkred;
+    background: white;
+  }
+}
+
 .policies {
   min-height: 25vh;
   padding: 15px 20px 20px 20px;

@@ -15,7 +15,9 @@ import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPan
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
-import { approvedSites, } from './Security20/ApprovedLibraries';
+import { approvedSites, SecureProfile, } from './Security20/ApprovedLibraries';
+
+import { createAdvSecProfile } from './Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, IApprovedFileType, ICDNCheck , IPolicyFlag, IPolicyFlagLevel, SourceInfo, IAdvancedSecurityProfile, IFileTypeSecurity, PolicyFlagStyles  } from './Security20/interface';
 import { analyzeShippet  } from './Security20/FetchCode';
@@ -184,12 +186,12 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     // minimizeTiles= { this.minimizeTiles.bind(this) }
     // searchMe= { this.searchMe.bind(this) }
     // showAll= { this.showAll.bind(this) }
+    let farElements: any[] = [];
 
-    return [
-      <Icon iconName='DownloadDocument' onClick={ this.getEntirePage.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
-      // <Icon iconName='ChromeMinimize' onClick={ this.minimizeTiles.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
-      // <Icon iconName='ClearFilter' onClick={ this.showAll.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
-    ];
+    if ( this.props.bannerProps.showTricks === true ) {
+      farElements.push( <Icon iconName='DownloadDocument' onClick={ this.getEntirePage.bind(this) } style={ defaultBannerCommandStyles }></Icon> );
+    }
+    return farElements;
   }
 
 
@@ -266,7 +268,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private async getEntirePage() {
     let htmlFragment = document.documentElement.innerHTML;
     let times = new Date();
-    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, this.props.securityProfile  );
+    let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();  //This is required to reset all the counts
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
+    fetchInfo.selectedKey = this.state.selectedKey;
     this.setStateFetchInfo( fetchInfo );
   }
   
@@ -293,13 +297,18 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       environmentMessage,
       hasTeamsContext,
       userDisplayName,
-      fetchInfo,
+
     } = this.props;
 
     const {
+      fetchInfo,
       toggleTag,
+      showPanel,
+      panelFileType,
+      panelSource,
     } = this.state;
 
+    let securityProfile:  IAdvancedSecurityProfile = fetchInfo.securityProfile;
     /***
      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
      *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D 
@@ -524,26 +533,48 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let devHeader = this.state.showDevHeader === true ? <div><b>Props: </b> { 'this.props.lastPropChange' + ', ' + 'this.props.lastPropDetailChange' } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
-    let termsOfUse = this.state.fetchInfo == null || this.state.fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
+    let termsOfUse = fetchInfo == null || fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
     
 
 
-    let panelContent = <div style={{ paddingBottom: '50px', display: 'flex' } }>
-        { this.state.panelFileType }
-        { this.state.panelSource }
+    let bannerPanel = null;
+
+    if ( showPanel === true ) {
+      let currentCDNs = [];
+      let currentFiles = [];
+
+      ['approved','warn','block'].map( cdn => {
+        if ( securityProfile[ panelFileType].cdns[ cdn ].length > 0 ) {
+          securityProfile[ panelFileType].cdns[ cdn ].map( ( url, idx ) => {
+            currentCDNs.push( <tr><td>{ idx }</td><td>{ cdn }</td><td>{ url }</td></tr> );
+          });
+        }
+      });
+
+      let panelContent = <div className={ styles.policyPanel } style={ null }>
+        <div style={{fontSize: 'larger', fontWeight: 'bold' }}>Policies for { panelFileType }</div>
+        <table>
+          { currentCDNs }
+        </table>
+        { panelSource }
       </div>;
 
-    let bannerPanel = <div><Panel
-        isOpen={ this.state.showPanel }
-        // this prop makes the panel non-modal
-        isBlocking={true}
-        onDismiss={ this._closePanel.bind(this) }
-        closeButtonAriaLabel="Close"
-        // type = { this.state.panelType }
-        isLightDismiss = { true }
-      >
-      { panelContent }
-    </Panel></div>;
+      bannerPanel = <div><Panel
+          isOpen={ showPanel }
+          // this prop makes the panel non-modal
+          isBlocking={true}
+          onDismiss={ this._closePanel.bind(this) }
+          closeButtonAriaLabel="Close"
+          type = { PanelType.large }
+          isLightDismiss = { true }
+        >
+        { panelContent }
+      </Panel></div>;
+
+
+      }
+
+
 
 /***
  *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -677,7 +708,8 @@ private getProfilePage() {
       let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
       const newStyle = this.getColorStyle( policyFlagStyle.color );
       let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
-      return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
+      // return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
+      return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={ null }>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
     });
 
     let tagTable = <table>
