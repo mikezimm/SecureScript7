@@ -422,7 +422,14 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
  */
 
     ReactDom.render(element, this.bannerElement);
-    this.scriptElement.innerHTML = this.fetchInfo.snippet;
+
+    let renderHTML = this.fetchInfo.snippet;
+    //Close #31 - This was added to injext sandbox into any iframes so they don't auto-execute in edit mode
+    if ( this.displayMode !== DisplayMode.Read ) {
+      renderHTML = this.fetchInfo.snippet.replace(/<\s*\S*iframe/ig, '<iframe sandbox ');
+    }
+
+    this.scriptElement.innerHTML = renderHTML;
 
     if ( this.fetchInfo.selectedKey !== 'Block' ) {
       if ( this.displayMode === DisplayMode.Read ) {

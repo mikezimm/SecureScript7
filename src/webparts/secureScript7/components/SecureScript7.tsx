@@ -215,6 +215,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       showRawHTML: false,
       toggleTag: 'files',
       selectedKey: this.props.fetchInfo.selectedKey,
+      selectedKeyFile: this.props.fetchInfo.selectedKey,
       fullBlockedHeight: true,
       showProfileLogic: false,
       showPanel: false,
@@ -256,12 +257,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     this.setState({ 
       fetchInfo: fetchInfo,
-      fullBlockedHeight: true,
-      showProfileLogic: false,
-      showPanel: false,
       panelFileType: 'all',
       panelSource: 'TBD',
       selectedKey: selectedKey,
+      selectedKeyFile: fetchInfo.selectedKey,
      });
   }
   
@@ -566,8 +565,6 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         }
       }
 
-
-
       let panelContent = <div className={ styles.policyPanel } style={ null }>
         <div className={ styles.tableHeading }>File type specific policies for { panelFileType } files</div>
         <table>
@@ -662,9 +659,9 @@ private getProfilePage() {
 
   rows.push( <tr>{ headings } </tr>  );
 
-  this.props.securityProfile.sort.map( typeExt => {
+  this.state.fetchInfo.securityProfile.sort.map( typeExt => {
     let cells: any[] = [];
-    let thisType: IFileTypeSecurity = this.props.securityProfile[typeExt];
+    let thisType: IFileTypeSecurity = this.state.fetchInfo.securityProfile[typeExt];
     let cdns: string | number = thisType.cdns.Approved.length +thisType.cdns.Warn.length  +thisType.cdns.Block.length ;
     cdns = cdns === 0 ? '-' : cdns;
     cells.push( <td>{ thisType.title } ( { cdns } )</td>);

@@ -98,5 +98,5 @@ export interface ISecureScript7State {
   toggleTag: 'files' | 'tags';
 
   selectedKey: ICDNCheck | IApprovedFileType | 'raw';
-
+  selectedKeyFile: ICDNCheck | IApprovedFileType | 'raw';
 }
