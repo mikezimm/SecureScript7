@@ -92,9 +92,11 @@ export const jsCDNs : IFileTypeCDN = {
   //These are all MSFT CDNs found during testing entire page
   'https://shell.cdn.office.net/shellux/', //Found when looking at entire page - MSFT cdn
   'https://res.cdn.office.net/midgard/versionless/', //Found when looking at entire page - MSFT cdn
+  'https://res-1.cdn.office.net/midgard/versionless/', //Found when looking at entire page
   'https://res-1.cdn.office.net:443/files/sp-client/', //Found when looking at entire page - MSFT cdn
   'https://r4.res.office365.com/footprint/', //Found when looking at entire page - MSFT cdn
   'https://statica.akamai.odsp.cdn.office.net/bld/', //Found when looking at entire page (but needs to inspect page twice to see )
+
 
   //These are specific approved 3rd party JS files
   'https://scripts.teamtailor-cdn.com/widgets/production/', //Team Taylor Job Postings

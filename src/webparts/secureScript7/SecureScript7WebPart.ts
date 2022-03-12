@@ -284,7 +284,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       //this. related info
       context: this.context ,
       clientWidth: this.domElement.clientWidth,
-      exportProps: buildExportProps( this.properties, this.wpInstanceID ),
+      exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl ),
 
       //Webpart related info
       panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
@@ -701,6 +701,14 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
  *                                                                                                                          
  */
 
+  // protected onPropertyPaneConfigurationComplete(): void {
+  //   alert('You exited the property pane!' + this.displayMode);
+  // }
+  
+  // protected onDisplayModeChanged(oldDisplayMode: DisplayMode): void {
+  //   alert('Displaymode change from' + oldDisplayMode + ' to ' + this.displayMode );
+  // }
+
 
   // Runs before getting the Property Pane configuration
   // Copied from CherryPickedCE
@@ -888,7 +896,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
               this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
               return { key: file.Name, text: file.Name };
              });
-             
+
             //Issue #6 & #7
             let filteredItems = [];
 

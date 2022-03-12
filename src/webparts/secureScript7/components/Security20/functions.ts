@@ -35,18 +35,31 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
 
   return SourceNameRank;
 }
+
+
+/**
+ * THESE regex and standardizeLocalLink were added to npmFunctions as of v1.0.183
+ */
   export const regexMultiFwdSlash = /\/+/g;
   export const regexInsecureProtocall = /(http:\/\/)/ig;
   export const regexSecureProtocall = /(https:\/\/)/ig;
 
   export const regexAnyProtocoll = /https?:\/\/+/ig; // https:// or hTTps:// or http://
-  /**
-   * This takes in any url
-   * removes the current hostname so it just starts with /sites/
-   * removes any additional //
-   * @param url 
-   * @returns 
-   */  
+
+
+/**
+ * Copied from SecureScript
+ * 
+ * This coverts any Url to serverRelativeUrl style (starts with /sites/) if it's on tenant ( removes the current hostname )
+ * The special part about it is it also:
+ * handles different cAsEs of the protocall and origin
+ * cleans up cases with extra // in back part of url:  like /sites/test///anotherUrl
+ * handles both http: and https: links
+ * 
+ * @param url 
+ * @returns 
+ */
+
   export function standardizeLocalLink( url : string ) {
 
     //1.) remove the hostname from a link
