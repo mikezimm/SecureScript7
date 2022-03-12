@@ -23,6 +23,7 @@ export interface ITagInfo {
     tag: string;
     file: string;
     fileOriginal: string;
+    fileStd: string;
     type: IApprovedFileType;
     regex: string;
     status: string;

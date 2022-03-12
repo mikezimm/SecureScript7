@@ -554,10 +554,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       if ( panelFileType !== 'all' ) {
         if ( fetchInfo[ panelFileType].length > 0 ) {
           let fileIdx = -1;
-          fetchInfo[ panelFileType].map( tag => {
+          fetchInfo[ panelFileType].map( ( tag: ITagInfo ) => {
             if ( tag.location === panelSource ) {
               fileIdx ++;
-              let rowStyle = securityProfile[ panelFileType ].styles[ tag.rank ];
+              // let rowStyle = securityProfile[ panelFileType ].styles[ tag.rank ];
+              let rowStyle = tag.fileStyle;
               // currentFiles.push( <tr style={PolicyFlagStyles[ tag.policyFlags.level ]}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ location }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr> );
               currentFiles.push( <tr style={ rowStyle }><td>{ fileIdx }</td><td style={{ whiteSpace: 'nowrap'}}>{ tag.location }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr> );
             }
@@ -704,29 +705,21 @@ private getProfilePage() {
 
 
   private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'Verify' | '' = '' ) {
-    let securityProfile = this.state ? this.state.fetchInfo.securityProfile : this.props.securityProfile;
-    let files = tagsInfo.map( ( tag, idx ) => {
-      // return <tr><td>{ idx }</td><td>{ tag.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
-
+    let files = tagsInfo.map( ( tag: ITagInfo, idx ) => {
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
-      // const newStyle = this.getColorStyle( policyFlagStyle.color );
-      const newStyle2 = securityProfile[ tag.type ].styles[ tag.rank ];
-      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ null } title={`Open file: ${tag.file}`}></Icon>;
-      return <tr style={ newStyle2 }><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
+      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ { cursor: 'pointer' } } title={`Open file: ${tag.file}`}></Icon>;
+      return <tr style={ tag.fileStyle }><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
     });
 
     let fileTable = <table>
         { files }
       </table>;
 
-    let tags = tagsInfo.map( ( tag, idx ) => {
+    let tags = tagsInfo.map( ( tag: ITagInfo, idx ) => {
       let parts = tag.tag.split( tag.fileOriginal );
-      // let color = this.getTagColor( tag.policyFlags.level ) ;
-      // let policyFlagStyle = PolicyFlagStyles[ tag.policyFlags.level ];
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
       let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ null } title={`Open file: ${tag.file}`}></Icon>;
-      // return <tr style={{color: policyFlagStyle.color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
       return <tr style={ tag.fileStyle }><td>{ idx }</td><td style={ null }>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
     });
 
@@ -767,25 +760,6 @@ private getProfilePage() {
  *                                                                                                                           
  *                                                                                                                           
  */
-
-
-  private getColorStyle ( color: string ) {
-    return {
-      backgroundColor: 'transparent',
-      color: color,
-      padding: '3px',
-      fontSize: '17px',
-      margin: '0',
-      borderRadius: '5px',
-      cursor: 'pointer',
-      fontWeight: 'normal',
-    };
-
-  }
-  private goToFile() {
-
-
-  }
 
   /***
  *    .d8888. d88888b db      d88888b  .o88b. d888888b      d888888b d8b   db d8888b. d88888b db    db 

@@ -19,6 +19,16 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
         rows: [],
     };
 
+    /**
+     * Security update log
+     * 
+     * converting all links and cdns to lower case so casing does miss a flag
+     * standardizing all cdn links to start with /sites/ if on tenant
+     * standardinzing all tag lings to start with /sites/ if on tenant
+     * removing any extra // from both cdns and file links so you cant add extra slash in a url and slip by
+     * 
+     */
+    
     table.rows.push( createAboutRow('2022-03-14',"1.0.1.08","#29 - Adv security model, #40, #41 - Security Profile table ", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('\"',"\"","#31, #42, #43, ", showRepoLinks === true ? repoLinks : null ) );
 

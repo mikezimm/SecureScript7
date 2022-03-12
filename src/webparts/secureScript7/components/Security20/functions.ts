@@ -35,6 +35,42 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
 
   return SourceNameRank;
 }
+  export const regexMultiFwdSlash = /\/+/g;
+  export const regexInsecureProtocall = /(http:\/\/)/ig;
+  export const regexSecureProtocall = /(https:\/\/)/ig;
+
+  export const regexAnyProtocoll = /https?:\/\/+/ig; // https:// or hTTps:// or http://
+  /**
+   * This takes in any url
+   * removes the current hostname so it just starts with /sites/
+   * removes any additional //
+   * @param url 
+   * @returns 
+   */  
+  export function standardizeLocalLink( url : string ) {
+
+    //1.) remove the hostname from a link
+    let newUrl = url.toLowerCase().indexOf( `${window.location.origin}` ) === 0 ? url.slice( window.location.origin.length ) : url;
+
+    //2.) %3a with : if it is pasted in
+    newUrl = newUrl.replace(/%3a/gi,':');
+
+    //2.) get backHalf of url ( any part after https:// )
+    let proto = newUrl.toLowerCase().indexOf('http://') === 0 ? 'http://' : newUrl.toLowerCase().indexOf('https://') === 0 ? 'https://' : '';
+    let backHalf = newUrl.slice( proto.length );
+    backHalf = backHalf.replace( regexSecureProtocall,'regexSecureProtocall' ).replace( regexInsecureProtocall,'regexInsecureProtocall' );
+
+    //3.) remove any non-protocol multi-slashes from back half of url
+    backHalf = backHalf.replace( regexMultiFwdSlash, '\/' );
+
+    //4.) add back any protocols that might be part of paramters (so they still have // in them )
+    backHalf = backHalf.replace( /regexSecureProtocall/g, 'https://' );
+    backHalf = backHalf.replace( /regexInsecureProtocall/g, 'http://' );
+    
+    let result = proto + backHalf;
+    return result;
+
+  }
 
   export function createFileTypeSecurity( ext: IApprovedFileType, icon: string, title: string, fileTypeCDN: IFileTypeCDN, text1: string = 'text1', text2: string = 'text2' ){
     
@@ -42,9 +78,9 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
     let fullCDNs = JSON.parse(JSON.stringify( masterCDNs )) ;
 
     if ( ext !== 'all' ) {
-      fileTypeCDN.Approved.map( cdn => { fullCDNs.Approved.push(cdn ) ; } );
-      fileTypeCDN.Warn.map( cdn => { fullCDNs.Warn.push(cdn ) ; } );
-      fileTypeCDN.Block.map( cdn => { fullCDNs.Block.push(cdn ) ; } );
+      fileTypeCDN.Approved.map( cdn => { fullCDNs.Approved.push( standardizeLocalLink( cdn ) ) ; } );
+      fileTypeCDN.Warn.map( cdn => { fullCDNs.Warn.push( standardizeLocalLink( cdn ) ) ; } );
+      fileTypeCDN.Block.map( cdn => { fullCDNs.Block.push( standardizeLocalLink( cdn ) ) ; } );
     }
 
     let result : IFileTypeSecurity = {

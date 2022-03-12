@@ -13,7 +13,7 @@ import { approvedSites, } from './ApprovedLibraries';
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel, PolicyFlagStyles } from './interface';
 
-import { buildSourceRankArray } from './functions';
+import { buildSourceRankArray, standardizeLocalLink } from './functions';
 
 /***
  *    d8888b. d88888b  d888b  d88888b db    db 
@@ -391,7 +391,9 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     let styleRegex = /style=[\"'](.+?)[\"'].*?/gi;
     let styleTagCheck = tag.match(styleRegex);
     let styleTag = styleTagCheck === null ? '' : styleTagCheck[0];
-    let lcFile = file.toLowerCase();
+    let fileStd = standardizeLocalLink( file );
+    let fileStdLc = fileStd.toLowerCase();
+
     let policyFlags: IPolicyFlag = { cdn: '', level: 'none', type: type, key: `none`, Verify: [] };
 
 
@@ -418,23 +420,23 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
 
     let warnOrBlock = { fileLocaton: fileLocaton as ICDNCheck, policyFlags: policyFlags } ;
 
-    warnOrBlock = isLocationWarnBlock( lcFile, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'Block' );
-    warnOrBlock = isLocationWarnBlock( lcFile, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'Warn' );
+    warnOrBlock = isLocationWarnBlock( fileStdLc, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'Block' );
+    warnOrBlock = isLocationWarnBlock( fileStdLc, warnOrBlock.fileLocaton, SecureFileProfile, type, warnOrBlock.policyFlags, 'Warn' );
 
     fileLocaton = warnOrBlock.fileLocaton;
     policyFlags = warnOrBlock.policyFlags;
 
-    fileLocaton = isLocationSecure( lcFile, fileLocaton );
-    fileLocaton = isLocationLocal( lcFile, fileLocaton );
-    fileLocaton = isLocationTenant( lcFile, fileLocaton );
-    fileLocaton = isLocationExtApp( lcFile, fileLocaton, SecureFileProfile );
+    fileLocaton = isLocationSecure( fileStdLc, fileLocaton );
+    fileLocaton = isLocationLocal( fileStdLc, fileLocaton );
+    fileLocaton = isLocationTenant( fileStdLc, fileLocaton );
+    fileLocaton = isLocationExtApp( fileStdLc, fileLocaton, SecureFileProfile );
 
     if ( file.match(regexJustPlus) !== null ) { policyFlags.Verify.push( '+' ) ; }
     if ( file.match(regexPlusPlus) !== null ) { policyFlags.Verify.push( '++' ) ; }
     if ( file.match(regexPlusMinus) !== null  ) { policyFlags.Verify.push( '+-' ) ; }
     if ( file.match(regexPlusEqual) !== null ) { policyFlags.Verify.push( '+=' ) ; }
     if ( file.match(regexJustEqual) !== null ) { policyFlags.Verify.push( '=' ) ; }
-    if ( tag.length > 255 ) { policyFlags.Verify.push( 'length' ) ; }
+    if ( file.length > 255 ) { policyFlags.Verify.push( 'length' ) ; }
 
     if ( policyFlags.Verify.length > 0 && policyFlags.level === 'none' ) { 
         policyFlags.level = 'Verify';
@@ -472,6 +474,7 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
     let result : ITagInfo = {
         tag: tag,
         file: file,
+        fileStd: fileStd,
         fileOriginal: fileOriginal,
         type: type,
         status: '',
@@ -518,6 +521,7 @@ function isLocationLocal( lcFile: string, prevLocation: ICDNCheck ) {
     if (lcFile.indexOf( "href = ''" ) === 0 ) { fileLocaton = 'Local' ; } else
     if (lcFile ==="href='#'" ) { fileLocaton = 'Local' ; } else
     if (lcFile ==='href="#"' ) { fileLocaton = 'Local' ; } else
+    if (lcFile ==='	/_layouts/' ) { fileLocaton = 'Local' ; } else
     if (lcFile.indexOf( `../` ) === 0 ) { fileLocaton = 'Local' ; }
 
     return fileLocaton;
@@ -537,8 +541,9 @@ function isLocationTenant( lcFile: string, prevLocation: ICDNCheck ) {
 }
 
 function isLocationExtApp( lcFile: string, prevLocation: ICDNCheck, SecureFileProfile: IFileTypeSecurity ) {
-    if ( prevLocation !== 'TBD' ) { return prevLocation ; }
-    let fileLocaton: ICDNCheck = 'TBD';
+    //We need to let this one run if it's Tenant,Local
+    if ( prevLocation === 'Block' ||  prevLocation === 'Warn' || prevLocation === 'SecureCDN' ) { return prevLocation ; }
+    let fileLocaton: ICDNCheck = prevLocation;
 
     SecureFileProfile.cdns.Approved.map( site => {
         let idx = lcFile.indexOf( site.toLowerCase() );
@@ -554,10 +559,26 @@ function isLocationWarnBlock( lcFile: string, prevLocation: ICDNCheck, SecureFil
     let fileLocaton: ICDNCheck = 'TBD';
 
     SecureFileProfile.cdns[level].map( site => {
-        let idx = lcFile.indexOf( site.toLowerCase() );
+        let siteLc = site.toLowerCase();
+        let idx = lcFile.indexOf( siteLc );
         if ( idx === 0 ) { 
             fileLocaton = level === 'Warn' ? 'Warn' : level === 'Block' ? 'Block' : 'TBD';
             policyFlags = { cdn: site, level: level, type: type, key: `${level}: ${type}-${site}`, Verify: [] }  ;
+        // } else {
+        //     //now check for alternate urls like add origin to ones that start with sites
+        //     let siteLc2 = '';
+        //     if ( site.indexOf( window.location.origin ) === 0 ) {
+        //         siteLc2 = site.replace( window.location.origin, '');
+        //     } else if ( site.indexOf('/sites/') || site.indexOf('/teams/') ) {
+        //         siteLc2 = window.location.origin + site;
+        //     }
+        //     if ( siteLc2 !== '' ) {
+        //         let idx2 = lcFile.indexOf( siteLc2 );
+        //         if ( idx2 === 0 ) { 
+        //             fileLocaton = level === 'Warn' ? 'Warn' : level === 'Block' ? 'Block' : 'TBD';
+        //             policyFlags = { cdn: site, level: level, type: type, key: `${level}: ${type}-${site}`, Verify: [] }  ;
+        //         }
+        //     }
         }
     });
 
