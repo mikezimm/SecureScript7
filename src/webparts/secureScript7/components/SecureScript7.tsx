@@ -541,11 +541,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     if ( showPanel === true ) {
       let currentCDNs = [];
       let currentFiles = [];
+      let fileIdx = -1;
 
       ['Approved','Warn','Block'].map( cdn => {
         if ( securityProfile[ panelFileType].cdns[ cdn ].length > 0 ) {
           securityProfile[ panelFileType].cdns[ cdn ].map( ( url, idx ) => {
-            currentCDNs.push( <tr><td>{ cdn }</td><td>{ url }</td></tr> );
+            fileIdx ++;
+            currentCDNs.push( <tr><td>{ fileIdx }</td><td>{ cdn }</td><td>{ url }</td></tr> );
           });
         }
       });
@@ -567,11 +569,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       }
 
       let panelContent = <div className={ styles.policyPanel } style={ null }>
-        <div className={ styles.tableHeading }>File type specific policies for { panelFileType } files</div>
+        <div className={ styles.tableHeading }>File type specific policies for { panelFileType } files ( { currentCDNs.length } )</div>
         <table>
           { currentCDNs }
         </table>
-        <div className={ styles.tableHeading }>{ `${panelFileType}` } Files found in { `${panelSource}` }</div>
+        <div className={ styles.tableHeading }>{ `${panelFileType}` } Files found in { `${panelSource}` } ( { currentFiles.length } )</div>
         <table>
           { currentFiles }
         </table>
