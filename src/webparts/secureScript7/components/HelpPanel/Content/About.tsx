@@ -27,8 +27,9 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      * standardinzing all tag lings to start with /sites/ if on tenant
      * removing any extra // from both cdns and file links so you cant add extra slash in a url and slip by
      * 
+     * WARNING:  DO NOT add any CDNs to Global Warn or Approve unless you want it to apply to JS as well.
      */
-    
+
     table.rows.push( createAboutRow('2022-03-14',"1.0.1.08","#29 - Adv security model, #40, #41 - Security Profile table ", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('\"',"\"","#31, #42, #43, ", showRepoLinks === true ? repoLinks : null ) );
 
