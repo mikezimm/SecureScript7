@@ -888,6 +888,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
               this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
               return { key: file.Name, text: file.Name };
              });
+             
             //Issue #6 & #7
             let filteredItems = [];
 

@@ -11,7 +11,7 @@ import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/String
 
 import { approvedSites, } from './ApprovedLibraries';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel } from './interface';
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel, PolicyFlagStyles } from './interface';
 
 import { buildSourceRankArray } from './functions';
 
@@ -332,15 +332,15 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
 
     allTags.map( tag => {
-        if ( SourceNameRank[ tag.rank ] ==='Block' ) { result.Block.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='Warn' ) { result.Warn.push( tag ) ; } else
+        if ( tag.flagLevel === 'Block' ) { result.Block.push( tag ) ; } else
+        if ( tag.flagLevel === 'Warn' ) { result.Warn.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='Nothing' ) { result.Nothing.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='SecureCDN' ) { result.Secure.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='Local' ) { result.Local.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='Tenant' ) { result.Tenant.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='Approved' ) { result.Approved.push( tag ) ; } else
         if ( SourceNameRank[ tag.rank ] ==='WWW' ) { result.www.push( tag ) ; } else
-        if ( SourceNameRank[ tag.rank ] ==='Verify' ) { result.Verify.push( tag ) ; }
+        if ( SourceNameRank[ tag.rank ] ==='Verify'  || tag.flagLevel === 'Verify') { result.Verify.push( tag ) ; }
 
         //This will catch everything previously put in other arrays like 
         if ( SourceNameRank[ tag.rank ] !=='Verify' && tag.policyFlags.Verify.length > 0 ) { result.Verify.push( tag ) ; }
@@ -454,6 +454,21 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
 
     let rank = SourceNameRank.indexOf( fileLocaton );
 
+    let flagLevel = SecureFileProfile.flagLevels[rank];
+    let fileStyle = SecureFileProfile.styles[rank];
+
+    if ( fileLocaton === 'Block' ) {
+        flagLevel = 'Block';
+        fileStyle = PolicyFlagStyles[flagLevel];
+    } else if ( fileLocaton === 'Warn' ) {
+        flagLevel = 'Warn';
+        fileStyle = PolicyFlagStyles[flagLevel];
+    } else if ( fileLocaton === 'Approved' ) {
+        flagLevel = 'none';
+        fileStyle = PolicyFlagStyles[flagLevel];
+    }
+
+
     let result : ITagInfo = {
         tag: tag,
         file: file,
@@ -467,9 +482,10 @@ export function createBaseTagInfoItem( tag: string, type: IApprovedFileType, fil
         color: SourceInfo.ranks[rank].color,
         background: SourceInfo.ranks[rank].backg,
         label: '',
-        fileStyle: SecureFileProfile.styles[rank],
+        fileStyle: fileStyle,
         location: fileLocaton,
         policyFlags: policyFlags,
+        flagLevel: flagLevel,
     };
 
     return result;

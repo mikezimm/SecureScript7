@@ -1,4 +1,4 @@
-import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN , ICDNCheck, IFileTypeCDN, SourceInfo, PolicyFlagStyles, IPolicyFlagStyle, IPolicyFlagStyles, IApprovedFileType } from './interface';
+import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN , ICDNCheck, IFileTypeCDN, SourceInfo, PolicyFlagStyles, IPolicyFlagStyle, IPolicyFlagStyles, IApprovedFileType, IPolicyFlagLevel } from './interface';
 import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternalCDNs, SecureProfile, jsCDNs, cssCDNs, imgCDNs, linkCDNs, htmlCDNs } from './ApprovedLibraries';
 
 
@@ -65,6 +65,7 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
         Block: 0,
       },
       styles: [],
+      flagLevels: [],
       level: {
         Warn: ext === 'all' ? 'TBD' : SecureProfile[`${ext}Warn`],
         Block: ext === 'all' ? 'TBD' : SecureProfile[`${ext}Block`],
@@ -77,17 +78,20 @@ import { masterApprovedExternalCDNs, masterWarnExternalCDNs, masterBlockExternal
     let SourceNameRank = buildSourceRankArray();
 
     let latestColor: IPolicyFlagStyle = PolicyFlagStyles.none;
+    let latestflagLevel: IPolicyFlagLevel = 'none';
 
     SourceNameRank.map ( rankName => {
 
 
       if ( rankName === 'Verify' ) {
         result.styles.push( PolicyFlagStyles.Verify );
+        result.flagLevels.push( 'Verify' );
 
       } else {
-        if ( result.level.Warn === rankName ) { latestColor =  PolicyFlagStyles.Warn; }
-        if ( result.level.Block === rankName ) { latestColor = PolicyFlagStyles.Block ; }
+        if ( result.level.Warn === rankName ) { latestColor =  PolicyFlagStyles.Warn; latestflagLevel = 'Warn' ; }
+        if ( result.level.Block === rankName ) { latestColor = PolicyFlagStyles.Block ; latestflagLevel = 'Block' ; }
         result.styles.push( latestColor);
+        result.flagLevels.push( latestflagLevel);
       }
 
     });

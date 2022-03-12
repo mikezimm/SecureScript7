@@ -33,6 +33,7 @@ export interface ITagInfo {
     rank: number;
     label: string;
     fileStyle: IPolicyFlagStyle;
+    flagLevel: IPolicyFlagLevel;
     location: ICDNCheck;
     policyFlags: IPolicyFlag;
   }
@@ -227,6 +228,7 @@ export interface ITagInfo {
       Block: ICDNCheck;
     };
     styles: IPolicyFlagStyle[];
+    flagLevels: IPolicyFlagLevel[];
     cdns: {
       Approved: string[];
       Warn: string[];
