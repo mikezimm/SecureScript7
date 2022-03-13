@@ -1174,6 +1174,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           let rand10X = throttle.capture * 10; //10 times the value entered in the array so capter=10, randX = 100
           let thisChance = Math.floor(Math.random() * 1000 );
           if ( thisChance > rand10X ) { capture = false; }
+          console.log('capture', throttle.capture, rand10X, thisChance, capture );
 
           /**
            * This is the code I used to test logic of random chance
