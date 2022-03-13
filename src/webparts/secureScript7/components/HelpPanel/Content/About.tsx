@@ -27,6 +27,8 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      * standardinzing all tag lings to start with /sites/ if on tenant
      * removing any extra // from both cdns and file links so you cant add extra slash in a url and slip by
      * 
+     * Does NOT find files without extensions (like images and also script files.)
+     * 
      * WARNING:  DO NOT add any CDNs to Global Warn or Approve unless you want it to apply to JS as well.
      */
 
