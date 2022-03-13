@@ -31,7 +31,7 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      */
 
     table.rows.push( createAboutRow('2022-03-14',"1.0.1.08","#29 - Adv security model, #40, #41 - Security Profile table ", showRepoLinks === true ? repoLinks : null ) );
-    table.rows.push( createAboutRow('\"',"\"","#31, #42, #43, ", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('\"',"\"","#31, #42, #43, #44, #45 - Add Re-analyize live page", showRepoLinks === true ? repoLinks : null ) );
 
 
     table.rows.push( createAboutRow('2022-03-09',"1.0.1.07","#28, #32, #33, #34, #35, #36, Add webpartHistory, Add Visitor Panel,", showRepoLinks === true ? repoLinks : null ) );

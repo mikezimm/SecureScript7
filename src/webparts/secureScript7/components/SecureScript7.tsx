@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 
 import styles from './SecureScript7.module.scss';
-import { ISecureScript7Props, ISecureScript7State } from './ISecureScript7Props';
+import { ISecureScript7Props, ISecureScript7State, IScope } from './ISecureScript7Props';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
@@ -65,7 +65,15 @@ const fileButtonStyles = {
   fontWeight: 'normal',
 };
 
+
+
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
+
+  private reStuleButtons() {
+    const buttonStyles = defaultBannerCommandStyles;
+    buttonStyles.margin = '0px 10px';
+    return buttonStyles;
+  }
 
   private SourceNameRank = buildSourceRankArray();
 
@@ -82,9 +90,12 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
      *                                                                                                                                
      */
 
-  private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
-  private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
-  private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
+  private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
+  private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
+  private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
+  private toggleLiveWP = <Icon iconName={ 'Refresh' } onClick={ this.getLiveWebpart.bind(this) } style={ this.reStuleButtons() } title='Analyize live webpart'></Icon>;
+  private toggleFullPg = <Icon iconName={ 'DownloadDocument'} onClick={ this.getEntirePage.bind(this) } style={ this.reStuleButtons() } title='Analyize FULL Page'></Icon>;
+
 
   private tagPageNoteBlocks = 'Files BLOCKED due to a specific policy.';
   private tagPageNoteWarns = 'Files in High Risk locations (due to a policy) but still work.';
@@ -167,7 +178,6 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pivotRAW = <PivotItem headerText={ 'raw' } ariaLabel={'raw'} title={'raw'} itemKey={'raw'} itemIcon={ 'Embed' }/>;
   private pivotPROF = <PivotItem headerText={ null } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={pivotHeading13} itemIcon={ 'BookAnswers' }/>;
 
-
   private nearBannerElements = this.buildNearBannerElements();
   private farBannerElements = this.buildFarBannerElements();
 
@@ -189,7 +199,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let farElements: any[] = [];
 
     if ( this.props.bannerProps.showTricks === true ) {
-      farElements.push( <Icon iconName='DownloadDocument' onClick={ this.getEntirePage.bind(this) } style={ defaultBannerCommandStyles }></Icon> );
+      farElements.push( null );
     }
     return farElements;
   }
@@ -222,6 +232,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       panelFileType: 'all',
       panelSource: 'TBD',
       fetchInfo: this.props.fetchInfo,
+      scope: 'Loaded File',
     };
 
   }
@@ -229,12 +240,12 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   public componentDidUpdate(prevProps){
 
     if ( prevProps.fetchInstance !== this.props.fetchInstance ) {
-      this.setStateFetchInfo( this.props.fetchInfo );
+      this.setStateFetchInfo( this.props.fetchInfo, 'Loaded File' );
     }
 
   }
 
-  private setStateFetchInfo( fetchInfo: IFetchInfo ) {
+  private setStateFetchInfo( fetchInfo: IFetchInfo, scope: IScope ) {
 
     this.page0 = this.buildTagPage( fetchInfo.Block, this.tagPageNoteBlocks, fetchInfo.policyFlags.Block ) ;
     this.page1 = this.buildTagPage( fetchInfo.Warn, this.tagPageNoteWarns, fetchInfo.policyFlags.Warn );
@@ -261,6 +272,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       panelSource: 'TBD',
       selectedKey: selectedKey,
       selectedKeyFile: fetchInfo.selectedKey,
+      scope: scope,
      });
   }
   
@@ -270,9 +282,24 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();  //This is required to reset all the counts
     const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
     fetchInfo.selectedKey = this.state.selectedKey;
-    this.setStateFetchInfo( fetchInfo );
+    this.setStateFetchInfo( fetchInfo, 'Entire Page' );
   }
   
+
+  private async getLiveWebpart( ) {
+    let times = new Date();
+    let wpInstanceID = this.props.bannerProps.exportProps.wpInstanceID;
+    let wpElement = document.getElementById( wpInstanceID );
+    let htmlFragment = wpElement.innerHTML;
+    let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();
+    // this.setState( { scope: 'Current Webpart' } );
+
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
+    fetchInfo.selectedKey = this.state.selectedKey;
+    this.setStateFetchInfo( fetchInfo, 'Current Webpart' );
+
+  }
+
   /***
    *            db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b       .d88b.  d8b   db      d8888b. d8888b.  .d88b.  d8888b. .d8888.       .o88b. db   db  .d8b.  d8b   db  d888b  d88888b 
    *            88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'          .8P  Y8. 888o  88      88  `8D 88  `8D .8P  Y8. 88  `8D 88'  YP      d8P  Y8 88   88 d8' `8b 888o  88 88' Y8b 88'     
@@ -463,8 +490,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
       let fileViewerhref = `${this.props.libraryPicker}/Forms/AllItems.aspx?id=${ this.props.fileRelativeUrl }&parent=${this.props.libraryPicker}`;
       let fileViewerLink = <span onClick={() => this.onFileClick( fileViewerhref )} style={{ color: 'blue' , cursor: 'pointer' }} > [ open file in editor ]</span>;
+      let buttons = [this.toggleRawIcon];
+      if ( this.state.showRawHTML !== false ) {
+        if ( this.state.toggleTag === 'files' ) {
+          buttons.push( this.toggleTagFile );
+        } else { buttons.push ( this.toggleTagTag ) ; }
+        buttons.push( this.toggleLiveWP );
+        if ( this.props.bannerProps.showTricks === true ) { buttons.push( this.toggleFullPg ); }
+       }
+       buttons.push( <span style={{ padding: '0 20px' }}>{this.state.scope}</span> );
+
+      //toggleReload
       originalInfo = <div style={{ background: '#dddd', padding: '10px 20px 40px 20px',  }}>
-        <h2 style={{ color: 'darkblue' }}>This is the original html { this.toggleRawIcon } { this.state.showRawHTML === false ? null : this.state.toggleTag === 'files' ? this.toggleTagFile : this.toggleTagTag }</h2>
+        <h2 style={{ color: 'darkblue', display: 'flex' }}>This is the original html <span style={{ display: 'flex', paddingLeft: '30px'}}>{ buttons }</span></h2>
         <ul>
           <li><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
           <li><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
@@ -541,13 +579,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     if ( showPanel === true ) {
       let currentCDNs = [];
       let currentFiles = [];
-      let fileIdx = -1;
+      let policyIdx = -1;
 
       ['Approved','Warn','Block'].map( cdn => {
         if ( securityProfile[ panelFileType].cdns[ cdn ].length > 0 ) {
           securityProfile[ panelFileType].cdns[ cdn ].map( ( url, idx ) => {
-            fileIdx ++;
-            currentCDNs.push( <tr><td>{ fileIdx }</td><td>{ cdn }</td><td>{ url }</td></tr> );
+            policyIdx ++;
+            currentCDNs.push( <tr><td>{ policyIdx }</td><td>{ cdn }</td><td>{ url }</td></tr> );
           });
         }
       });
@@ -846,7 +884,6 @@ private getProfilePage() {
     this.setState( { showRawHTML: newSetting } );
   }
 
-  
   private toggleTag( ) : void {
     let toggleTag : 'files' | 'tags' = this.state.toggleTag === 'files' ? 'tags' : 'files';
     this.setState( { toggleTag: toggleTag } );

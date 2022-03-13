@@ -171,6 +171,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.scriptElement = document.createElement('div');
     this.bannerElement.className = 'bannerElement';
     this.scriptElement.className = 'scriptElement';
+    this.scriptElement.id = this.wpInstanceID;
 
     this.domElement.innerHTML = '<div></div>';
     this.domElement.appendChild(this.bannerElement);

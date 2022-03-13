@@ -54,6 +54,7 @@ export interface ISecureScript7Props {
 
   securityProfile: IAdvancedSecurityProfile;
 
+
   // context: WebPartContext;
 
   domElement: any;
@@ -77,7 +78,7 @@ export interface ISecureScript7Props {
  *                                              
  *                                              
  */
-
+export type IScope = 'Loaded File' | 'Current Webpart' | 'Entire Page';
 export interface ISecureScript7State {
 
   fetchInfo: IFetchInfo;
@@ -96,6 +97,9 @@ export interface ISecureScript7State {
   
   fullBlockedHeight: boolean;
   toggleTag: 'files' | 'tags';
+
+  
+  scope: IScope;
 
   selectedKey: ICDNCheck | IApprovedFileType | 'raw';
   selectedKeyFile: ICDNCheck | IApprovedFileType | 'raw';

@@ -32,6 +32,7 @@
  import { getHelpfullErrorV2, saveThisLogItem } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
  import { createExportObject, } from '@mikezimm/npmfunctions/dist/Services/PropPane/ExportFunctions';
+ import { IMinExportObject, } from '@mikezimm/npmfunctions/dist/Services/PropPane/ExportFunctions';
 
   /***
   *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -97,8 +98,10 @@ import { changeScript, changeVisitor, exportIgnoreProps, changeExpando, changeBa
  */
  export function buildExportProps( wpProps : ISecureScript7WebPartProps, wpInstanceID: string, currentWeb: string ) {
     let exportStructure :any = {};
-    let wpInstanceIDSplit = wpInstanceID.split('|');
-    exportStructure.wpID = [ wpInstanceIDSplit[0], wpInstanceIDSplit[1], wpInstanceIDSplit[3]].join(' ~ ');
+    // let wpInstanceIDSplit = wpInstanceID.split('|');
+    // exportStructure.wpInstanceID = [ wpInstanceIDSplit[0], wpInstanceIDSplit[1], wpInstanceIDSplit[3]].join(' ~ ');
+
+    exportStructure.wpInstanceID = wpInstanceID;
     exportStructure.currentWeb = currentWeb;
 
     exportStructure.Script = changeScript;
