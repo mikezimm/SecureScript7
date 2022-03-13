@@ -122,6 +122,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
             none: [],
         },
         securityProfile: securityProfile,
+        summary: null,
     };
 
     return base;
@@ -326,6 +327,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         www: [],
         policyFlags: policyFlags,
         securityProfile: securityProfile,
+        summary: null,
     };
 
     let allTags = [ ...scripts, ...css, ...img, ...link ];
@@ -359,6 +361,39 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     if ( result.Local.length > 0 ) { result.selectedKey = 'Local' ; } else
     if ( result.Secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
     if ( result.Nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }
+
+    result.summary = {
+        performance: {
+            fetchTime: result.fetchTime,
+            regexTime: result.regexTime,
+        },
+    
+        files: {
+            js: result.js.length,
+            css: result.js.length,
+            img: result.js.length,
+            html: result.js.length,
+        },
+    
+        locations: {
+            Nothing:result.Nothing.length,
+            Secure:result.Secure.length,
+            Local:result.Local.length,
+            Tenant:result.Tenant.length,
+            Approved:result.Approved.length,
+            Warn:result.Warn.length,
+            Block:result.Block.length,
+            Verify:result.Verify.length,
+            www:result.www.length,
+        },
+        
+        flags: {
+            Block: result.policyFlags.Block.length,
+            Warn: result.policyFlags.Warn.length,
+            Verify: result.policyFlags.Verify.length,
+        }
+
+    };
 
     console.log( 'fetch results: ', result );
     console.log( 'fetch policyFlags: ', policyFlags );

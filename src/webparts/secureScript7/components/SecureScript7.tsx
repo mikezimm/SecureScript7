@@ -525,6 +525,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  */
 
     let Banner = <WebpartBanner 
+
+      FPSUser={ this.props.bannerProps.FPSUser }
       exportProps={ this.props.bannerProps.exportProps }
       showBanner={ this.props.bannerProps.showBanner }
       bannerWidth={ this.props.bannerProps.bannerWidth }

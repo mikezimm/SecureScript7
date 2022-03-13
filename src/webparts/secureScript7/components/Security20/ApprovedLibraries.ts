@@ -1,4 +1,4 @@
-import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN, IApprovedCDNs, FetchLibString, ISecurityProfile, ICDNCheck, IFileTypeCDN } from './interface';
+import { IAdvancedSecurityProfile, IFileTypeSecurity, TenantCDN, IApprovedCDNs, FetchLibString, ISecurityProfile, ICDNCheck, IFileTypeCDN, IThrottleAnalytics } from './interface';
 
 /**
  * This const sets the overall thresholds for blocking individual file types.
@@ -16,6 +16,11 @@ export const SecureProfile  : ISecurityProfile = {
     htmlWarn: 'Nothing',
     htmBlock: 'Tenant',
   };
+
+// context.pageContext.site.serverRequestPath => "/sites/SecureScriptTesting/Gulpy/SitePages/Stock,Nothing,Block Samples - DO NOT CHANGE.aspx"
+export const throttleAnalytics : IThrottleAnalytics[] =  [
+  { capture: 10,  serverRequestPath: '',   }, //Use this to throttle view analytics on specific Urls ( must be exact urls )
+];
 
   /**
    * This should be your SecureCDN in your tenant.  Only 1 has been tested.

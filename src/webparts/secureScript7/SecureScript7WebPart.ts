@@ -51,7 +51,7 @@ import { ISecureScript7Props, ICDNMode } from './components/ISecureScript7Props'
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 
-import { approvedSites, } from './components/Security20/ApprovedLibraries';
+import { approvedSites, throttleAnalytics} from './components/Security20/ApprovedLibraries';
 import { approvedLibraries, } from './components/Security20/ApprovedPropPane';
 
 import { IApprovedCDNs, IFetchInfo, approvedFileTypes } from './components/Security20/interface';
@@ -71,6 +71,8 @@ import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctio
 import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
+import { IFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { getPermissionProfile } from '@mikezimm/npmfunctions/dist/Services/Users/PermissionProfile';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
@@ -93,11 +95,15 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private _unqiueId;
   private cdnMode:  ICDNMode = 'Webs';
   private cdnValid:  boolean = false;
+  private validDocsContacts: string = '';
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
 
-  private wpInstanceID: any = webpartInstance( 'SS7' );
+  private trickyApp = 'SS7';
+  private wpInstanceID: any = webpartInstance( this.trickyApp );
+
+  private FPSUser: IFPSUser = null;
 
   //For FPS options
   private fpsPageDone: boolean = false;
@@ -205,6 +211,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
       this.urlParameters = getUrlVars();
 
+      this.FPSUser = getPermissionProfile( this.context, links.trickyEmails, this.trickyApp ) ;
+      console.log( 'FPSUser: ', this.FPSUser );
+
       this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true ? true : false;
       if ( this.urlParameters.Mode === 'Edit' ) { this.expandoDefault = false; }
       let expandoStyle: any = {};
@@ -212,8 +221,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         expandoStyle = JSON.parse( this.properties.expandoStyle );
 
       } catch(e) {
-
+        console.log('Unable to expandoStyle: ', this.properties.expandoStyle);
       }
+
       let padding = this.properties.expandoPadding ? this.properties.expandoPadding : 20;
       setExpandoRamicMode( this.context.domElement, this.expandoDefault, expandoStyle,  false, false, padding );
       this.properties.showRepoLinks = false;
@@ -261,9 +271,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.properties.replacePanelHTML = visitorPanelInfo( this.properties );
 
     let errMessage = '';
+    this.validDocsContacts = '';
 
-    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + this.properties.documentationLinkUrl ; }
-    if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; }
+    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + this.properties.documentationLinkUrl ; this.validDocsContacts += 'DocLink,'; }
+    if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; this.validDocsContacts += 'Contacts,'; }
 
     let errorObjArray :  any[] =[];
 
@@ -285,6 +296,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     let replacePanelWarning = `Anyone with lower permissions than '${this.properties.fullPanelAudience}' will ONLY see this content in panel`;
     let buildBannerSettings : IBuildBannerSettings = {
 
+      FPSUser: this.FPSUser,
       //this. related info
       context: this.context ,
       clientWidth: this.domElement.clientWidth,
@@ -318,13 +330,13 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     }
     } );
 
-  this.properties.showBannerGear = verifyAudienceVsUser( this.context , showTricks, this.properties.homeParentGearAudience, null);
-  let bannerSetup = buildBannerProps( this.properties , buildBannerSettings, showTricks );
+  this.properties.showBannerGear = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.homeParentGearAudience, null);
+  let bannerSetup = buildBannerProps( this.properties , this.FPSUser, buildBannerSettings, showTricks );
   errMessage = bannerSetup.errMessage;
   let bannerProps = bannerSetup.bannerProps;
   let expandoErrorObj = bannerSetup.errorObjArray;
 
-  let showCodeIcon = verifyAudienceVsUser( this.context , showTricks, this.properties.showCodeAudience , null );
+  let showCodeIcon = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.showCodeAudience , null );
 
   // let legacyPageContext = this.context.pageContext.legacyPageContext;
 
@@ -436,13 +448,21 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     this.scriptElement.innerHTML = renderHTML;
 
-    if ( this.fetchInfo.selectedKey !== 'Block' ) {
+    if ( renderHTML === '' ) {
+      //Do nothing since script is empty
+    } else if ( this.fetchInfo.selectedKey === 'Block' ) {
+      this.saveLoadAnalytics( 'Blocked Script', 'Blocked', this.fetchInfo, 'Blocks' );
+
+    } else if ( this.fetchInfo.selectedKey === 'Warn' ) {
       if ( this.displayMode === DisplayMode.Read ) {
         executeScript(this.scriptElement, this._unqiueId, document );
-        this.saveLoadAnalytics('Execute Script','Unsure','Views');
+        this.saveLoadAnalytics( 'Execute Script', 'Warned', this.fetchInfo, 'Warns' );
       }
     } else {
-      this.saveLoadAnalytics('Blocked Script','Unsure','Blocks');
+      if ( this.displayMode === DisplayMode.Read ) {
+        executeScript(this.scriptElement, this._unqiueId, document );
+        this.saveLoadAnalytics( 'Execute Script', this.fetchInfo.selectedKey, this.fetchInfo, 'Views' );
+      }
     }
 
   }
@@ -1079,18 +1099,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     };
   }
 
-  private async saveLoadAnalytics( Title: string, Result: string, list: 'Views' | 'Edits' | 'Warns' | 'Blocks' | 'Errors'  ) {
-
-    // let batchInfo = {
-    //   batches: batches,
-    //   batchData: batchData,
-    //   fetchMs: fetchMs,
-    //   analyzeMs: analyzeMs,
-    //   totalLength: totalLength,
-    //   userInfo: userInfo,
-    // };
-
-    //IZSentAnalytics, saveAnalytics2
+  private async saveLoadAnalytics( Title: string, Result: string, fetchInfo: IFetchInfo, list: 'Views' | 'Edits' | 'Warns' | 'Blocks' | 'Errors'  ) {
 
     let loadProperties: IZLoadAnalytics = {
       SiteID: this.context.pageContext.site.id['_guid'] as any,  //Current site collection ID for easy filtering in large list
@@ -1103,15 +1112,22 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   
     };
 
+    let zzzRichText1Obj = fetchInfo.policyFlags.Block.map( flag => { return `${flag.cdn}` ; });
+    let zzzRichText2Obj = fetchInfo.policyFlags.Warn.map( flag => { return `${flag.cdn}` ; });
+
+    //This will get rid of all the escaped characters in the summary (since it's all numbers)
+    let zzzRichText3 = JSON.stringify( fetchInfo.summary ).replace('\\','');
+    //This will get rid of the leading and trailing quotes which have to be removed to make it real json object
+    zzzRichText3 = zzzRichText3.slice(1, zzzRichText3.length - 1);
+
+    console.log( 'zzzRichText1Obj:', zzzRichText1Obj);
+    console.log( 'zzzRichText2Obj:', zzzRichText2Obj);
+
     let zzzRichText1 = null;
     let zzzRichText2 = null;
-    let zzzRichText3 = null;
 
-    console.log( 'zzzRichText1:', zzzRichText1);
-    console.log( 'zzzRichText2:', zzzRichText2);
-
-    if ( zzzRichText1 ) { zzzRichText1 = JSON.stringify( zzzRichText1 ); }
-    if ( zzzRichText2 ) { zzzRichText2 = JSON.stringify( zzzRichText2 ); }
+    if ( zzzRichText1Obj ) { zzzRichText1 = JSON.stringify( zzzRichText1Obj ); }
+    if ( zzzRichText2Obj ) { zzzRichText2 = JSON.stringify( zzzRichText2Obj ); }
     if ( zzzRichText3 ) { zzzRichText3 = JSON.stringify( zzzRichText3 ); }
 
     console.log('zzzRichText1 length:', zzzRichText1 ? zzzRichText1.length : 0 );
@@ -1125,21 +1141,21 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     
       Result: Result,  //Success or Error
     
-      zzzText1: `${ null } of ${ null } files [ ${ null } ]`, //Start-Now in some webparts
-      zzzText2: `${  null }`, //Start-TheTime in some webparts
-      zzzText3: ``, //Info1 in some webparts.  Simple category defining results.   Like Unique / Inherited / Collection
-      zzzText4: ``, //Info2 in some webparts.  Phrase describing important details such as "Time to check old Permissions: 86 snaps / 353ms"
-      zzzText5: ``,
-      zzzText6: ``,
-      zzzText7: `zzzRichText1: ${ null } zzzRichText2: ${ null } zzzRichText3: ${ null }`,
+      zzzText1: `${ this.properties.webPicker }`, 
+      zzzText2: `${  this.properties.libraryPicker }`, 
+      zzzText3: `${  this.properties.libraryItemPicker }`, //Info1 in some webparts.  Simple category defining results.   Like Unique / Inherited / Collection
+      zzzText4: `${  fetchInfo.selectedKey }`, //Info2 in some webparts.  Phrase describing important details such as "Time to check old Permissions: 86 snaps / 353ms"
+      zzzText5: `${  fetchInfo.errorHTML }`,
+      zzzText6: `${ this.validDocsContacts }`,
+      zzzText7: `${ this.FPSUser.simple }`,
     
-      zzzNumber1: null,
-      zzzNumber2: null,
-      zzzNumber3: null,
-      zzzNumber4: null,
-      zzzNumber5: null,
-      zzzNumber6: null,
-      zzzNumber7: null,
+      zzzNumber1: fetchInfo.fetchTime,
+      zzzNumber2: fetchInfo.regexTime,
+      zzzNumber3: fetchInfo.Block.length,
+      zzzNumber4: fetchInfo.Warn.length,
+      zzzNumber5: fetchInfo.Verify.length,
+      zzzNumber6: fetchInfo.Secure.length,
+      zzzNumber7: fetchInfo.js.length,
     
       zzzRichText1: zzzRichText1,  //Used to store JSON objects for later use, will be stringified
       zzzRichText2: zzzRichText2,
@@ -1147,7 +1163,47 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     };
 
-    saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}${list}` , saveObject );
+    if ( fetchInfo.selectedKey === 'Warn' ) { list = 'Warns' ; }
+    else if ( fetchInfo.selectedKey === 'Block' ) { list = 'Blocks' ; }
+
+    //This section checks to see 
+    let capture = true;
+    if ( throttleAnalytics.length > 0 && throttleAnalytics[0].serverRequestPath !== '' ) {
+      throttleAnalytics.map( throttle => {
+        if ( throttle.serverRequestPath === this.context.pageContext.site.serverRequestPath ) {
+          let rand10X = throttle.capture * 10; //10 times the value entered in the array so capter=10, randX = 100
+          let thisChance = Math.floor(Math.random() * 1000 );
+          if ( thisChance > rand10X ) { capture = false; }
+
+          /**
+           * This is the code I used to test logic of random chance
+          let below = 0;
+          let above = 0;
+
+          for (let i = 0; i <  1000; i++) {
+
+            let capture = true;
+            let rand10X = 1 * 10; //10 times the value entered in the array so capter=10, randX = 100
+            let thisChance = Math.floor(Math.random() * 1000 );
+            if ( thisChance > rand10X ) { capture = false; above ++ } else { below ++; }
+
+          }
+          console.log('result:', below, above ); ===  "result:" 10 990 which is right about 1%
+           */
+
+
+        }
+      });
+    }
+    //This will capture analytics for anything that is NOT just a view, or a certain % of views based on throttleAnalytics
+    if ( list !== 'Views' || capture === true ) {
+      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}${list}` , saveObject );
+    }
+
+
+    if ( this.validDocsContacts !== '' ) {
+      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}Props` , saveObject );
+    }
 
   }
 

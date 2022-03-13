@@ -122,8 +122,42 @@ export interface ITagInfo {
         www:ITagInfo[];
         policyFlags: IPolicyFlags;
         securityProfile: IAdvancedSecurityProfile;
+        summary: IFetchSummaryStats;
   }
 
+  export interface IFetchSummaryStats {
+
+    performance: {
+      fetchTime: number;
+      regexTime: number;
+    };
+
+    files: {
+      js: number;
+      css: number;
+      img: number;
+      html: number;
+    };
+
+    locations: {
+      Nothing:number;
+      Secure:number;
+      Local:number;
+      Tenant:number;
+      Approved:number;
+      Warn:number;
+      Block:number;
+      Verify:number;
+      www:number;
+    };
+
+    flags: {
+      Block: number;
+      Warn: number;
+      Verify: number;
+    };
+
+  }
 
   /***
  *    .d8888. d88888b  .o88b. db    db d8888b. d888888b d888888b db    db 
@@ -135,6 +169,11 @@ export interface ITagInfo {
  *                                                                        
  *                                                                        
  */
+
+   export interface IThrottleAnalytics {
+    serverRequestPath: string; // context.pageContext.site.serverRequestPath => "/sites/SecureScriptTesting/Gulpy/SitePages/Stock,Nothing,Block Samples - DO NOT CHANGE.aspx"
+    capture: number; //% as whole number to capture analytics
+  }
 
    export interface IApprovedCDNs extends IPropertyPaneDropdownOption {
 
