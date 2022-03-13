@@ -68,6 +68,9 @@ import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
 
+import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
+import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
+import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
@@ -436,7 +439,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     if ( this.fetchInfo.selectedKey !== 'Block' ) {
       if ( this.displayMode === DisplayMode.Read ) {
         executeScript(this.scriptElement, this._unqiueId, document );
+        this.saveLoadAnalytics('Execute Script','Unsure','Views');
       }
+    } else {
+      this.saveLoadAnalytics('Blocked Script','Unsure','Blocks');
     }
 
   }
@@ -1072,4 +1078,78 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       ]
     };
   }
+
+  private async saveLoadAnalytics( Title: string, Result: string, list: 'Views' | 'Edits' | 'Warns' | 'Blocks' | 'Errors'  ) {
+
+    // let batchInfo = {
+    //   batches: batches,
+    //   batchData: batchData,
+    //   fetchMs: fetchMs,
+    //   analyzeMs: analyzeMs,
+    //   totalLength: totalLength,
+    //   userInfo: userInfo,
+    // };
+
+    //IZSentAnalytics, saveAnalytics2
+
+    let loadProperties: IZLoadAnalytics = {
+      SiteID: this.context.pageContext.site.id['_guid'] as any,  //Current site collection ID for easy filtering in large list
+      WebID:  this.context.pageContext.web.id['_guid'] as any,  //Current web ID for easy filtering in large list
+      SiteTitle:  this.context.pageContext.web.title as any, //Web Title
+      TargetSite:  this.context.pageContext.web.serverRelativeUrl,  //Saved as link column.  Displayed as Relative Url
+      ListID:  this.properties.libraryPicker,  //Current list ID for easy filtering in large list
+      ListTitle:  this.properties.libraryPicker,
+      TargetList: `/sites/SecureCDN${this.properties.libraryPicker}`,  //Saved as link column.  Displayed as Relative Url
+  
+    };
+
+    let zzzRichText1 = null;
+    let zzzRichText2 = null;
+    let zzzRichText3 = null;
+
+    console.log( 'zzzRichText1:', zzzRichText1);
+    console.log( 'zzzRichText2:', zzzRichText2);
+
+    if ( zzzRichText1 ) { zzzRichText1 = JSON.stringify( zzzRichText1 ); }
+    if ( zzzRichText2 ) { zzzRichText2 = JSON.stringify( zzzRichText2 ); }
+    if ( zzzRichText3 ) { zzzRichText3 = JSON.stringify( zzzRichText3 ); }
+
+    console.log('zzzRichText1 length:', zzzRichText1 ? zzzRichText1.length : 0 );
+    console.log('zzzRichText2 length:', zzzRichText2 ? zzzRichText2.length : 0 );
+    console.log('zzzRichText3 length:', zzzRichText3 ? zzzRichText3.length : 0 );
+
+    let saveObject: IZSentAnalytics = {
+      loadProperties: loadProperties,
+
+      Title: Title,  //General Label used to identify what analytics you are saving:  such as Web Permissions or List Permissions.
+    
+      Result: Result,  //Success or Error
+    
+      zzzText1: `${ null } of ${ null } files [ ${ null } ]`, //Start-Now in some webparts
+      zzzText2: `${  null }`, //Start-TheTime in some webparts
+      zzzText3: ``, //Info1 in some webparts.  Simple category defining results.   Like Unique / Inherited / Collection
+      zzzText4: ``, //Info2 in some webparts.  Phrase describing important details such as "Time to check old Permissions: 86 snaps / 353ms"
+      zzzText5: ``,
+      zzzText6: ``,
+      zzzText7: `zzzRichText1: ${ null } zzzRichText2: ${ null } zzzRichText3: ${ null }`,
+    
+      zzzNumber1: null,
+      zzzNumber2: null,
+      zzzNumber3: null,
+      zzzNumber4: null,
+      zzzNumber5: null,
+      zzzNumber6: null,
+      zzzNumber7: null,
+    
+      zzzRichText1: zzzRichText1,  //Used to store JSON objects for later use, will be stringified
+      zzzRichText2: zzzRichText2,
+      zzzRichText3: zzzRichText3,
+
+    };
+
+    saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}${list}` , saveObject );
+
+  }
+
+
 }

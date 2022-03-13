@@ -9,5 +9,9 @@ define([], function() {
     "AppTeamsTabEnvironment": "The app is running in Microsoft Teams",
     "LibraryPickerLabel": "Pick an approved library",
     "LibraryItemPickerLabel":"Pick a file",
+
+    "analyticsList": "SecureScript",
+    "analyticsWeb": "/sites/SecureCDNalytics/",
+
   }
 });
