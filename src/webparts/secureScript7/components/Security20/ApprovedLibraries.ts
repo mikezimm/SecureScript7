@@ -19,7 +19,7 @@ export const SecureProfile  : ISecurityProfile = {
 
 // context.pageContext.site.serverRequestPath => "/sites/SecureScriptTesting/Gulpy/SitePages/Stock,Nothing,Block Samples - DO NOT CHANGE.aspx"
 export const throttleAnalytics : IThrottleAnalytics[] =  [
-  { capture: 10,  serverRequestPath: '',   }, //Use this to throttle view analytics on specific Urls ( must be exact urls )
+  { capture: 10,  serverRequestPath: '/sites/lifenet',   }, //Use this to throttle view analytics on specific Urls ( must be exact urls )
 ];
 
   /**

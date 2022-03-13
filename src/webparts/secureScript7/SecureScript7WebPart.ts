@@ -1166,7 +1166,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     if ( fetchInfo.selectedKey === 'Warn' ) { list = 'Warns' ; }
     else if ( fetchInfo.selectedKey === 'Block' ) { list = 'Blocks' ; }
 
-    //This section checks to see 
+    //This section is to limit analytics on high volume pages - #13
     let capture = true;
     if ( throttleAnalytics.length > 0 && throttleAnalytics[0].serverRequestPath !== '' ) {
       throttleAnalytics.map( throttle => {
