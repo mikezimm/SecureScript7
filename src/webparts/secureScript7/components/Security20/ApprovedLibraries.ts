@@ -141,7 +141,9 @@ export const cssCDNs : IFileTypeCDN = {
 export const imgCDNs : IFileTypeCDN = {
   Approved: [
     //This is just for TESTING specific case
-    'https://img.approveme.com'
+    'https://img.approveme.com',
+    'https://media.akamai.odsp.cdn.office.net/', //Found testing
+    'https://res-1.cdn.office.net:443/files/', //Found testing
   ],
   Warn: [
     //This is just for TESTING specific case
