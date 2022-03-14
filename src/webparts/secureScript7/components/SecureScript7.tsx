@@ -79,16 +79,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   private currentPageUrl = this.props.bannerProps.pageContext.web.absoluteUrl + this.props.bannerProps.pageContext.site.serverRequestPath;
 
-    /***
-     *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b.      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
-     *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 88'  YP 
-     *    88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY'      88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    `8bo.   
-     *    88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b        88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88      `Y8b. 
-     *    88   8D 88   88 88  V888 88  V888 88.     88 `88.      88.     88booo. 88.     88  88  88 88.     88  V888    88    db   8D 
-     *    Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD      Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    `8888Y' 
-     *                                                                                                                                
-     *                                                                                                                                
-     */
+  /***
+   *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b.      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
+   *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 88'  YP 
+   *    88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY'      88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    `8bo.   
+   *    88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b        88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88      `Y8b. 
+   *    88   8D 88   88 88  V888 88  V888 88.     88 `88.      88.     88booo. 88.     88  88  88 88.     88  V888    88    db   8D 
+   *    Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD      Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    `8888Y' 
+   *                                                                                                                                
+   *                                                                                                                                
+   */
 
   private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
   private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
@@ -178,6 +178,17 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pivotRAW = <PivotItem headerText={ 'raw' } ariaLabel={'raw'} title={'raw'} itemKey={'raw'} itemIcon={ 'Embed' }/>;
   private pivotPROF = <PivotItem headerText={ null } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={pivotHeading13} itemIcon={ 'BookAnswers' }/>;
 
+  /***
+ *    d8b   db d88888b  .d8b.  d8888b.      d88888b  .d8b.  d8888b.      d88888b db      d88888b 
+ *    888o  88 88'     d8' `8b 88  `8D      88'     d8' `8b 88  `8D      88'     88      88'     
+ *    88V8o 88 88ooooo 88ooo88 88oobY'      88ooo   88ooo88 88oobY'      88ooooo 88      88ooooo 
+ *    88 V8o88 88~~~~~ 88~~~88 88`8b        88~~~   88~~~88 88`8b        88~~~~~ 88      88~~~~~ 
+ *    88  V888 88.     88   88 88 `88.      88      88   88 88 `88.      88.     88booo. 88.     
+ *    VP   V8P Y88888P YP   YP 88   YD      YP      YP   YP 88   YD      Y88888P Y88888P Y88888P 
+ *                                                                                               
+ *                                                                                               
+ */
+
   private nearBannerElements = this.buildNearBannerElements();
   private farBannerElements = this.buildFarBannerElements();
 
@@ -204,11 +215,20 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     return farElements;
   }
 
+/***
+ *     .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
+ *    d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
+ *    8P      88    88 88V8o 88 `8bo.      88    88oobY' 88    88 8P         88    88    88 88oobY' 
+ *    8b      88    88 88 V8o88   `Y8b.    88    88`8b   88    88 8b         88    88    88 88`8b   
+ *    Y8b  d8 `8b  d8' 88  V888 db   8D    88    88 `88. 88b  d88 Y8b  d8    88    `8b  d8' 88 `88. 
+ *     `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    88   YD ~Y8888P'  `Y88P'    YP     `Y88P'  88   YD 
+ *                                                                                                  
+ *                                                                                                  
+ */
 
   public constructor(props:ISecureScript7Props){
-      super(props);
-    console.log('SecureScript7: constructor', this.toggleRawIcon);
-
+    super(props);
+    // console.log('SecureScript7: constructor', this.toggleRawIcon);
 
     let urlVars : any = this.props.urlVars;
     let debugMode = urlVars.debug === 'true' ? true : false;
@@ -237,6 +257,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   }
 
+  /***
+ *    d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
+ *    88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
+ *    88   88    88    88   88      88    88 88oodD' 88   88 88ooo88    88    88ooooo 
+ *    88   88    88    88   88      88    88 88~~~   88   88 88~~~88    88    88~~~~~ 
+ *    88  .8D   .88.   88  .8D      88b  d88 88      88  .8D 88   88    88    88.     
+ *    Y8888D' Y888888P Y8888D'      ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P 
+ *                                                                                    
+ *                                                                                    
+ */
   public componentDidUpdate(prevProps){
 
     if ( prevProps.fetchInstance !== this.props.fetchInstance ) {
@@ -275,7 +305,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       scope: scope,
      });
   }
-  
+
+
   private async getEntirePage() {
     let htmlFragment = document.documentElement.innerHTML;
     let times = new Date();
@@ -284,7 +315,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     fetchInfo.selectedKey = this.state.selectedKey;
     this.setStateFetchInfo( fetchInfo, 'Entire Page' );
   }
-  
+
 
   private async getLiveWebpart( ) {
     let times = new Date();
@@ -311,11 +342,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
    *                                                                                                                                                                                                                                        
    */
 
-  private _updateStateOnPropsChange(params: any ): void {
-
-  }
-
   
+
+  /***
+ *    d8888b. db    db d8888b. db      d888888b  .o88b.      d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
+ *    88  `8D 88    88 88  `8D 88        `88'   d8P  Y8      88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
+ *    88oodD' 88    88 88oooY' 88         88    8P           88oobY' 88ooooo 88V8o 88 88   88 88ooooo 88oobY' 
+ *    88~~~   88    88 88~~~b. 88         88    8b           88`8b   88~~~~~ 88 V8o88 88   88 88~~~~~ 88`8b   
+ *    88      88b  d88 88   8D 88booo.   .88.   Y8b  d8      88 `88. 88.     88  V888 88  .8D 88.     88 `88. 
+ *    88      ~Y8888P' Y8888P' Y88888P Y888888P  `Y88P'      88   YD Y88888P VP   V8P Y8888D' Y88888P 88   YD 
+ *                                                                                                            
+ *                                                                                                            
+ */
+
   public render(): React.ReactElement<ISecureScript7Props> {
     const {
       description,
@@ -359,7 +398,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ' JS Disabled during Edit' ; }
 
     let errorUnapprovedComponent = null;
-    
+
     if ( this.props.cdnValid !== true ) {
       errorUnapprovedComponent = <div style={{height: 100, width: '100%', fontSize: 'large', background: 'yellow' }}>
       <h3>Only pick web from Approved sites:</h3>
@@ -575,6 +614,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let termsOfUse = fetchInfo == null || fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
     
 
+    /***
+ *    d8888b.  .d8b.  d8b   db d88888b db      
+ *    88  `8D d8' `8b 888o  88 88'     88      
+ *    88oodD' 88ooo88 88V8o 88 88ooooo 88      
+ *    88~~~   88~~~88 88 V8o88 88~~~~~ 88      
+ *    88      88   88 88  V888 88.     88booo. 
+ *    88      YP   YP VP   V8P Y88888P Y88888P 
+ *                                             
+ *                                             
+ */
 
     let bannerPanel = null;
 
@@ -661,6 +710,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     );
   }
 
+/***
+ *     d888b  d88888b d888888b      d8888b. d8888b.  .d88b.  d88888b d888888b db      d88888b      d8888b.  .d8b.   d888b  d88888b 
+ *    88' Y8b 88'     `~~88~~'      88  `8D 88  `8D .8P  Y8. 88'       `88'   88      88'          88  `8D d8' `8b 88' Y8b 88'     
+ *    88      88ooooo    88         88oodD' 88oobY' 88    88 88ooo      88    88      88ooooo      88oodD' 88ooo88 88      88ooooo 
+ *    88  ooo 88~~~~~    88         88~~~   88`8b   88    88 88~~~      88    88      88~~~~~      88~~~   88~~~88 88  ooo 88~~~~~ 
+ *    88. ~8~ 88.        88         88      88 `88. `8b  d8' 88        .88.   88booo. 88.          88      88   88 88. ~8~ 88.     
+ *     Y888P  Y88888P    YP         88      88   YD  `Y88P'  YP      Y888888P Y88888P Y88888P      88      YP   YP  Y888P  Y88888P 
+ *                                                                                                                                 
+ *                                                                                                                                 
+ */
 
 private getProfilePage() {
 

@@ -9,7 +9,7 @@ import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 import { convertIssuesMarkdownStringToSpan } from '@mikezimm/npmfunctions/dist/Elements/Markdown';
 
-export const panelVersionNumber = '2022-03-14 -  1.0.1.08'; //Added to show in panel
+export const panelVersionNumber = '2022-03-14 -  1.0.1.10'; //Added to show in panel
 
 export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
 
@@ -32,8 +32,8 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      * WARNING:  DO NOT add any CDNs to Global Warn or Approve unless you want it to apply to JS as well.
      */
 
-    table.rows.push( createAboutRow('2022-03-14',"1.0.1.08","#29 - Adv security model, #40, #41 - Security Profile table ", showRepoLinks === true ? repoLinks : null ) );
-    table.rows.push( createAboutRow('\"',"\"","#31, #42, #43, #44, #45 - Add Re-analyize live page, #13 - view analytics", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('2022-03-14',"1.0.1.10","#29 - Adv security model, #40, #41 - Security Profile table ", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('\"',"\"","#31, #37, #42, #43, #44, #46, #45 - Add Re-analyize live page, #13 - view analytics", showRepoLinks === true ? repoLinks : null ) );
 
 
     table.rows.push( createAboutRow('2022-03-09',"1.0.1.07","#28, #32, #33, #34, #35, #36, Add webpartHistory, Add Visitor Panel,", showRepoLinks === true ? repoLinks : null ) );

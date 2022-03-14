@@ -72,7 +72,7 @@ import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/a
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
 import { IFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
-import { getPermissionProfile } from '@mikezimm/npmfunctions/dist/Services/Users/PermissionProfile';
+import { getFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/FPSUser';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
@@ -211,7 +211,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
       this.urlParameters = getUrlVars();
 
-      this.FPSUser = getPermissionProfile( this.context, links.trickyEmails, this.trickyApp ) ;
+      this.FPSUser = getFPSUser( this.context, links.trickyEmails, this.trickyApp ) ;
       console.log( 'FPSUser: ', this.FPSUser );
 
       this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true ? true : false;
@@ -1198,12 +1198,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     }
     //This will capture analytics for anything that is NOT just a view, or a certain % of views based on throttleAnalytics
     if ( list !== 'Views' || capture === true ) {
-      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}${list}` , saveObject );
+      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}${list}` , saveObject, true );
     }
 
 
     if ( this.validDocsContacts !== '' ) {
-      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}Props` , saveObject );
+      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}Props` , saveObject, true );
     }
 
   }
