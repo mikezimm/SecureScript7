@@ -51,11 +51,10 @@ import { ISecureScript7Props, ICDNMode } from './components/ISecureScript7Props'
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 
-import { approvedSites, } from './components/Security20/ApprovedLibraries';
+import { approvedSites, throttleAnalytics} from './components/Security20/ApprovedLibraries';
 import { approvedLibraries, } from './components/Security20/ApprovedPropPane';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './components/Security20/interface';
+import { IApprovedCDNs, IFetchInfo, approvedFileTypes } from './components/Security20/interface';
 
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 import { createAdvSecProfile } from './components/Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
@@ -69,6 +68,11 @@ import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
 
+import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
+import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
+import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
+import { IFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { getFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/FPSUser';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
@@ -76,14 +80,30 @@ require('../../services/propPane/GrayPropPaneAccordions.css');
 export const repoLink: IRepoLinks = links.gitRepoSecureScript7Small;
 
 export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureScript7WebPartProps> {
+
+  /***
+ *    d8888b. d8888b. d888888b db    db  .d8b.  d888888b d88888b .d8888. 
+ *    88  `8D 88  `8D   `88'   88    88 d8' `8b `~~88~~' 88'     88'  YP 
+ *    88oodD' 88oobY'    88    Y8    8P 88ooo88    88    88ooooo `8bo.   
+ *    88~~~   88`8b      88    `8b  d8' 88~~~88    88    88~~~~~   `Y8b. 
+ *    88      88 `88.   .88.    `8bd8'  88   88    88    88.     db   8D 
+ *    88      88   YD Y888888P    YP    YP   YP    YP    Y88888P `8888Y' 
+ *                                                                       
+ *                                                                       
+ */
+
   private _unqiueId;
   private cdnMode:  ICDNMode = 'Webs';
   private cdnValid:  boolean = false;
+  private validDocsContacts: string = '';
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
 
-  private wpInstanceID: any = webpartInstance( 'SS7' );
+  private trickyApp = 'SS7';
+  private wpInstanceID: any = webpartInstance( this.trickyApp );
+
+  private FPSUser: IFPSUser = null;
 
   //For FPS options
   private fpsPageDone: boolean = false;
@@ -102,16 +122,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private modifyBannerStyle = true ;
 
   private  expandoDefault = false;
+  private filesList: any = [];
 
   private fetchInstance: string = Math.floor(Math.random() * 79797979 ).toString();
 
   // private SecureProfile: ISecurityProfile = {
-  //   cssWarn: 'ExternalWarn', 
-  //   cssBlock: 'ExternalBlock', 
+  //   cssWarn: 'Warn', 
+  //   cssBlock: 'Block', 
   //   jsWarn: 'Nothing', 
   //   jsBlock: 'Tenant', 
-  //   imgWarn: 'ExternalWarn', 
-  //   imgBlock: 'ExternalBlock',
+  //   imgWarn: 'Warn', 
+  //   imgBlock: 'Block',
   // };
 
   private expandoErrorObj = {
@@ -138,6 +159,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private bannerElement : HTMLDivElement;
   private scriptElement : HTMLDivElement;
 
+
+  /***
+ *     .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
+ *    .8P  Y8. 888o  88   `88'   888o  88   `88'   `~~88~~' 
+ *    88    88 88V8o 88    88    88V8o 88    88       88    
+ *    88    88 88 V8o88    88    88 V8o88    88       88    
+ *    `8b  d8' 88  V888   .88.   88  V888   .88.      88    
+ *     `Y88P'  VP   V8P Y888888P VP   V8P Y888888P    YP    
+ *                                                          
+ *                                                          
+ */
+
   protected onInit(): Promise<void> {
     
 
@@ -147,6 +180,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.scriptElement = document.createElement('div');
     this.bannerElement.className = 'bannerElement';
     this.scriptElement.className = 'scriptElement';
+    this.scriptElement.id = this.wpInstanceID;
 
     this.domElement.innerHTML = '<div></div>';
     this.domElement.appendChild(this.bannerElement);
@@ -177,6 +211,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
       this.urlParameters = getUrlVars();
 
+      this.FPSUser = getFPSUser( this.context, links.trickyEmails, this.trickyApp ) ;
+      console.log( 'FPSUser: ', this.FPSUser );
+
       this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true ? true : false;
       if ( this.urlParameters.Mode === 'Edit' ) { this.expandoDefault = false; }
       let expandoStyle: any = {};
@@ -184,8 +221,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         expandoStyle = JSON.parse( this.properties.expandoStyle );
 
       } catch(e) {
-
+        console.log('Unable to expandoStyle: ', this.properties.expandoStyle);
       }
+
       let padding = this.properties.expandoPadding ? this.properties.expandoPadding : 20;
       setExpandoRamicMode( this.context.domElement, this.expandoDefault, expandoStyle,  false, false, padding );
       this.properties.showRepoLinks = false;
@@ -213,6 +251,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     });
   }
 
+
+  /***
+ *    d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
+ *    88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
+ *    88oobY' 88ooooo 88V8o 88 88   88 88ooooo 88oobY' 
+ *    88`8b   88~~~~~ 88 V8o88 88   88 88~~~~~ 88`8b   
+ *    88 `88. 88.     88  V888 88  .8D 88.     88 `88. 
+ *    88   YD Y88888P VP   V8P Y8888D' Y88888P 88   YD 
+ *                                                     
+ *                                                     
+ */
+
+
   // public render(): void {
   public async render() {
     this._unqiueId = this.context.instanceId;
@@ -220,9 +271,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.properties.replacePanelHTML = visitorPanelInfo( this.properties );
 
     let errMessage = '';
+    this.validDocsContacts = '';
 
-    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + this.properties.documentationLinkUrl ; }
-    if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; }
+    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + this.properties.documentationLinkUrl ; this.validDocsContacts += 'DocLink,'; }
+    if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; this.validDocsContacts += 'Contacts,'; }
 
     let errorObjArray :  any[] =[];
 
@@ -244,10 +296,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     let replacePanelWarning = `Anyone with lower permissions than '${this.properties.fullPanelAudience}' will ONLY see this content in panel`;
     let buildBannerSettings : IBuildBannerSettings = {
 
+      FPSUser: this.FPSUser,
       //this. related info
       context: this.context ,
       clientWidth: this.domElement.clientWidth,
-      exportProps: buildExportProps( this.properties, this.wpInstanceID ),
+      exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl ),
 
       //Webpart related info
       panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
@@ -277,13 +330,13 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     }
     } );
 
-  this.properties.showBannerGear = verifyAudienceVsUser( this.context , showTricks, this.properties.homeParentGearAudience, null);
-  let bannerSetup = buildBannerProps( this.properties , buildBannerSettings, showTricks );
+  this.properties.showBannerGear = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.homeParentGearAudience, null);
+  let bannerSetup = buildBannerProps( this.properties , this.FPSUser, buildBannerSettings, showTricks );
   errMessage = bannerSetup.errMessage;
   let bannerProps = bannerSetup.bannerProps;
   let expandoErrorObj = bannerSetup.errorObjArray;
 
-  let showCodeIcon = verifyAudienceVsUser( this.context , showTricks, this.properties.showCodeAudience , null );
+  let showCodeIcon = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.showCodeAudience , null );
 
   // let legacyPageContext = this.context.pageContext.legacyPageContext;
 
@@ -299,6 +352,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   //   showCodeIcon = true;
   // }
 
+  /***
+ *    d88888b d88888b d888888b  .o88b. db   db      d88888b d888888b db      d88888b 
+ *    88'     88'     `~~88~~' d8P  Y8 88   88      88'       `88'   88      88'     
+ *    88ooo   88ooooo    88    8P      88ooo88      88ooo      88    88      88ooooo 
+ *    88~~~   88~~~~~    88    8b      88~~~88      88~~~      88    88      88~~~~~ 
+ *    88      88.        88    Y8b  d8 88   88      88        .88.   88booo. 88.     
+ *    YP      Y88888P    YP     `Y88P' YP   YP      YP      Y888888P Y88888P Y88888P 
+ *                                                                                   
+ *                                                                                   
+ */
+
   approvedSites.map( site => {
     if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { this.cdnValid = true; }
   });
@@ -311,6 +375,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     //Reset fetchInstance which triggers some updates in react component
     this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
   }
+
+
+  /***
+ *     .o88b.  .d88b.  d8b   db .d8888. d888888b      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
+ *    d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~'      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 
+ *    8P      88    88 88V8o 88 `8bo.      88         88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    
+ *    8b      88    88 88 V8o88   `Y8b.    88         88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88    
+ *    Y8b  d8 `8b  d8' 88  V888 db   8D    88         88.     88booo. 88.     88  88  88 88.     88  V888    88    
+ *     `Y88P'  `Y88P'  VP   V8P `8888Y'    YP         Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    
+ *                                                                                                                 
+ *                                                                                                                 
+ */
 
 
     const element: React.ReactElement<ISecureScript7Props> = React.createElement(
@@ -350,12 +426,42 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       }
     );
 
-    ReactDom.render(element, this.bannerElement);
-    this.scriptElement.innerHTML = this.fetchInfo.snippet;
 
-    if ( this.fetchInfo.selectedKey !== 'ExternalBlock' ) {
+    /***
+ *    d8888b.  .d88b.  .88b  d88.      d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
+ *    88  `8D .8P  Y8. 88'YbdP`88      88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
+ *    88   88 88    88 88  88  88      88oobY' 88ooooo 88V8o 88 88   88 88ooooo 88oobY' 
+ *    88   88 88    88 88  88  88      88`8b   88~~~~~ 88 V8o88 88   88 88~~~~~ 88`8b   
+ *    88  .8D `8b  d8' 88  88  88      88 `88. 88.     88  V888 88  .8D 88.     88 `88. 
+ *    Y8888D'  `Y88P'  YP  YP  YP      88   YD Y88888P VP   V8P Y8888D' Y88888P 88   YD 
+ *                                                                                      
+ *                                                                                      
+ */
+
+    ReactDom.render(element, this.bannerElement);
+
+    let renderHTML = this.fetchInfo.snippet;
+    //Close #31 - This was added to injext sandbox into any iframes so they don't auto-execute in edit mode
+    if ( this.displayMode !== DisplayMode.Read ) {
+      renderHTML = this.fetchInfo.snippet.replace(/<\s*\S*iframe/ig, '<iframe sandbox ');
+    }
+
+    this.scriptElement.innerHTML = renderHTML;
+
+    if ( renderHTML === '' ) {
+      //Do nothing since script is empty
+    } else if ( this.fetchInfo.selectedKey === 'Block' ) {
+      this.saveLoadAnalytics( 'Blocked Script', 'Blocked', this.fetchInfo, 'Blocks' );
+
+    } else if ( this.fetchInfo.selectedKey === 'Warn' ) {
       if ( this.displayMode === DisplayMode.Read ) {
         executeScript(this.scriptElement, this._unqiueId, document );
+        this.saveLoadAnalytics( 'Execute Script', 'Warned', this.fetchInfo, 'Warns' );
+      }
+    } else {
+      if ( this.displayMode === DisplayMode.Read ) {
+        executeScript(this.scriptElement, this._unqiueId, document );
+        this.saveLoadAnalytics( 'Execute Script', this.fetchInfo.selectedKey, this.fetchInfo, 'Views' );
       }
     }
 
@@ -481,6 +587,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 //   }
 // }
 
+/***
+ *    d888888b db   db d88888b .88b  d88. d88888b 
+ *    `~~88~~' 88   88 88'     88'YbdP`88 88'     
+ *       88    88ooo88 88ooooo 88  88  88 88ooooo 
+ *       88    88~~~88 88~~~~~ 88  88  88 88~~~~~ 
+ *       88    88   88 88.     88  88  88 88.     
+ *       YP    YP   YP Y88888P YP  YP  YP Y88888P 
+ *                                                
+ *                                                
+ */
+
 
   private _getEnvironmentMessage(): string {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams
@@ -513,6 +630,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     return Version.parse('1.0');
   }
 
+
+  /***
+ *     d888b  d88888b d888888b      db      d888888b d8888b. d8888b.  .d8b.  d8888b. d888888b d88888b .d8888. 
+ *    88' Y8b 88'     `~~88~~'      88        `88'   88  `8D 88  `8D d8' `8b 88  `8D   `88'   88'     88'  YP 
+ *    88      88ooooo    88         88         88    88oooY' 88oobY' 88ooo88 88oobY'    88    88ooooo `8bo.   
+ *    88  ooo 88~~~~~    88         88         88    88~~~b. 88`8b   88~~~88 88`8b      88    88~~~~~   `Y8b. 
+ *    88. ~8~ 88.        88         88booo.   .88.   88   8D 88 `88. 88   88 88 `88.   .88.   88.     db   8D 
+ *     Y888P  Y88888P    YP         Y88888P Y888888P Y8888P' 88   YD YP   YP 88   YD Y888888P Y88888P `8888Y' 
+ *                                                                                                            
+ *                                                                                                            
+ */
 
 
   // Dropdown gets disabled while retrieving items asynchronously
@@ -562,6 +690,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       .then(data => data.value);
   }
 
+
+  /***
+ *     d888b  d88888b d888888b      d88888b d888888b db      d88888b .d8888. 
+ *    88' Y8b 88'     `~~88~~'      88'       `88'   88      88'     88'  YP 
+ *    88      88ooooo    88         88ooo      88    88      88ooooo `8bo.   
+ *    88  ooo 88~~~~~    88         88~~~      88    88      88~~~~~   `Y8b. 
+ *    88. ~8~ 88.        88         88        .88.   88booo. 88.     db   8D 
+ *     Y888P  Y88888P    YP         YP      Y888888P Y88888P Y88888P `8888Y' 
+ *                                                                           
+ *                                                                           
+ */
+
+
   // Asynchronous library query
   // Copied from CherryPickedCE
   private getLibraryItemsList = (filesLocation) => {
@@ -574,6 +715,26 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       .then((response: SPHttpClientResponse) => response.json())
       .then(data => data.value);
   }
+
+
+/***
+ *    d8888b. d8888b.  .d88b.  d8888b.      d8888b.  .d8b.  d8b   db d88888b      .d8888. d888888b  .d8b.  d8888b. d888888b 
+ *    88  `8D 88  `8D .8P  Y8. 88  `8D      88  `8D d8' `8b 888o  88 88'          88'  YP `~~88~~' d8' `8b 88  `8D `~~88~~' 
+ *    88oodD' 88oobY' 88    88 88oodD'      88oodD' 88ooo88 88V8o 88 88ooooo      `8bo.      88    88ooo88 88oobY'    88    
+ *    88~~~   88`8b   88    88 88~~~        88~~~   88~~~88 88 V8o88 88~~~~~        `Y8b.    88    88~~~88 88`8b      88    
+ *    88      88 `88. `8b  d8' 88           88      88   88 88  V888 88.          db   8D    88    88   88 88 `88.    88    
+ *    88      88   YD  `Y88P'  88           88      YP   YP VP   V8P Y88888P      `8888Y'    YP    YP   YP 88   YD    YP    
+ *                                                                                                                          
+ *                                                                                                                          
+ */
+
+  // protected onPropertyPaneConfigurationComplete(): void {
+  //   alert('You exited the property pane!' + this.displayMode);
+  // }
+  
+  // protected onDisplayModeChanged(oldDisplayMode: DisplayMode): void {
+  //   alert('Displaymode change from' + oldDisplayMode + ' to ' + this.displayMode );
+  // }
 
 
   // Runs before getting the Property Pane configuration
@@ -622,7 +783,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   // store items
 
                   console.log('onPropertyPaneConfigurationStart: files', files );
-                  this.libraryItemsList = files.map(file => { return { key: file.Name, text: file.Name }; });
+                  this.filesList = [];
+                  this.libraryItemsList = files.map(file => { 
+                    this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
+                    return { key: file.Name, text: file.Name }; }
+                    );
+
                   this.itemsDropdownDisabled = false;
                   this.context.propertyPane.refresh();
                 });
@@ -660,6 +826,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
       return isValid;
   } 
+
+  /***
+ *    d8888b. d8888b.  .d88b.  d8888b.      d8888b.  .d8b.  d8b   db d88888b       .o88b. db   db  .d8b.  d8b   db  d888b  d88888b 
+ *    88  `8D 88  `8D .8P  Y8. 88  `8D      88  `8D d8' `8b 888o  88 88'          d8P  Y8 88   88 d8' `8b 888o  88 88' Y8b 88'     
+ *    88oodD' 88oobY' 88    88 88oodD'      88oodD' 88ooo88 88V8o 88 88ooooo      8P      88ooo88 88ooo88 88V8o 88 88      88ooooo 
+ *    88~~~   88`8b   88    88 88~~~        88~~~   88~~~88 88 V8o88 88~~~~~      8b      88~~~88 88~~~88 88 V8o88 88  ooo 88~~~~~ 
+ *    88      88 `88. `8b  d8' 88           88      88   88 88  V888 88.          Y8b  d8 88   88 88   88 88  V888 88. ~8~ 88.     
+ *    88      88   YD  `Y88P'  88           88      YP   YP VP   V8P Y88888P       `Y88P' YP   YP YP   YP VP   V8P  Y888P  Y88888P 
+ *                                                                                                                                 
+ *                                                                                                                                 
+ */
 
   // This API is invoked after updating the new value of the property in the property bag (Reactive mode). 
   protected async onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any) {
@@ -741,12 +918,20 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
           if (files.length) {
             // store items
-            let items = files.map(file => { return { key: file.Name, text: file.Name }; });
+            this.filesList = [];
+            let items = files.map(file => { 
+              this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
+              return { key: file.Name, text: file.Name };
+             });
+
             //Issue #6 & #7
             let filteredItems = [];
+
             items.map( item => {
               let extension = item.key.substr(item.key.lastIndexOf(".") + 1).toLowerCase();
-              if ( extension && extension.length > 0 && approvedFileTypes.indexOf(extension) > -1 ) { filteredItems.push( item ) ; }
+              if ( extension && extension.length > 0 && approvedFileTypes.indexOf(extension) > -1 ) { 
+                filteredItems.push( item ) ;
+               }
             });
             this.libraryItemsList = sortObjectArrayByStringKey( filteredItems, 'asc', 'key' );
 
@@ -766,6 +951,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.render();
   }
 
+
+  /***
+ *    d8888b. d8888b.  .d88b.  d8888b.      d8888b.  .d8b.  d8b   db d88888b       d888b  d88888b d888888b 
+ *    88  `8D 88  `8D .8P  Y8. 88  `8D      88  `8D d8' `8b 888o  88 88'          88' Y8b 88'     `~~88~~' 
+ *    88oodD' 88oobY' 88    88 88oodD'      88oodD' 88ooo88 88V8o 88 88ooooo      88      88ooooo    88    
+ *    88~~~   88`8b   88    88 88~~~        88~~~   88~~~88 88 V8o88 88~~~~~      88  ooo 88~~~~~    88    
+ *    88      88 `88. `8b  d8' 88           88      88   88 88  V888 88.          88. ~8~ 88.        88    
+ *    88      88   YD  `Y88P'  88           88      YP   YP VP   V8P Y88888P       Y888P  Y88888P    YP    
+ *                                                                                                         
+ *                                                                                                         
+ */
+
+  
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
 
     return {
@@ -900,4 +1098,115 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       ]
     };
   }
+
+  private async saveLoadAnalytics( Title: string, Result: string, fetchInfo: IFetchInfo, list: 'Views' | 'Edits' | 'Warns' | 'Blocks' | 'Errors'  ) {
+
+    let loadProperties: IZLoadAnalytics = {
+      SiteID: this.context.pageContext.site.id['_guid'] as any,  //Current site collection ID for easy filtering in large list
+      WebID:  this.context.pageContext.web.id['_guid'] as any,  //Current web ID for easy filtering in large list
+      SiteTitle:  this.context.pageContext.web.title as any, //Web Title
+      TargetSite:  this.context.pageContext.web.serverRelativeUrl,  //Saved as link column.  Displayed as Relative Url
+      ListID:  this.properties.libraryPicker,  //Current list ID for easy filtering in large list
+      ListTitle:  this.properties.libraryPicker,
+      TargetList: `/sites/SecureCDN${this.properties.libraryPicker}`,  //Saved as link column.  Displayed as Relative Url
+  
+    };
+
+    let zzzRichText1Obj = fetchInfo.policyFlags.Block.map( flag => { return `${flag.cdn}` ; });
+    let zzzRichText2Obj = fetchInfo.policyFlags.Warn.map( flag => { return `${flag.cdn}` ; });
+
+    //This will get rid of all the escaped characters in the summary (since it's all numbers)
+    let zzzRichText3 = JSON.stringify( fetchInfo.summary ).replace('\\','');
+    //This will get rid of the leading and trailing quotes which have to be removed to make it real json object
+    zzzRichText3 = zzzRichText3.slice(1, zzzRichText3.length - 1);
+
+    console.log( 'zzzRichText1Obj:', zzzRichText1Obj);
+    console.log( 'zzzRichText2Obj:', zzzRichText2Obj);
+
+    let zzzRichText1 = null;
+    let zzzRichText2 = null;
+
+    if ( zzzRichText1Obj ) { zzzRichText1 = JSON.stringify( zzzRichText1Obj ); }
+    if ( zzzRichText2Obj ) { zzzRichText2 = JSON.stringify( zzzRichText2Obj ); }
+    if ( zzzRichText3 ) { zzzRichText3 = JSON.stringify( zzzRichText3 ); }
+
+    console.log('zzzRichText1 length:', zzzRichText1 ? zzzRichText1.length : 0 );
+    console.log('zzzRichText2 length:', zzzRichText2 ? zzzRichText2.length : 0 );
+    console.log('zzzRichText3 length:', zzzRichText3 ? zzzRichText3.length : 0 );
+
+    let saveObject: IZSentAnalytics = {
+      loadProperties: loadProperties,
+
+      Title: Title,  //General Label used to identify what analytics you are saving:  such as Web Permissions or List Permissions.
+    
+      Result: Result,  //Success or Error
+    
+      zzzText1: `${ this.properties.webPicker }`, 
+      zzzText2: `${  this.properties.libraryPicker }`, 
+      zzzText3: `${  this.properties.libraryItemPicker }`, //Info1 in some webparts.  Simple category defining results.   Like Unique / Inherited / Collection
+      zzzText4: `${  fetchInfo.selectedKey }`, //Info2 in some webparts.  Phrase describing important details such as "Time to check old Permissions: 86 snaps / 353ms"
+      zzzText5: `${  fetchInfo.errorHTML }`,
+      zzzText6: `${ this.validDocsContacts }`,
+      zzzText7: `${ this.FPSUser.simple }`,
+    
+      zzzNumber1: fetchInfo.fetchTime,
+      zzzNumber2: fetchInfo.regexTime,
+      zzzNumber3: fetchInfo.Block.length,
+      zzzNumber4: fetchInfo.Warn.length,
+      zzzNumber5: fetchInfo.Verify.length,
+      zzzNumber6: fetchInfo.Secure.length,
+      zzzNumber7: fetchInfo.js.length,
+    
+      zzzRichText1: zzzRichText1,  //Used to store JSON objects for later use, will be stringified
+      zzzRichText2: zzzRichText2,
+      zzzRichText3: zzzRichText3,
+
+    };
+
+    if ( fetchInfo.selectedKey === 'Warn' ) { list = 'Warns' ; }
+    else if ( fetchInfo.selectedKey === 'Block' ) { list = 'Blocks' ; }
+
+    //This section is to limit analytics on high volume pages - #13
+    let capture = true;
+    if ( throttleAnalytics.length > 0 && throttleAnalytics[0].serverRequestPath !== '' ) {
+      throttleAnalytics.map( throttle => {
+        if ( throttle.serverRequestPath === this.context.pageContext.site.serverRequestPath ) {
+          let rand10X = throttle.capture * 10; //10 times the value entered in the array so capter=10, randX = 100
+          let thisChance = Math.floor(Math.random() * 1000 );
+          if ( thisChance > rand10X ) { capture = false; }
+          console.log('capture', throttle.capture, rand10X, thisChance, capture );
+
+          /**
+           * This is the code I used to test logic of random chance
+          let below = 0;
+          let above = 0;
+
+          for (let i = 0; i <  1000; i++) {
+
+            let capture = true;
+            let rand10X = 1 * 10; //10 times the value entered in the array so capter=10, randX = 100
+            let thisChance = Math.floor(Math.random() * 1000 );
+            if ( thisChance > rand10X ) { capture = false; above ++ } else { below ++; }
+
+          }
+          console.log('result:', below, above ); ===  "result:" 10 990 which is right about 1%
+           */
+
+
+        }
+      });
+    }
+    //This will capture analytics for anything that is NOT just a view, or a certain % of views based on throttleAnalytics
+    if ( list !== 'Views' || capture === true ) {
+      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}${list}` , saveObject, true );
+    }
+
+
+    if ( this.validDocsContacts !== '' ) {
+      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}Props` , saveObject, true );
+    }
+
+  }
+
+
 }

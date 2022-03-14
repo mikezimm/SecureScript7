@@ -9,6 +9,10 @@ declare interface ISecureScript7WebPartStrings {
 
   LibraryPickerLabel: string;
   LibraryItemPickerLabel: string;
+
+  // 1 - Analytics options
+  analyticsWeb: string;
+  analyticsList: string;
   
 }
 

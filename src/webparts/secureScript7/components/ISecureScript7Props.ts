@@ -7,11 +7,21 @@ import { DisplayMode, Version } from '@microsoft/sp-core-library';
 
 import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes } from './Security20/interface';
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, } from './Security20/interface';
 
 import { IAdvancedSecurityProfile } from './Security20/interface';
  
+/***
+ *    d8888b. d8888b.  .d88b.  d8888b. .d8888. 
+ *    88  `8D 88  `8D .8P  Y8. 88  `8D 88'  YP 
+ *    88oodD' 88oobY' 88    88 88oodD' `8bo.   
+ *    88~~~   88`8b   88    88 88~~~     `Y8b. 
+ *    88      88 `88. `8b  d8' 88      db   8D 
+ *    88      88   YD  `Y88P'  88      `8888Y' 
+ *                                             
+ *                                             
+ */
+
 export type ICDNMode = 'Webs' | 'Libraries';
 
 export interface ISecureScript7Props {
@@ -44,6 +54,7 @@ export interface ISecureScript7Props {
 
   securityProfile: IAdvancedSecurityProfile;
 
+
   // context: WebPartContext;
 
   domElement: any;
@@ -51,13 +62,27 @@ export interface ISecureScript7Props {
   fetchInstance: string;
   showCodeIcon: boolean;
 
+
     //ADDED FOR WEBPART HISTORY:  
     webpartHistory: IWebpartHistory;
 
 }
 
+/***
+ *    .d8888. d888888b  .d8b.  d888888b d88888b 
+ *    88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
+ *    `8bo.      88    88ooo88    88    88ooooo 
+ *      `Y8b.    88    88~~~88    88    88~~~~~ 
+ *    db   8D    88    88   88    88    88.     
+ *    `8888Y'    YP    YP   YP    YP    Y88888P 
+ *                                              
+ *                                              
+ */
+export type IScope = 'Loaded File' | 'Current Webpart' | 'Entire Page';
 export interface ISecureScript7State {
 
+  fetchInfo: IFetchInfo;
+  
   lastStateChange: string;
   showDevHeader: boolean;
   isSiteAdmin: boolean;
@@ -65,9 +90,17 @@ export interface ISecureScript7State {
   showOriginalHtml: boolean;
   showApprovedLocations: boolean;
   showRawHTML: boolean;
+  showProfileLogic: boolean;
+  showPanel: boolean;
+  panelFileType: IApprovedFileType;
+  panelSource: ICDNCheck;
+  
   fullBlockedHeight: boolean;
   toggleTag: 'files' | 'tags';
 
-  selectedKey: ICDNCheck | IApprovedFileType | 'raw';
+  
+  scope: IScope;
 
+  selectedKey: ICDNCheck | IApprovedFileType | 'raw';
+  selectedKeyFile: ICDNCheck | IApprovedFileType | 'raw';
 }

@@ -2,28 +2,46 @@ import * as React from 'react';
 import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 
 import styles from './SecureScript7.module.scss';
-import { ISecureScript7Props, ISecureScript7State } from './ISecureScript7Props';
+import { ISecureScript7Props, ISecureScript7State, IScope } from './ISecureScript7Props';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
+import { Panel, IPanelProps, PanelType } from 'office-ui-fabric-react/lib/Panel';
+
+import ReactJson from "react-json-view";
 
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
 import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
-import { approvedSites, } from './Security20/ApprovedLibraries';
+import { approvedSites, SecureProfile, } from './Security20/ApprovedLibraries';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, SourceSecurityRank, 
-  IApprovedFileType, ICDNCheck , SourceSecurityRankColor, SourceSecurityRankBackG, SourceSecurityRankIcons, approvedFileTypes, IPolicyFlag, IPolicyFlagLevel } from './Security20/interface';
+import { createAdvSecProfile } from './Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
+
+import { IApprovedCDNs, IFetchInfo, ITagInfo, IApprovedFileType, ICDNCheck , IPolicyFlag, IPolicyFlagLevel, SourceInfo, IAdvancedSecurityProfile, IFileTypeSecurity, PolicyFlagStyles  } from './Security20/interface';
+import { analyzeShippet  } from './Security20/FetchCode';
+
+import { SourceNothing,
+      SourceSecure,
+      SourceLocal,
+      SourceTenant,
+      SourceExtApp,
+      SourceWWW,
+      SourceVerify,
+      SourceWarn,
+      SourceBlock, } from './Security20/interface';
+
+import { buildSourceRankArray,  } from './Security20/functions';
+import { tdProperties } from 'office-ui-fabric-react';
 
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
-const pivotHeading0 : ICDNCheck = 'ExternalBlock';  //2022-01-31: Added Pivot Tiles
-const pivotHeading1 : ICDNCheck = 'ExternalWarn';  //Templates
+const pivotHeading0 : ICDNCheck = 'Block';  //2022-01-31: Added Pivot Tiles
+const pivotHeading1 : ICDNCheck = 'Warn';  //Templates
 const pivotHeading2 : ICDNCheck = 'WWW';  //Templates
 const pivotHeadingV : ICDNCheck = 'Verify';  //Templates
-const pivotHeading3 : ICDNCheck = 'ExternalApproved';  //Templates
+const pivotHeading3 : ICDNCheck = 'Approved';  //Templates
 const pivotHeading4 : ICDNCheck = 'Tenant';  //Templates
 const pivotHeadingL : ICDNCheck = 'Local';  //Templates
 const pivotHeading5 : ICDNCheck = 'SecureCDN';  //Templates
@@ -34,6 +52,7 @@ const pivotHeading9 : IApprovedFileType = 'html';  //Templates
 const pivotHeading10 : IApprovedFileType = 'img';  //Templates
 const pivotHeading11 : IApprovedFileType = 'link';  //Templates
 const pivotHeading12 : string = 'raw';  //Templates
+const pivotHeading13 : string = 'profile';  //Templates
 
 const fileButtonStyles = {
   backgroundColor: 'transparent',
@@ -46,28 +65,41 @@ const fileButtonStyles = {
   fontWeight: 'normal',
 };
 
+
+
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
+
+  private reStuleButtons() {
+    const buttonStyles = defaultBannerCommandStyles;
+    buttonStyles.margin = '0px 10px';
+    return buttonStyles;
+  }
+
+  private SourceNameRank = buildSourceRankArray();
 
   private currentPageUrl = this.props.bannerProps.pageContext.web.absoluteUrl + this.props.bannerProps.pageContext.site.serverRequestPath;
 
-    /***
-     *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b.      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
-     *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 88'  YP 
-     *    88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY'      88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    `8bo.   
-     *    88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b        88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88      `Y8b. 
-     *    88   8D 88   88 88  V888 88  V888 88.     88 `88.      88.     88booo. 88.     88  88  88 88.     88  V888    88    db   8D 
-     *    Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD      Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    `8888Y' 
-     *                                                                                                                                
-     *                                                                                                                                
-     */
+  /***
+   *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b.      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
+   *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 88'  YP 
+   *    88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY'      88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    `8bo.   
+   *    88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b        88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88      `Y8b. 
+   *    88   8D 88   88 88  V888 88  V888 88.     88 `88.      88.     88booo. 88.     88  88  88 88.     88  V888    88    db   8D 
+   *    Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD      Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    `8888Y' 
+   *                                                                                                                                
+   *                                                                                                                                
+   */
 
-  private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
-  private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
-  private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ defaultBannerCommandStyles } title='Show Raw HTML here'></Icon>;
+  private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
+  private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
+  private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
+  private toggleLiveWP = <Icon iconName={ 'Refresh' } onClick={ this.getLiveWebpart.bind(this) } style={ this.reStuleButtons() } title='Analyize live webpart'></Icon>;
+  private toggleFullPg = <Icon iconName={ 'DownloadDocument'} onClick={ this.getEntirePage.bind(this) } style={ this.reStuleButtons() } title='Analyize FULL Page'></Icon>;
 
-  private tagPageNoteBlocks = 'Files BLOCKED due to a policy.';
+
+  private tagPageNoteBlocks = 'Files BLOCKED due to a specific policy.';
   private tagPageNoteWarns = 'Files in High Risk locations (due to a policy) but still work.';
-  private tagPageNoteWWW = 'Files elsewhere in the www.  Not blocked and not approved';
+  private tagPageNoteWWW = 'Files elsewhere in the www.';
   private tagPageNoteExtApp = 'Files in External locations/CDNs that are approved';
   private tagPageNoteTenant = 'Files in this Tenant but not in the SecureCDN';
   private tagPageNoteSecure = 'Files in the Tenant\'s SecureCDN site';
@@ -94,7 +126,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         <li><span className={ styles.bad}>DO NOT</span> execute any Javascript to change any SharePoint or DOM elements above your html content div</li>
         <li><span className={ styles.bad}>DO NOT</span> load any CSS that changes any SharePoint or DOM element styling above your html content div</li>
         <br/>
-        <li>We can and do occasional audits to verify compliance with the terms of use.</li>
+        <li>We can and do occasional audits to Verify compliance with the terms of use.</li>
         <br/>
         <li style={{ fontWeight: 'bold', fontSize: 'large' }}>Breaking any of these Terms of Use will cause your CDN access to be revoked.  aka your code will no longer work.</li>
       </ul>
@@ -109,13 +141,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private tagPageNoteVERIFY = 'Verify Tags';
 
 
-  private page0 = this.buildTagPage( this.props.fetchInfo.blocks, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.block ) ;
-  private page1 = this.buildTagPage( this.props.fetchInfo.warns, this.tagPageNoteWarns, this.props.fetchInfo.policyFlags.warn );
+  private page0 = this.buildTagPage( this.props.fetchInfo.Block, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.Block ) ;
+  private page1 = this.buildTagPage( this.props.fetchInfo.Warn, this.tagPageNoteWarns, this.props.fetchInfo.policyFlags.Warn );
   private page2 = this.buildTagPage( this.props.fetchInfo.www, this.tagPageNoteWWW );
-  private page3 = this.buildTagPage( this.props.fetchInfo.extApp, this.tagPageNoteExtApp );
-  private page4 = this.buildTagPage( this.props.fetchInfo.tenant, this.tagPageNoteTenant );
-  private page5 = this.buildTagPage( this.props.fetchInfo.secure, this.tagPageNoteSecure );
-  private page6 = this.buildTagPage( this.props.fetchInfo.nothing, this.tagPageNoteNothing );
+  private page3 = this.buildTagPage( this.props.fetchInfo.Approved, this.tagPageNoteExtApp );
+  private page4 = this.buildTagPage( this.props.fetchInfo.Tenant, this.tagPageNoteTenant );
+  private page5 = this.buildTagPage( this.props.fetchInfo.Secure, this.tagPageNoteSecure );
+  private page6 = this.buildTagPage( this.props.fetchInfo.Nothing, this.tagPageNoteNothing );
 
   private page7 = this.buildTagPage( this.props.fetchInfo.js, this.tagPageNoteJS );
   private page8 = this.buildTagPage( this.props.fetchInfo.css, this.tagPageNoteCSS );
@@ -123,21 +155,20 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private page10 = this.buildTagPage( this.props.fetchInfo.img, this.tagPageNoteIMG );
   private page11 = this.buildTagPage( this.props.fetchInfo.link, this.tagPageNoteLINK );
   
-  private pageL = this.buildTagPage( this.props.fetchInfo.local, this.tagPageNoteLOCAL );
-  private pageV = this.buildTagPage( this.props.fetchInfo.verify, this.tagPageNoteVERIFY, [], 'verify' );
+  private pageL = this.buildTagPage( this.props.fetchInfo.Local, this.tagPageNoteLOCAL );
+  private pageV = this.buildTagPage( this.props.fetchInfo.Verify, this.tagPageNoteVERIFY, [], 'Verify' );
 
 
+  private pivotBlock = <PivotItem headerText={'Block'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceBlock.icon }/>;
+  private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceWarn.icon }/>;
+  private pivotWWW = <PivotItem headerText={'WWW'} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ SourceWWW.icon }/>;
+  private pivotExtApp = <PivotItem headerText={'ExtApp'} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ SourceExtApp.icon }/>;
+  private pivotTenant = <PivotItem headerText={'Tenant'} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ SourceTenant.icon }/>;
+  private pivotSecure = <PivotItem headerText={'Secure'} ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ SourceSecure.icon }/>;
+  private pivotNothing = <PivotItem headerText={ 'Nothing' } ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={pivotHeading6} itemIcon={ SourceNothing.icon }/>;
 
-  private pivotBlocked = <PivotItem headerText={'Blocked'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading0)] }/>;
-  private pivotWarn = <PivotItem headerText={'Warn'} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading1)] }/>;
-  private pivotWWW = <PivotItem headerText={'WWW'} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading2)] }/>;
-  private pivotExtApp = <PivotItem headerText={'ExtApp'} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading3)] }/>;
-  private pivotTenant = <PivotItem headerText={'Tenant'} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading4)] }/>;
-  private pivotSecure = <PivotItem headerText={'Secure'} ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading5)] }/>;
-  private pivotNothing = <PivotItem headerText={ 'Nothing' } ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={pivotHeading6} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeading6)] }/>;
-
-  private pivotVerify = <PivotItem headerText={ 'Verify' } ariaLabel={pivotHeadingV} title={pivotHeadingV} itemKey={pivotHeadingV} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeadingV)] }/>;
-  private pivotLocal = <PivotItem headerText={ 'Local' } ariaLabel={pivotHeadingL} title={pivotHeadingL} itemKey={pivotHeadingL} itemIcon={ SourceSecurityRankIcons[SourceSecurityRank.indexOf(pivotHeadingL)] }/>;
+  private pivotVerify = <PivotItem headerText={ 'Verify' } ariaLabel={pivotHeadingV} title={pivotHeadingV} itemKey={pivotHeadingV} itemIcon={ SourceVerify.icon }/>;
+  private pivotLocal = <PivotItem headerText={ 'Local' } ariaLabel={pivotHeadingL} title={pivotHeadingL} itemKey={pivotHeadingL} itemIcon={ SourceLocal.icon }/>;
 
   private pivotJS = <PivotItem headerText={ null } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={pivotHeading7} itemIcon={ 'JS' }/>;
   private pivotCSS = <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'CSS' }/>;
@@ -145,7 +176,18 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pivotIMG = <PivotItem headerText={ null } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={pivotHeading10} itemIcon={ 'Photo2' }/>;
   private pivotLINK = <PivotItem headerText={ null } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={pivotHeading11} itemIcon={ 'Link' }/>;
   private pivotRAW = <PivotItem headerText={ 'raw' } ariaLabel={'raw'} title={'raw'} itemKey={'raw'} itemIcon={ 'Embed' }/>;
+  private pivotPROF = <PivotItem headerText={ null } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={pivotHeading13} itemIcon={ 'BookAnswers' }/>;
 
+  /***
+ *    d8b   db d88888b  .d8b.  d8888b.      d88888b  .d8b.  d8888b.      d88888b db      d88888b 
+ *    888o  88 88'     d8' `8b 88  `8D      88'     d8' `8b 88  `8D      88'     88      88'     
+ *    88V8o 88 88ooooo 88ooo88 88oobY'      88ooo   88ooo88 88oobY'      88ooooo 88      88ooooo 
+ *    88 V8o88 88~~~~~ 88~~~88 88`8b        88~~~   88~~~88 88`8b        88~~~~~ 88      88~~~~~ 
+ *    88  V888 88.     88   88 88 `88.      88      88   88 88 `88.      88.     88booo. 88.     
+ *    VP   V8P Y88888P YP   YP 88   YD      YP      YP   YP 88   YD      Y88888P Y88888P Y88888P 
+ *                                                                                               
+ *                                                                                               
+ */
 
   private nearBannerElements = this.buildNearBannerElements();
   private farBannerElements = this.buildFarBannerElements();
@@ -165,19 +207,28 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     // minimizeTiles= { this.minimizeTiles.bind(this) }
     // searchMe= { this.searchMe.bind(this) }
     // showAll= { this.showAll.bind(this) }
+    let farElements: any[] = [];
 
-    return [
-      // <Icon iconName='Search' onClick={ this.searchMe.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
-      // <Icon iconName='ChromeMinimize' onClick={ this.minimizeTiles.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
-      // <Icon iconName='ClearFilter' onClick={ this.showAll.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
-    ];
+    if ( this.props.bannerProps.showTricks === true ) {
+      farElements.push( null );
+    }
+    return farElements;
   }
 
+/***
+ *     .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
+ *    d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
+ *    8P      88    88 88V8o 88 `8bo.      88    88oobY' 88    88 8P         88    88    88 88oobY' 
+ *    8b      88    88 88 V8o88   `Y8b.    88    88`8b   88    88 8b         88    88    88 88`8b   
+ *    Y8b  d8 `8b  d8' 88  V888 db   8D    88    88 `88. 88b  d88 Y8b  d8    88    `8b  d8' 88 `88. 
+ *     `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    88   YD ~Y8888P'  `Y88P'    YP     `Y88P'  88   YD 
+ *                                                                                                  
+ *                                                                                                  
+ */
 
   public constructor(props:ISecureScript7Props){
-      super(props);
-    console.log('SecureScript7: constructor', this.toggleRawIcon);
-
+    super(props);
+    // console.log('SecureScript7: constructor', this.toggleRawIcon);
 
     let urlVars : any = this.props.urlVars;
     let debugMode = urlVars.debug === 'true' ? true : false;
@@ -194,38 +245,92 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       showRawHTML: false,
       toggleTag: 'files',
       selectedKey: this.props.fetchInfo.selectedKey,
+      selectedKeyFile: this.props.fetchInfo.selectedKey,
       fullBlockedHeight: true,
+      showProfileLogic: false,
+      showPanel: false,
+      panelFileType: 'all',
+      panelSource: 'TBD',
+      fetchInfo: this.props.fetchInfo,
+      scope: 'Loaded File',
     };
 
   }
 
+  /***
+ *    d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
+ *    88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
+ *    88   88    88    88   88      88    88 88oodD' 88   88 88ooo88    88    88ooooo 
+ *    88   88    88    88   88      88    88 88~~~   88   88 88~~~88    88    88~~~~~ 
+ *    88  .8D   .88.   88  .8D      88b  d88 88      88  .8D 88   88    88    88.     
+ *    Y8888D' Y888888P Y8888D'      ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P 
+ *                                                                                    
+ *                                                                                    
+ */
   public componentDidUpdate(prevProps){
 
     if ( prevProps.fetchInstance !== this.props.fetchInstance ) {
-      let fetchInfo = this.props.fetchInfo;
-      this.page0 = this.buildTagPage( fetchInfo.blocks, this.tagPageNoteBlocks, fetchInfo.policyFlags.block ) ;
-      this.page1 = this.buildTagPage( fetchInfo.warns, this.tagPageNoteWarns, fetchInfo.policyFlags.warn );
-      this.page2 = this.buildTagPage( fetchInfo.www, this.tagPageNoteWWW );
-      this.page3 = this.buildTagPage( fetchInfo.extApp, this.tagPageNoteExtApp );
-      this.page4 = this.buildTagPage( fetchInfo.tenant, this.tagPageNoteTenant );
-      this.page5 = this.buildTagPage( fetchInfo.secure, this.tagPageNoteSecure );
-      this.page6 = this.buildTagPage( fetchInfo.nothing, this.tagPageNoteNothing );
-    
-      this.page7 = this.buildTagPage( fetchInfo.js, this.tagPageNoteJS );
-      this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS );
-      this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML );
-      this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG );
-      this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK );
-
-      this.pageL = this.buildTagPage( fetchInfo.local, this.tagPageNoteLOCAL );
-      this.pageV = this.buildTagPage( fetchInfo.verify, this.tagPageNoteVERIFY, [], 'verify' );
-
-      this._updateStateOnPropsChange({});
+      this.setStateFetchInfo( this.props.fetchInfo, 'Loaded File' );
     }
 
   }
+
+  private setStateFetchInfo( fetchInfo: IFetchInfo, scope: IScope ) {
+
+    this.page0 = this.buildTagPage( fetchInfo.Block, this.tagPageNoteBlocks, fetchInfo.policyFlags.Block ) ;
+    this.page1 = this.buildTagPage( fetchInfo.Warn, this.tagPageNoteWarns, fetchInfo.policyFlags.Warn );
+    this.page2 = this.buildTagPage( fetchInfo.www, this.tagPageNoteWWW );
+    this.page3 = this.buildTagPage( fetchInfo.Approved, this.tagPageNoteExtApp );
+    this.page4 = this.buildTagPage( fetchInfo.Tenant, this.tagPageNoteTenant );
+    this.page5 = this.buildTagPage( fetchInfo.Secure, this.tagPageNoteSecure );
+    this.page6 = this.buildTagPage( fetchInfo.Nothing, this.tagPageNoteNothing );
   
-  
+    this.page7 = this.buildTagPage( fetchInfo.js, this.tagPageNoteJS );
+    this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS );
+    this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML );
+    this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG );
+    this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK );
+
+    this.pageL = this.buildTagPage( fetchInfo.Local, this.tagPageNoteLOCAL );
+    this.pageV = this.buildTagPage( fetchInfo.Verify, this.tagPageNoteVERIFY, [], 'Verify' );
+
+    let selectedKey = fetchInfo.selectedKey;
+
+    this.setState({ 
+      fetchInfo: fetchInfo,
+      panelFileType: 'all',
+      panelSource: 'TBD',
+      selectedKey: selectedKey,
+      selectedKeyFile: fetchInfo.selectedKey,
+      scope: scope,
+     });
+  }
+
+
+  private async getEntirePage() {
+    let htmlFragment = document.documentElement.innerHTML;
+    let times = new Date();
+    let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();  //This is required to reset all the counts
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
+    fetchInfo.selectedKey = this.state.selectedKey;
+    this.setStateFetchInfo( fetchInfo, 'Entire Page' );
+  }
+
+
+  private async getLiveWebpart( ) {
+    let times = new Date();
+    let wpInstanceID = this.props.bannerProps.exportProps.wpInstanceID;
+    let wpElement = document.getElementById( wpInstanceID );
+    let htmlFragment = wpElement.innerHTML;
+    let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();
+    // this.setState( { scope: 'Current Webpart' } );
+
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
+    fetchInfo.selectedKey = this.state.selectedKey;
+    this.setStateFetchInfo( fetchInfo, 'Current Webpart' );
+
+  }
+
   /***
    *            db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b       .d88b.  d8b   db      d8888b. d8888b.  .d88b.  d8888b. .d8888.       .o88b. db   db  .d8b.  d8b   db  d888b  d88888b 
    *            88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'          .8P  Y8. 888o  88      88  `8D 88  `8D .8P  Y8. 88  `8D 88'  YP      d8P  Y8 88   88 d8' `8b 888o  88 88' Y8b 88'     
@@ -237,11 +342,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
    *                                                                                                                                                                                                                                        
    */
 
-  private _updateStateOnPropsChange(params: any ): void {
-
-  }
-
   
+
+  /***
+ *    d8888b. db    db d8888b. db      d888888b  .o88b.      d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
+ *    88  `8D 88    88 88  `8D 88        `88'   d8P  Y8      88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
+ *    88oodD' 88    88 88oooY' 88         88    8P           88oobY' 88ooooo 88V8o 88 88   88 88ooooo 88oobY' 
+ *    88~~~   88    88 88~~~b. 88         88    8b           88`8b   88~~~~~ 88 V8o88 88   88 88~~~~~ 88`8b   
+ *    88      88b  d88 88   8D 88booo.   .88.   Y8b  d8      88 `88. 88.     88  V888 88  .8D 88.     88 `88. 
+ *    88      ~Y8888P' Y8888P' Y88888P Y888888P  `Y88P'      88   YD Y88888P VP   V8P Y8888D' Y88888P 88   YD 
+ *                                                                                                            
+ *                                                                                                            
+ */
+
   public render(): React.ReactElement<ISecureScript7Props> {
     const {
       description,
@@ -249,13 +362,18 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       environmentMessage,
       hasTeamsContext,
       userDisplayName,
-      fetchInfo,
+
     } = this.props;
 
     const {
+      fetchInfo,
       toggleTag,
+      showPanel,
+      panelFileType,
+      panelSource,
     } = this.state;
 
+    let securityProfile:  IAdvancedSecurityProfile = fetchInfo.securityProfile;
     /***
      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
      *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D 
@@ -280,7 +398,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ' JS Disabled during Edit' ; }
 
     let errorUnapprovedComponent = null;
-    
+
     if ( this.props.cdnValid !== true ) {
       errorUnapprovedComponent = <div style={{height: 100, width: '100%', fontSize: 'large', background: 'yellow' }}>
       <h3>Only pick web from Approved sites:</h3>
@@ -298,8 +416,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       scriptHTML = fetchInfo.errorHTML ? `${fetchInfo.errorHTML}` : fetchInfo.snippet;
     }
     
+    /***
+ *    d8888b. db       .d88b.   .o88b. db   dD      db   db d888888b .88b  d88. db      
+ *    88  `8D 88      .8P  Y8. d8P  Y8 88 ,8P'      88   88 `~~88~~' 88'YbdP`88 88      
+ *    88oooY' 88      88    88 8P      88,8P        88ooo88    88    88  88  88 88      
+ *    88~~~b. 88      88    88 8b      88`8b        88~~~88    88    88  88  88 88      
+ *    88   8D 88booo. `8b  d8' Y8b  d8 88 `88.      88   88    88    88  88  88 88booo. 
+ *    Y8888P' Y88888P  `Y88P'   `Y88P' YP   YD      YP   YP    YP    YP  YP  YP Y88888P 
+ *                                                                                      
+ *                                                                                      
+ */
+
     let blockHTML = null;
-    if ( fetchInfo.selectedKey === 'ExternalBlock' ) {
+    if ( fetchInfo.selectedKey === 'Block' ) {
       let blockHeight = this.state.fullBlockedHeight === true ? null : '50px';
       blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden', cursor: 'pointer' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
         <h2>Some content could not be loaded because it was blocked for security reasons</h2>
@@ -311,6 +440,18 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         </ul>
       </div>;
     }
+
+
+    /***
+ *     .o88b.  .d88b.  d8888b. d88888b      d8888b.  .d8b.  d8b   db d88888b      db   db d888888b .88b  d88. db      
+ *    d8P  Y8 .8P  Y8. 88  `8D 88'          88  `8D d8' `8b 888o  88 88'          88   88 `~~88~~' 88'YbdP`88 88      
+ *    8P      88    88 88   88 88ooooo      88oodD' 88ooo88 88V8o 88 88ooooo      88ooo88    88    88  88  88 88      
+ *    8b      88    88 88   88 88~~~~~      88~~~   88~~~88 88 V8o88 88~~~~~      88~~~88    88    88  88  88 88      
+ *    Y8b  d8 `8b  d8' 88  .8D 88.          88      88   88 88  V888 88.          88   88    88    88  88  88 88booo. 
+ *     `Y88P'  `Y88P'  Y8888D' Y88888P      88      YP   YP VP   V8P Y88888P      YP   YP    YP    YP  YP  YP Y88888P 
+ *                                                                                                                    
+ *                                                                                                                    
+ */
 
     if ( this.state.showOriginalHtml ) {
       let directLink = <a href={ this.props.fileRelativeUrl } target='none'>{ this.props.libraryItemPicker }</a>;
@@ -335,19 +476,23 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( this.state.selectedKey === pivotHeading11 ) { thisPage = this.page11[toggleTag]; } else 
 
         if ( this.state.selectedKey === 'raw' ) { thisPage = <div>{ fetchInfo.snippet }</div> ; }
+        if ( this.state.selectedKey === pivotHeading13 ) { 
+          thisPage = <div>
+            { this.getProfilePage() }
+          </div> ;
+         }
 
         let pivotItems: any [] = [];
 
-        if ( fetchInfo.blocks.length > 0 ) { pivotItems.push( this.pivotBlocked ); }
-        if ( fetchInfo.warns.length > 0 ) { pivotItems.push( this.pivotWarn ); }
+        if ( fetchInfo.Block.length > 0 ) { pivotItems.push( this.pivotBlock ); }
+        if ( fetchInfo.Warn.length > 0 ) { pivotItems.push( this.pivotWarn ); }
+        if ( fetchInfo.Verify.length > 0 ) { pivotItems.push( this.pivotVerify ); }
         if ( fetchInfo.www.length > 0 ) { pivotItems.push( this.pivotWWW ); }
-        if ( fetchInfo.extApp.length > 0 ) { pivotItems.push( this.pivotExtApp ); }
-        if ( fetchInfo.tenant.length > 0 ) { pivotItems.push( this.pivotTenant ); }
-        if ( fetchInfo.local.length > 0 ) { pivotItems.push( this.pivotLocal ); }
-        if ( fetchInfo.secure.length > 0 ) { pivotItems.push( this.pivotSecure ); }
-        if ( fetchInfo.nothing.length > 0 ) { pivotItems.push( this.pivotNothing ); }
-
-        if ( fetchInfo.verify.length > 0 ) { pivotItems.push( this.pivotVerify ); }
+        if ( fetchInfo.Approved.length > 0 ) { pivotItems.push( this.pivotExtApp ); }
+        if ( fetchInfo.Tenant.length > 0 ) { pivotItems.push( this.pivotTenant ); }
+        if ( fetchInfo.Local.length > 0 ) { pivotItems.push( this.pivotLocal ); }
+        if ( fetchInfo.Secure.length > 0 ) { pivotItems.push( this.pivotSecure ); }
+        if ( fetchInfo.Nothing.length > 0 ) { pivotItems.push( this.pivotNothing ); }
     
         if ( fetchInfo.js.length > 0 ) { pivotItems.push( this.pivotJS ); }
         if ( fetchInfo.css.length > 0 ) { pivotItems.push( this.pivotCSS ); }
@@ -355,6 +500,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( fetchInfo.img.length > 0 ) { pivotItems.push( this.pivotIMG ); }
         if ( fetchInfo.link.length > 0 ) { pivotItems.push( this.pivotLINK ); }
         if ( fetchInfo.snippet ) { pivotItems.push( this.pivotRAW ); }
+
+        pivotItems.push( this.pivotPROF );
 
         let pivotContent = <div><Pivot
             // styles={ pivotStyles }
@@ -367,12 +514,34 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         { thisPage }
       </div>;
 
+/***
+ *    db      d888888b d8888b. d8888b.  .d8b.  d8888b. db    db      db      d888888b d8b   db db   dD .d8888. 
+ *    88        `88'   88  `8D 88  `8D d8' `8b 88  `8D `8b  d8'      88        `88'   888o  88 88 ,8P' 88'  YP 
+ *    88         88    88oooY' 88oobY' 88ooo88 88oobY'  `8bd8'       88         88    88V8o 88 88,8P   `8bo.   
+ *    88         88    88~~~b. 88`8b   88~~~88 88`8b      88         88         88    88 V8o88 88`8b     `Y8b. 
+ *    88booo.   .88.   88   8D 88 `88. 88   88 88 `88.    88         88booo.   .88.   88  V888 88 `88. db   8D 
+ *    Y88888P Y888888P Y8888P' 88   YD YP   YP 88   YD    YP         Y88888P Y888888P VP   V8P YP   YD `8888Y' 
+ *                                                                                                             
+ *                                                                                                             
+ */
+
       let libViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.libraryPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open library ]</span>;
 
       let fileViewerhref = `${this.props.libraryPicker}/Forms/AllItems.aspx?id=${ this.props.fileRelativeUrl }&parent=${this.props.libraryPicker}`;
       let fileViewerLink = <span onClick={() => this.onFileClick( fileViewerhref )} style={{ color: 'blue' , cursor: 'pointer' }} > [ open file in editor ]</span>;
+      let buttons = [this.toggleRawIcon];
+      if ( this.state.showRawHTML !== false ) {
+        if ( this.state.toggleTag === 'files' ) {
+          buttons.push( this.toggleTagFile );
+        } else { buttons.push ( this.toggleTagTag ) ; }
+        buttons.push( this.toggleLiveWP );
+        if ( this.props.bannerProps.showTricks === true ) { buttons.push( this.toggleFullPg ); }
+       }
+       buttons.push( <span style={{ padding: '0 20px' }}>{this.state.scope}</span> );
+
+      //toggleReload
       originalInfo = <div style={{ background: '#dddd', padding: '10px 20px 40px 20px',  }}>
-        <h2 style={{ color: 'darkblue' }}>This is the original html { this.toggleRawIcon } { this.state.showRawHTML === false ? null : this.state.toggleTag === 'files' ? this.toggleTagFile : this.toggleTagTag }</h2>
+        <h2 style={{ color: 'darkblue', display: 'flex' }}>This is the original html <span style={{ display: 'flex', paddingLeft: '30px'}}>{ buttons }</span></h2>
         <ul>
           <li><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
           <li><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
@@ -383,7 +552,20 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       </div>;
     }
 
+  /***
+ *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b.      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
+ *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 
+ *    88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY'      88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    
+ *    88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b        88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88    
+ *    88   8D 88   88 88  V888 88  V888 88.     88 `88.      88.     88booo. 88.     88  88  88 88.     88  V888    88    
+ *    Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD      Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    
+ *                                                                                                                        
+ *                                                                                                                        
+ */
+
     let Banner = <WebpartBanner 
+
+      FPSUser={ this.props.bannerProps.FPSUser }
       exportProps={ this.props.bannerProps.exportProps }
       showBanner={ this.props.bannerProps.showBanner }
       bannerWidth={ this.props.bannerProps.bannerWidth }
@@ -429,8 +611,92 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let devHeader = this.state.showDevHeader === true ? <div><b>Props: </b> { 'this.props.lastPropChange' + ', ' + 'this.props.lastPropDetailChange' } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
-    let termsOfUse = this.props.fetchInfo == null || this.props.fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
+    let termsOfUse = fetchInfo == null || fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
     
+
+    /***
+ *    d8888b.  .d8b.  d8b   db d88888b db      
+ *    88  `8D d8' `8b 888o  88 88'     88      
+ *    88oodD' 88ooo88 88V8o 88 88ooooo 88      
+ *    88~~~   88~~~88 88 V8o88 88~~~~~ 88      
+ *    88      88   88 88  V888 88.     88booo. 
+ *    88      YP   YP VP   V8P Y88888P Y88888P 
+ *                                             
+ *                                             
+ */
+
+    let bannerPanel = null;
+
+    if ( showPanel === true ) {
+      let currentCDNs = [];
+      let currentFiles = [];
+      let policyIdx = -1;
+
+      ['Approved','Warn','Block'].map( cdn => {
+        if ( securityProfile[ panelFileType].cdns[ cdn ].length > 0 ) {
+          securityProfile[ panelFileType].cdns[ cdn ].map( ( url, idx ) => {
+            policyIdx ++;
+            currentCDNs.push( <tr><td>{ policyIdx }</td><td>{ cdn }</td><td>{ url }</td></tr> );
+          });
+        }
+      });
+
+
+      if ( panelFileType !== 'all' ) {
+        if ( fetchInfo[ panelFileType].length > 0 ) {
+          let fileIdx = -1;
+          fetchInfo[ panelFileType].map( ( tag: ITagInfo ) => {
+            if ( tag.location === panelSource ) {
+              fileIdx ++;
+              // let rowStyle = securityProfile[ panelFileType ].styles[ tag.rank ];
+              let rowStyle = tag.fileStyle;
+              // currentFiles.push( <tr style={PolicyFlagStyles[ tag.policyFlags.level ]}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ location }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr> );
+              currentFiles.push( <tr style={ rowStyle }><td>{ fileIdx }</td><td style={{ whiteSpace: 'nowrap'}}>{ tag.location }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr> );
+            }
+          });
+        }
+      }
+
+      let panelContent = <div className={ styles.policyPanel } style={ null }>
+        <div className={ styles.tableHeading }>File type specific policies for { panelFileType } files ( { currentCDNs.length } )</div>
+        <table>
+          { currentCDNs }
+        </table>
+        <div className={ styles.tableHeading }>{ `${panelFileType}` } Files found in { `${panelSource}` } ( { currentFiles.length } )</div>
+        <table>
+          { currentFiles }
+        </table>
+        
+      </div>;
+
+      bannerPanel = <div><Panel
+          isOpen={ showPanel }
+          // this prop makes the panel non-modal
+          isBlocking={true}
+          onDismiss={ this._closePanel.bind(this) }
+          closeButtonAriaLabel="Close"
+          type = { PanelType.large }
+          isLightDismiss = { true }
+        >
+        { panelContent }
+      </Panel></div>;
+
+
+      }
+
+
+
+/***
+ *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
+ *    88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
+ *    88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
+ *    88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
+ *    88 `88. 88.        88    88b  d88 88 `88. 88  V888 
+ *    88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
+ *                                                       
+ *                                                       
+ */
+
     return (
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
@@ -439,42 +705,123 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         { originalInfo }
         { termsOfUse }
         { actualElement }
+        { bannerPanel }
       </section>
     );
   }
 
+/***
+ *     d888b  d88888b d888888b      d8888b. d8888b.  .d88b.  d88888b d888888b db      d88888b      d8888b.  .d8b.   d888b  d88888b 
+ *    88' Y8b 88'     `~~88~~'      88  `8D 88  `8D .8P  Y8. 88'       `88'   88      88'          88  `8D d8' `8b 88' Y8b 88'     
+ *    88      88ooooo    88         88oodD' 88oobY' 88    88 88ooo      88    88      88ooooo      88oodD' 88ooo88 88      88ooooo 
+ *    88  ooo 88~~~~~    88         88~~~   88`8b   88    88 88~~~      88    88      88~~~~~      88~~~   88~~~88 88  ooo 88~~~~~ 
+ *    88. ~8~ 88.        88         88      88 `88. `8b  d8' 88        .88.   88booo. 88.          88      88   88 88. ~8~ 88.     
+ *     Y888P  Y88888P    YP         88      88   YD  `Y88P'  YP      Y888888P Y88888P Y88888P      88      YP   YP  Y888P  Y88888P 
+ *                                                                                                                                 
+ *                                                                                                                                 
+ */
 
-  private getTagColor( level: IPolicyFlagLevel ) {
-    let color = '';
-    if ( level === 'block' ) { color = 'crimson' ; } else
-    if ( level === 'warn' ) { color = 'darkviolet' ; } else
-    if ( level === 'verify' ) { color = 'blue' ; }
-    return color;
-  }
+private getProfilePage() {
 
-  private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'verify' | '' = '' ) {
+  // <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+  // <ReactJson src={ SourceInfo } name={ 'SourceInfo' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
 
-    let files = tagsInfo.map( ( tag, idx ) => {
-      // return <tr><td>{ idx }</td><td>{ tag.level }</td><td>{ tag.type }</td><td>{ tag.file }</td></tr>;
-      let color = this.getTagColor( tag.policyFlags.level ) ;
-      let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
-      const newStyle = this.getColorStyle( color );
-      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
-      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
+  let rows: any[] = [];
+  let headings = [<th>Type</th>];
+
+  const profileHeading = <div className={ styles.secProfile }>
+    <div onClick={ this.toggleLogic.bind(this) } className={ styles.profHeading} >Click me for Security Profile parsing logic - what causes code to be blocked.</div>
+    <div className={ [ styles.logicContent , this.state.showProfileLogic === true ? null : styles.logicContentHide ].join( ' ')}>
+      <ul>
+        <li>From Left &gt; Right, Left side is more controled/secure, Right is more risky.</li>
+        <li>Each file type ( js, css, image etc... ) has it's own profile and rules.</li>
+        <li>Each type has a general 'threashold' for Warning and Block based on the location (column)</li>
+        <ul>
+          <li>Green cells are approved locations, bright yellow are blocked, the rest are considered a Warning (higher risk) </li>
+          <li>Each cell has an icon that matches the tabs above where you can see all tags in that category.</li>
+
+        </ul>
+        <li>Each type can have individual blocked/approved/warn list of locations.</li>
+        <ul>
+          <li>Number to right of file type says how many apply.</li>
+        </ul>
+        <li>Blocking and Warning is determined in the following order... the first that is found is one that is applied</li>
+        <ul>
+          <li>Block &gt; Warned &gt; Approved  &gt; SecureCDN  &gt; Local  &gt; Tenant  &gt; WWW</li>
+        </ul>
+        <li>Items marked as Verify may also be found in other categories.  They just have some anomoly that was detected.</li>
+      </ul>
+    </div>
+
+  </div>;
+
+  SourceInfo.ranks.map( rank => {
+    headings.push( <th>{ rank.name } </th> );
+  });
+
+  rows.push( <tr>{ headings } </tr>  );
+
+  this.state.fetchInfo.securityProfile.sort.map( typeExt => {
+    let cells: any[] = [];
+    let thisType: IFileTypeSecurity = this.state.fetchInfo.securityProfile[typeExt];
+    let cdns: string | number = thisType.cdns.Approved.length +thisType.cdns.Warn.length  +thisType.cdns.Block.length ;
+    cdns = cdns === 0 ? '-' : cdns;
+    cells.push( <td>{ thisType.title } ( { cdns } )</td>);
+    thisType.styles.map ( ( style, idx ) => {
+      const icon = <Icon iconName={ SourceInfo.ranks[ idx ].icon } ></Icon>;
+      let counts: number | string = thisType.counts [ SourceInfo.ranks[ idx ].name ];
+      counts = counts === 0 ? '-' : counts;
+      style = JSON.parse(JSON.stringify( style ) );
+      style.fontWeight = counts > 0 ? 'bold' : '';
+      cells.push( <td  style={ style } onClick={() => this._showPanel( thisType.ext, SourceInfo.ranks[ idx ].name )} > { icon } { counts }</td>);
+    });
+
+    rows.push( <tr>{ cells }</tr> );
+
+  });
+
+  let pane = <div>
+    { profileHeading }
+    <table className = {styles.secProfile }>{ rows }</table>
+    <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+    <ReactJson src={ SourceInfo } name={ 'SourceInfo' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+  </div> ;
+
+  return pane;
+
+
+}
+
+
+/***
+ *    d8888b. db    db d888888b db      d8888b.      d888888b  .d8b.   d888b       d8888b.  .d8b.   d888b  d88888b 
+ *    88  `8D 88    88   `88'   88      88  `8D      `~~88~~' d8' `8b 88' Y8b      88  `8D d8' `8b 88' Y8b 88'     
+ *    88oooY' 88    88    88    88      88   88         88    88ooo88 88           88oodD' 88ooo88 88      88ooooo 
+ *    88~~~b. 88    88    88    88      88   88         88    88~~~88 88  ooo      88~~~   88~~~88 88  ooo 88~~~~~ 
+ *    88   8D 88b  d88   .88.   88booo. 88  .8D         88    88   88 88. ~8~      88      88   88 88. ~8~ 88.     
+ *    Y8888P' ~Y8888P' Y888888P Y88888P Y8888D'         YP    YP   YP  Y888P       88      YP   YP  Y888P  Y88888P 
+ *                                                                                                                 
+ *                                                                                                                 
+ */
+
+
+  private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'Verify' | '' = '' ) {
+    let files = tagsInfo.map( ( tag: ITagInfo, idx ) => {
+      let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
+      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ { cursor: 'pointer' } } title={`Open file: ${tag.file}`}></Icon>;
+      return <tr style={ tag.fileStyle }><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
     });
 
     let fileTable = <table>
         { files }
       </table>;
 
-    let tags = tagsInfo.map( ( tag, idx ) => {
+    let tags = tagsInfo.map( ( tag: ITagInfo, idx ) => {
       let parts = tag.tag.split( tag.fileOriginal );
-      let color = this.getTagColor( tag.policyFlags.level ) ;
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
-      let level = special === 'verify' ? tag.policyFlags.verify.join(' ') : tag.policyFlags.level;
-      const newStyle = this.getColorStyle( color );
-      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ newStyle } title={`Open file: ${tag.file}`}></Icon>;
-      return <tr style={{color: color }}><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
+      let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
+      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ null } title={`Open file: ${tag.file}`}></Icon>;
+      return <tr style={ tag.fileStyle }><td>{ idx }</td><td style={ null }>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
     });
 
     let tagTable = <table>
@@ -486,7 +833,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     });
 
     let policyMessage =  policyFlags.length === 0 ? null : <div style={{paddingBottom: '30px' }}>
-      <div style={{fontSize: 'larger', fontWeight: 'bold' }}>Policies detected</div>
+      <div style={{fontSize: 'larger', fontWeight: 'bold' }}>Policies triggered</div>
       <table>
         { policies }
       </table>
@@ -503,23 +850,29 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
   }
 
-  private getColorStyle ( color: string ) {
-    return {
-      backgroundColor: 'transparent',
-      color: color,
-      padding: '3px',
-      fontSize: '17px',
-      margin: '0',
-      borderRadius: '5px',
-      cursor: 'pointer',
-      fontWeight: 'normal',
-    };
 
-  }
-  private goToFile() {
+  /***
+ *     d888b  d88888b d888888b       .o88b.  .d88b.  db       .d88b.  d8888b.      .d8888. d888888b db    db db      d88888b 
+ *    88' Y8b 88'     `~~88~~'      d8P  Y8 .8P  Y8. 88      .8P  Y8. 88  `8D      88'  YP `~~88~~' `8b  d8' 88      88'     
+ *    88      88ooooo    88         8P      88    88 88      88    88 88oobY'      `8bo.      88     `8bd8'  88      88ooooo 
+ *    88  ooo 88~~~~~    88         8b      88    88 88      88    88 88`8b          `Y8b.    88       88    88      88~~~~~ 
+ *    88. ~8~ 88.        88         Y8b  d8 `8b  d8' 88booo. `8b  d8' 88 `88.      db   8D    88       88    88booo. 88.     
+ *     Y888P  Y88888P    YP          `Y88P'  `Y88P'  Y88888P  `Y88P'  88   YD      `8888Y'    YP       YP    Y88888P Y88888P 
+ *                                                                                                                           
+ *                                                                                                                           
+ */
 
+  /***
+ *    .d8888. d88888b db      d88888b  .o88b. d888888b      d888888b d8b   db d8888b. d88888b db    db 
+ *    88'  YP 88'     88      88'     d8P  Y8 `~~88~~'        `88'   888o  88 88  `8D 88'     `8b  d8' 
+ *    `8bo.   88ooooo 88      88ooooo 8P         88            88    88V8o 88 88   88 88ooooo  `8bd8'  
+ *      `Y8b. 88~~~~~ 88      88~~~~~ 8b         88            88    88 V8o88 88   88 88~~~~~  .dPYb.  
+ *    db   8D 88.     88booo. 88.     Y8b  d8    88           .88.   88  V888 88  .8D 88.     .8P  Y8. 
+ *    `8888Y' Y88888P Y88888P Y88888P  `Y88P'    YP         Y888888P VP   V8P Y8888D' Y88888P YP    YP 
+ *                                                                                                     
+ *                                                                                                     
+ */
 
-  }
   private _selectedIndex = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;
@@ -530,11 +883,47 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 		
 	}
 
+  /***
+ *     .d88b.  d8b   db      d88888b d888888b db      d88888b       .o88b. db      d888888b  .o88b. db   dD 
+ *    .8P  Y8. 888o  88      88'       `88'   88      88'          d8P  Y8 88        `88'   d8P  Y8 88 ,8P' 
+ *    88    88 88V8o 88      88ooo      88    88      88ooooo      8P      88         88    8P      88,8P   
+ *    88    88 88 V8o88      88~~~      88    88      88~~~~~      8b      88         88    8b      88`8b   
+ *    `8b  d8' 88  V888      88        .88.   88booo. 88.          Y8b  d8 88booo.   .88.   Y8b  d8 88 `88. 
+ *     `Y88P'  VP   V8P      YP      Y888888P Y88888P Y88888P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD 
+ *                                                                                                          
+ *                                                                                                          
+ */
+
   private onFileClick( url: string ) : void {
     let e: any = event;
     url += e.altKey === true ? '&p=5' : '';
     window.open( url, 'none' );
   }
+
+  private _closePanel ( )  {
+    this.setState({ showPanel: false,});
+	}
+
+  private _showPanel ( panelFileType: IApprovedFileType, panelSource: ICDNCheck)  {
+
+    this.setState({ 
+      showPanel: true,
+      panelFileType: panelFileType,
+      panelSource: panelSource,
+    
+    });
+	}
+
+  /***
+ *    d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
+ *    `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
+ *       88    88    88 88      88      88      88ooooo `8bo.   
+ *       88    88    88 88  ooo 88  ooo 88      88~~~~~   `Y8b. 
+ *       88    `8b  d8' 88. ~8~ 88. ~8~ 88booo. 88.     db   8D 
+ *       YP     `Y88P'   Y888P   Y888P  Y88888P Y88888P `8888Y' 
+ *                                                              
+ *                                                              
+ */
 
   private toggleBlockWarnHeight( ) : void {
     let newSetting = this.state.fullBlockedHeight === true ? false : true;
@@ -546,12 +935,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     this.setState( { showOriginalHtml: newSetting } );
   }
 
+  private toggleLogic( ) : void {
+    let showProfileLogic = this.state.showProfileLogic === true ? false : true;
+    this.setState( { showProfileLogic: showProfileLogic } );
+  }
+
   private toggleRaw( ) : void {
     let newSetting = this.state.showRawHTML === true ? false : true;
     this.setState( { showRawHTML: newSetting } );
   }
 
-  
   private toggleTag( ) : void {
     let toggleTag : 'files' | 'tags' = this.state.toggleTag === 'files' ? 'tags' : 'files';
     this.setState( { toggleTag: toggleTag } );

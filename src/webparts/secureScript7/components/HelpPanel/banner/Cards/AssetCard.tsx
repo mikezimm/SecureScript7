@@ -7,7 +7,7 @@ import stylesComp from "./component.module.scss";
 // initializeIcons();
 
 const unPublishIconStyle: React.CSSProperties = { color: 'red', padding: '5px', margin: '1px', fontWeight: 600 } ;
-// const UnPublishIcon = <Icon iconName="Blocked" title="Not Published" style={ unPublishIconStyle }></Icon>;
+// const UnPublishIcon = <Icon iconName="Block" title="Not Published" style={ unPublishIconStyle }></Icon>;
 // const UnPublishIcon = <i class="ms-Icon ms-Icon--UnpublishContent" aria-hidden="true"></i>;
 const UnPublishIcon = <span title="Not Published" style={ unPublishIconStyle }>Unpublished</span>;
 

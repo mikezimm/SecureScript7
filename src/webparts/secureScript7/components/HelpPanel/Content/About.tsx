@@ -9,7 +9,7 @@ import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 import { convertIssuesMarkdownStringToSpan } from '@mikezimm/npmfunctions/dist/Elements/Markdown';
 
-export const panelVersionNumber = '2022-03-09 -  1.0.1.07'; //Added to show in panel
+export const panelVersionNumber = '2022-03-14 -  1.0.1.11'; //Added to show in panel
 
 export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
 
@@ -19,7 +19,24 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
         rows: [],
     };
 
-    table.rows.push( createAboutRow('2022-03-09',"1.0.1.07","#32, #33, #34, #35, #36, Add webpartHistory, Add Visitor Panel,", showRepoLinks === true ? repoLinks : null ) );
+    /**
+     * Security update log
+     * 
+     * converting all links and cdns to lower case so casing does miss a flag
+     * standardizing all cdn links to start with /sites/ if on tenant
+     * standardinzing all tag lings to start with /sites/ if on tenant
+     * removing any extra // from both cdns and file links so you cant add extra slash in a url and slip by
+     * 
+     * Does NOT find files without extensions (like images and also script files.)
+     * 
+     * WARNING:  DO NOT add any CDNs to Global Warn or Approve unless you want it to apply to JS as well.
+     */
+
+    table.rows.push( createAboutRow('2022-03-14',"1.0.1.11","#29 - Adv security model, #40, #41 - Security Profile table ", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('\"',"\"","#31, #37, #42, #43, #44, #46, #45 - Add Re-analyize live page, #13 - view analytics", showRepoLinks === true ? repoLinks : null ) );
+
+
+    table.rows.push( createAboutRow('2022-03-09',"1.0.1.07","#28, #32, #33, #34, #35, #36, Add webpartHistory, Add Visitor Panel,", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('2022-03-08',"1.0.1.06","#27, #21 - Add File Type security", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('2022-03-05',"1.0.1.05","Close #3, #22, #10 - add importProps functionality", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('"',"\"","#15 - whitelist CDNs, #19 - quick peek tags", showRepoLinks === true ? repoLinks : null ) );
