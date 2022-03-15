@@ -1101,6 +1101,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private async saveLoadAnalytics( Title: string, Result: string, fetchInfo: IFetchInfo, list: 'Views' | 'Edits' | 'Warns' | 'Blocks' | 'Errors'  ) {
 
+    // Do not save anlytics while in Edit Mode... only after save and page reloads
+    if ( this.displayMode === DisplayMode.Edit ) { return; }
+
     let loadProperties: IZLoadAnalytics = {
       SiteID: this.context.pageContext.site.id['_guid'] as any,  //Current site collection ID for easy filtering in large list
       WebID:  this.context.pageContext.web.id['_guid'] as any,  //Current web ID for easy filtering in large list

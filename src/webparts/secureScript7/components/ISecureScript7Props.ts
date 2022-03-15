@@ -103,4 +103,7 @@ export interface ISecureScript7State {
 
   selectedKey: ICDNCheck | IApprovedFileType | 'raw';
   selectedKeyFile: ICDNCheck | IApprovedFileType | 'raw';
+
+  searchValue: string;
+  
 }

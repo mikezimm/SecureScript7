@@ -8,6 +8,9 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
 import { Panel, IPanelProps, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
+import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
+// import { ISearchQuery, SearchResults, ISearchResult } from "@pnp/sp/search";
+
 import ReactJson from "react-json-view";
 
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
@@ -253,6 +256,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       panelSource: 'TBD',
       fetchInfo: this.props.fetchInfo,
       scope: 'Loaded File',
+      searchValue: '',
     };
 
   }
@@ -514,6 +518,23 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         { thisPage }
       </div>;
 
+
+        const searchElement =
+          <div className = { null } style={{ paddingLeft: '30px', display: this.state.selectedKey === pivotHeading13 || this.state.selectedKey === 'raw' ? 'none' :  null }}><SearchBox
+              // className={ styles.searchBox }
+              // styles={ searchBoxStyles }
+              placeholder="Search"
+              defaultValue={ null }
+              // value={ this.state.searchValue }
+              onSearch={ this.searchForItems.bind(this) }
+              // onBlur={ this._changeSearchOnBlur.bind(this) }
+              onChange={ this.searchForItems.bind(this) }
+              // onClick={ this._changeSearchOnFocus.bind(this) }
+            />
+          </div>;
+
+
+
 /***
  *    db      d888888b d8888b. d8888b.  .d8b.  d8888b. db    db      db      d888888b d8b   db db   dD .d8888. 
  *    88        `88'   88  `8D 88  `8D d8' `8b 88  `8D `8b  d8'      88        `88'   888o  88 88 ,8P' 88'  YP 
@@ -542,15 +563,27 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       //toggleReload
       originalInfo = <div style={{ background: '#dddd', padding: '10px 20px 40px 20px',  }}>
         <h2 style={{ color: 'darkblue', display: 'flex' }}>This is the original html <span style={{ display: 'flex', paddingLeft: '30px'}}>{ buttons }</span></h2>
-        <ul>
-          <li><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
-          <li><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
-        </ul>
+        <div style={{ display: 'flex', alignItems: 'center'}}>
+          <div>
+            <ul>
+              <li><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
+              <li><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
+            </ul>
+          </div>
+          <div>
+            { searchElement }
+          </div>
+        </div>
+
         {
           this.state.showRawHTML !== true ? null : pivotContent
         }
       </div>;
     }
+
+
+
+
 
   /***
  *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b.      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
@@ -805,8 +838,14 @@ private getProfilePage() {
  */
 
 
-  private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'Verify' | '' = '' ) {
+  private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'Verify' | '' = '', searchValue : string = '' ) {
     let files = tagsInfo.map( ( tag: ITagInfo, idx ) => {
+      
+      if ( searchValue.length > 0 ) {
+        if ( tag.tag.toLowerCase().indexOf( searchValue.toLowerCase() ) === -1 ) {
+          return null;
+        }
+      } 
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
       let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ { cursor: 'pointer' } } title={`Open file: ${tag.file}`}></Icon>;
       return <tr style={ tag.fileStyle }><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
@@ -817,6 +856,11 @@ private getProfilePage() {
       </table>;
 
     let tags = tagsInfo.map( ( tag: ITagInfo, idx ) => {
+      if ( searchValue.length > 0 ) {
+        if ( tag.tag.toLowerCase().indexOf( searchValue.toLowerCase() ) === -1 ) {
+          return null;
+        }
+      } 
       let parts = tag.tag.split( tag.fileOriginal );
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
@@ -850,6 +894,42 @@ private getProfilePage() {
 
   }
 
+
+  public searchForItems = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+ 
+    const value = item.target.value;
+    // if ( this.state.changePivotCats === true ) {
+      const fetchInfo = this.state.fetchInfo;
+    
+      this.page0 = this.buildTagPage( fetchInfo.Block, this.tagPageNoteBlocks, fetchInfo.policyFlags.Block, '', value ) ;
+      this.page1 = this.buildTagPage( fetchInfo.Warn, this.tagPageNoteWarns, fetchInfo.policyFlags.Warn , '', value  );
+      this.page2 = this.buildTagPage( fetchInfo.www, this.tagPageNoteWWW, [] , '', value );
+      this.page3 = this.buildTagPage( fetchInfo.Approved, this.tagPageNoteExtApp, [] , '', value );
+      this.page4 = this.buildTagPage( fetchInfo.Tenant, this.tagPageNoteTenant, [] , '', value );
+      this.page5 = this.buildTagPage( fetchInfo.Secure, this.tagPageNoteSecure, [] , '', value );
+      this.page6 = this.buildTagPage( fetchInfo.Nothing, this.tagPageNoteNothing, [] , '', value );
+    
+      this.page7 = this.buildTagPage( fetchInfo.js, this.tagPageNoteJS, [] , '', value );
+      this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS, [] , '', value );
+      this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML, [] , '', value );
+      this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG, [] , '', value );
+      this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK, [] , '', value );
+  
+      this.pageL = this.buildTagPage( fetchInfo.Local, this.tagPageNoteLOCAL, [] , '', value );
+      this.pageV = this.buildTagPage( fetchInfo.Verify, this.tagPageNoteVERIFY, [], 'Verify', value );
+
+      this.setState({
+        searchValue: value,
+        lastStateChange: 'searchForItems',
+      });
+  
+      return ;
+
+    // }
+ 
+  } //End searchForItems
 
   /***
  *     d888b  d88888b d888888b       .o88b.  .d88b.  db       .d88b.  d8888b.      .d8888. d888888b db    db db      d88888b 
