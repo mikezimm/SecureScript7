@@ -237,7 +237,7 @@ export interface ITagInfo {
     linkWarn: ICDNCheck;
     linkBlock: ICDNCheck;
     htmlWarn: ICDNCheck;
-    htmBlock: ICDNCheck;
+    htmlBlock: ICDNCheck;
 
   }
 

@@ -14,7 +14,7 @@ export const SecureProfile  : ISecurityProfile = {
     linkWarn: 'WWW',
     linkBlock: 'Block',
     htmlWarn: 'Nothing',
-    htmBlock: 'Tenant',
+    htmlBlock: 'Tenant',
   };
 
 // context.pageContext.site.serverRequestPath => "/sites/SecureScriptTesting/Gulpy/SitePages/Stock,Nothing,Block Samples - DO NOT CHANGE.aspx"
@@ -62,7 +62,7 @@ export const masterApprovedExternalCDNs: string[] = [
   '/_layouts/',
 
   //These are EXTERNAL standard CDNS
-  'https://code.jquery/',
+  'https://code.jquery.com/',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesom/',
 
 ];
