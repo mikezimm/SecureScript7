@@ -19,8 +19,8 @@
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
     "group": { "default": "Other" },
     "title": { "default": "SecureScript7" },
-    "description": { "default": "SecureScript7 description" },
-    "officeFabricIconFontName": "Page",
+    "description": { "default": "SecureScript7 is a Content Editor webpart with better security and features." },
+    "officeFabricIconFontName": "Encryption",
     "properties": {
       "description": "Secure Script 7 Webpart",
       "webPicker": "/sites/SecureCDN/YOURSUBSITE/",
