@@ -274,29 +274,30 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   public componentDidUpdate(prevProps){
 
     if ( prevProps.fetchInstance !== this.props.fetchInstance ) {
-      this.setStateFetchInfo( this.props.fetchInfo, 'Loaded File' );
+      this.setStateFetchInfo( this.props.fetchInfo, 'Loaded File', '' );
     }
 
   }
 
-  private setStateFetchInfo( fetchInfo: IFetchInfo, scope: IScope ) {
+  private setStateFetchInfo( fetchInfo: IFetchInfo, scope: IScope, value: string ) {
 
-    this.page0 = this.buildTagPage( fetchInfo.Block, this.tagPageNoteBlocks, fetchInfo.policyFlags.Block ) ;
-    this.page1 = this.buildTagPage( fetchInfo.Warn, this.tagPageNoteWarns, fetchInfo.policyFlags.Warn );
-    this.page2 = this.buildTagPage( fetchInfo.www, this.tagPageNoteWWW );
-    this.page3 = this.buildTagPage( fetchInfo.Approved, this.tagPageNoteExtApp );
-    this.page4 = this.buildTagPage( fetchInfo.Tenant, this.tagPageNoteTenant );
-    this.page5 = this.buildTagPage( fetchInfo.Secure, this.tagPageNoteSecure );
-    this.page6 = this.buildTagPage( fetchInfo.Nothing, this.tagPageNoteNothing );
-  
-    this.page7 = this.buildTagPage( fetchInfo.js, this.tagPageNoteJS );
-    this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS );
-    this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML );
-    this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG );
-    this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK );
+    this.page0 = this.buildTagPage( fetchInfo.Block, this.tagPageNoteBlocks, fetchInfo.policyFlags.Block, '', value ) ;
+    this.page1 = this.buildTagPage( fetchInfo.Warn, this.tagPageNoteWarns, fetchInfo.policyFlags.Warn , '', value  );
+    this.page2 = this.buildTagPage( fetchInfo.www, this.tagPageNoteWWW, [] , '', value );
+    this.page3 = this.buildTagPage( fetchInfo.Approved, this.tagPageNoteExtApp, [] , '', value );
+    this.page4 = this.buildTagPage( fetchInfo.Tenant, this.tagPageNoteTenant, [] , '', value );
+    this.page5 = this.buildTagPage( fetchInfo.Secure, this.tagPageNoteSecure, [] , '', value );
+    this.page6 = this.buildTagPage( fetchInfo.Nothing, this.tagPageNoteNothing, [] , '', value );
 
-    this.pageL = this.buildTagPage( fetchInfo.Local, this.tagPageNoteLOCAL );
-    this.pageV = this.buildTagPage( fetchInfo.Verify, this.tagPageNoteVERIFY, [], 'Verify' );
+    this.page7 = this.buildTagPage( fetchInfo.js, this.tagPageNoteJS, [] , '', value );
+    this.page8 = this.buildTagPage( fetchInfo.css, this.tagPageNoteCSS, [] , '', value );
+    this.page9 = this.buildTagPage( fetchInfo.html, this.tagPageNoteHTML, [] , '', value );
+    this.page10 = this.buildTagPage( fetchInfo.img, this.tagPageNoteIMG, [] , '', value );
+    this.page11 = this.buildTagPage( fetchInfo.link, this.tagPageNoteLINK, [] , '', value );
+
+    this.pageL = this.buildTagPage( fetchInfo.Local, this.tagPageNoteLOCAL, [] , '', value );
+    this.pageV = this.buildTagPage( fetchInfo.Verify, this.tagPageNoteVERIFY, [], 'Verify', value );
+
 
     let selectedKey = fetchInfo.selectedKey;
 
@@ -317,7 +318,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();  //This is required to reset all the counts
     const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
     fetchInfo.selectedKey = this.state.selectedKey;
-    this.setStateFetchInfo( fetchInfo, 'Entire Page' );
+    this.setStateFetchInfo( fetchInfo, 'Entire Page', this.state.searchValue );
   }
 
 
@@ -331,7 +332,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
     fetchInfo.selectedKey = this.state.selectedKey;
-    this.setStateFetchInfo( fetchInfo, 'Current Webpart' );
+    this.setStateFetchInfo( fetchInfo, 'Current Webpart', this.state.searchValue );
 
   }
 
@@ -519,13 +520,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       </div>;
 
 
-        const searchElement =
-          <div className = { null } style={{ paddingLeft: '30px', display: this.state.selectedKey === pivotHeading13 || this.state.selectedKey === 'raw' ? 'none' :  null }}><SearchBox
+        const searchElement = this.state.showRawHTML !== true ? null :
+          <div className = { null } style={{ paddingLeft: '50px', display: this.state.selectedKey === pivotHeading13 || this.state.selectedKey === 'raw' ? 'none' :  null }}><SearchBox
               // className={ styles.searchBox }
-              // styles={ searchBoxStyles }
+              styles={{ root: { width: 250 } } }
               placeholder="Search"
-              defaultValue={ null }
-              // value={ this.state.searchValue }
+              defaultValue={ this.state.searchValue }
+              value={ this.state.searchValue }
               onSearch={ this.searchForItems.bind(this) }
               // onBlur={ this._changeSearchOnBlur.bind(this) }
               onChange={ this.searchForItems.bind(this) }
@@ -839,33 +840,35 @@ private getProfilePage() {
 
 
   private buildTagPage( tagsInfo: ITagInfo[], message: any, policyFlags: IPolicyFlag[] = [], special: 'Verify' | '' = '', searchValue : string = '' ) {
-    let files = tagsInfo.map( ( tag: ITagInfo, idx ) => {
-      
+    let files = [];
+    
+    tagsInfo.map( ( tag: ITagInfo, idx ) => {  
       if ( searchValue.length > 0 ) {
         if ( tag.tag.toLowerCase().indexOf( searchValue.toLowerCase() ) === -1 ) {
-          return null;
+          return;
         }
       } 
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
       let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ { cursor: 'pointer' } } title={`Open file: ${tag.file}`}></Icon>;
-      return <tr style={ tag.fileStyle }><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr>;
+      files.push(  <tr style={ tag.fileStyle }><td>{ idx }</td><td style={{ whiteSpace: 'nowrap'}}>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr> );
     });
 
     let fileTable = <table>
         { files }
       </table>;
 
-    let tags = tagsInfo.map( ( tag: ITagInfo, idx ) => {
+    let tags = [];
+    tagsInfo.map( ( tag: ITagInfo, idx ) => {
       if ( searchValue.length > 0 ) {
         if ( tag.tag.toLowerCase().indexOf( searchValue.toLowerCase() ) === -1 ) {
-          return null;
+          return;
         }
       } 
       let parts = tag.tag.split( tag.fileOriginal );
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
       let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ null } title={`Open file: ${tag.file}`}></Icon>;
-      return <tr style={ tag.fileStyle }><td>{ idx }</td><td style={ null }>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr>;
+      tags.push( <tr style={ tag.fileStyle }><td>{ idx }</td><td style={ null }>{ level }</td><td>{ tag.type }</td><td>{ openIcon }</td>{ tagCell }</tr> );
     });
 
     let tagTable = <table>
@@ -883,7 +886,7 @@ private getProfilePage() {
       </table>
     </div>;
 
-    let messageDiv = <div style={{ fontWeight: 'bold', display: 'grid' }}>{ `${message} - ( ${ tagsInfo.length } )` }</div>;
+    let messageDiv = <div style={{ fontWeight: 'bold', display: 'grid' }}>{ `${message} - ( ${ tags.length } )` }</div>;
     let result = {
       files: <div className = { styles.policies } >{ policyMessage  }{ messageDiv  }{ fileTable }</div>,
       tags: <div className = { styles.policies } >{ policyMessage  }{ messageDiv  }{ tagTable }</div>,

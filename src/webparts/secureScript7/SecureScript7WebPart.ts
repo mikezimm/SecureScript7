@@ -66,7 +66,7 @@ import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 
 import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
-import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
+import { createWebpartHistory, ITrimThis, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
 
 import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
@@ -850,8 +850,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       if ( !this.properties.documentationIsValid ) { this.properties.documentationIsValid = false; }
     }
 
+    let trimThis: ITrimThis = 'end';
+    if ( ['webPicker','libraryPicker','libraryItemPicker','documentationLinkUrl'].indexOf(propertyPath) > -1 ) {
+      trimThis = 'none';
+
+    } else if ( [].indexOf(propertyPath) > -1 ) {
+      trimThis = 'start';
+
+    }
+
     //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
-    this.properties.webpartHistory = updateWebpartHistory( this.properties.webpartHistory , propertyPath , newValue, this.context.pageContext.user.displayName );
+    this.properties.webpartHistory = updateWebpartHistory( this.properties.webpartHistory , propertyPath , newValue, this.context.pageContext.user.displayName, trimThis );
 
     // console.log('webpartHistory:', this.thisHistoryInstance, this.properties.webpartHistory );
 
