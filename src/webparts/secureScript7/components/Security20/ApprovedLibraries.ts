@@ -62,7 +62,7 @@ export const masterApprovedExternalCDNs: string[] = [
   '/_layouts/',
 
   //These are EXTERNAL standard CDNS
-  'https://code.jquery/',
+  'https://code.jquery.com/',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesom/',
 
 ];
