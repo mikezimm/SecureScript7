@@ -32,7 +32,7 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      * WARNING:  DO NOT add any CDNs to Global Warn or Approve unless you want it to apply to JS as well.
      */
 
-    table.rows.push( createAboutRow('2022-03-15',"1.0.1.12","", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('2022-03-15',"1.0.1.12","#48, #50, #51, #52, #53 - Add Tag search", showRepoLinks === true ? repoLinks : null ) );
 
     table.rows.push( createAboutRow('2022-03-14',"1.0.1.11","#29 - Adv security model, #40, #41 - Security Profile table", showRepoLinks === true ? repoLinks : null ) );
     table.rows.push( createAboutRow('\"',"\"","#31, #37, #42, #43, #44, #46, #45 - Add Re-analyize live page, #13 - view analytics", showRepoLinks === true ? repoLinks : null ) );
