@@ -25,6 +25,9 @@ import { createAdvSecProfile } from './Security20/functions';  //securityProfile
 import { IApprovedCDNs, IFetchInfo, ITagInfo, IApprovedFileType, ICDNCheck , IPolicyFlag, IPolicyFlagLevel, SourceInfo, IAdvancedSecurityProfile, IFileTypeSecurity, PolicyFlagStyles  } from './Security20/interface';
 import { analyzeShippet  } from './Security20/FetchCode';
 
+import { simpleParse } from './Security20/Beautify/function';
+import DOMPurify from 'dompurify';
+
 import { SourceNothing,
       SourceSecure,
       SourceLocal,
@@ -479,8 +482,18 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( this.state.selectedKey === pivotHeadingV ) { thisPage = this.pageV[toggleTag]; } else 
         if ( this.state.selectedKey === pivotHeadingL ) { thisPage = this.pageL[toggleTag]; } else 
         if ( this.state.selectedKey === pivotHeading11 ) { thisPage = this.page11[toggleTag]; } else 
-
-        if ( this.state.selectedKey === 'raw' ) { thisPage = <div>{ fetchInfo.snippet }</div> ; }
+        if ( this.state.selectedKey === 'raw' ) { 
+          // let parsedHTML = parseCodeOriginal(fetchInfo.snippet, 'markup' );
+          // let cleanHTML = DOMPurify.sanitize( parsedHTML );
+          // thisPage = <div dangerouslySetInnerHTML={{__html: cleanHTML }}></div> ; 
+          let tags = simpleParse( fetchInfo.snippet );
+          let eles = tags.map( tag => { 
+            let style = tag.length === 0 ? { minHeight: '15px', margin: '10px 0px', background: 'white' } : { margin: '10px 0px' };
+            return <div style={ style }>{ tag }</div>;
+          });
+          thisPage = <div> { eles } </div>;
+          // thisPage = <div> { fetchInfo.snippet } </div>;
+        }
         if ( this.state.selectedKey === pivotHeading13 ) { 
           thisPage = <div>
             { this.getProfilePage() }
