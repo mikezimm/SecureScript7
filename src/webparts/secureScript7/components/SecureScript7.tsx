@@ -277,12 +277,12 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   public componentDidUpdate(prevProps){
 
     if ( prevProps.fetchInstance !== this.props.fetchInstance ) {
-      this.setStateFetchInfo( this.props.fetchInfo, 'Loaded File', '' );
+      this.setStateFetchInfo( this.props.fetchInfo, 'Loaded File', '', this.state.showRawHTML );
     }
 
   }
 
-  private setStateFetchInfo( fetchInfo: IFetchInfo, scope: IScope, value: string ) {
+  private setStateFetchInfo( fetchInfo: IFetchInfo, scope: IScope, value: string , showRawHTML: boolean ) {
 
     this.page0 = this.buildTagPage( fetchInfo.Block, this.tagPageNoteBlocks, fetchInfo.policyFlags.Block, '', value ) ;
     this.page1 = this.buildTagPage( fetchInfo.Warn, this.tagPageNoteWarns, fetchInfo.policyFlags.Warn , '', value  );
@@ -311,17 +311,20 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       selectedKey: selectedKey,
       selectedKeyFile: fetchInfo.selectedKey,
       scope: scope,
+      showRawHTML: showRawHTML,
      });
   }
 
 
   private async getEntirePage() {
+    let originalShowRaw = this.state.showRawHTML === true ? true : false;
+    this.setState({ showRawHTML: false });
     let htmlFragment = document.documentElement.innerHTML;
     let times = new Date();
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();  //This is required to reset all the counts
     const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
     fetchInfo.selectedKey = this.state.selectedKey;
-    this.setStateFetchInfo( fetchInfo, 'Entire Page', this.state.searchValue );
+    this.setStateFetchInfo( fetchInfo, 'Entire Page', this.state.searchValue, originalShowRaw );
   }
 
 
@@ -335,7 +338,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
     fetchInfo.selectedKey = this.state.selectedKey;
-    this.setStateFetchInfo( fetchInfo, 'Current Webpart', this.state.searchValue );
+    this.setStateFetchInfo( fetchInfo, 'Current Webpart', this.state.searchValue, this.state.showRawHTML );
 
   }
 
@@ -487,11 +490,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
           // let cleanHTML = DOMPurify.sanitize( parsedHTML );
           // thisPage = <div dangerouslySetInnerHTML={{__html: cleanHTML }}></div> ; 
           let tags = simpleParse( fetchInfo.snippet );
+          
           let eles = tags.map( tag => { 
             let style = tag.length === 0 ? { minHeight: '15px', margin: '10px 0px', background: 'white' } : { margin: '10px 0px' };
             return <div style={ style }>{ tag }</div>;
           });
-          thisPage = <div> { eles } </div>;
+          let snipHeading = <div style={{fontSize: 'large' , }}>The raw data is {fetchInfo.snippet.length } characters and { eles.length } elements long :)</div>;
+          thisPage = <div>{ snipHeading } { eles } </div>;
           // thisPage = <div> { fetchInfo.snippet } </div>;
         }
         if ( this.state.selectedKey === pivotHeading13 ) { 
