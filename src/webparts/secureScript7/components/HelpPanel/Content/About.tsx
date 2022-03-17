@@ -33,7 +33,7 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      */
 
 
-    table.rows.push( createAboutRow('2022-03-15',"1.0.1.14","#55, #59, #60 - ", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('2022-03-15',"1.0.1.14","#55, #56, #59, #60, #61 - ", showRepoLinks === true ? repoLinks : null ) );
 
     table.rows.push( createAboutRow('2022-03-15',"1.0.1.12","#48, #50, #51, #52, #53 - Add Tag search", showRepoLinks === true ? repoLinks : null ) );
 
