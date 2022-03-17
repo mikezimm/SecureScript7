@@ -214,7 +214,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.FPSUser = getFPSUser( this.context, links.trickyEmails, this.trickyApp ) ;
       console.log( 'FPSUser: ', this.FPSUser );
 
-      this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true ? true : false;
+      this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true && this.displayMode === DisplayMode.Read ? true : false;
       if ( this.urlParameters.Mode === 'Edit' ) { this.expandoDefault = false; }
       let expandoStyle: any = {};
       try {
