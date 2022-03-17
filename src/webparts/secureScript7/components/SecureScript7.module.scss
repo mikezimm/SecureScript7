@@ -2,7 +2,7 @@
 
 .secureScript7 {
   overflow: hidden;
-  padding: 1em;
+  // padding: 1em;  // close #61
   color: "[theme:bodyText, default: #323130]";
   color: var(--bodyText);
   &.teams {
