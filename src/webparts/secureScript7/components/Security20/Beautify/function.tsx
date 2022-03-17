@@ -23,28 +23,28 @@ export function simpleParse( source: string ) {
   const findRegex =/(?=<.*?>)|(?<=<\/.>)/gm;
 
   let pieces = source.split( findRegex );
-  console.log( pieces );
+  // console.log( pieces );
   let biggerPieces = [ ];
   let currentLine =  '';
   for (let i = 0; i < pieces.length; i++) {
     let piece = pieces[i].trim();
     let newLines = piece.split('{splitMe}');
-    console.log('newLines ' + i, newLines );
+    // console.log('newLines ' + i, newLines );
     newLines.map( line => {
       if ( line.length > 0 ) {
         currentLine += line;
-        console.log('hi', i ,line);
+        // console.log('hi', i ,line);
         
         if ( line.indexOf('<!--') === 0 && line.lastIndexOf('-->') === line.length-3 ) {
-          console.log('found Comment');
+          // console.log('found Comment');
           let trimmedLine = currentLine.trim();
           if ( trimmedLine.length > 500 ) { biggerPieces.push( '' ); }
-          console.log( 'push:', currentLine.trim()  );
+          // console.log( 'push:', currentLine.trim()  );
           biggerPieces.push( currentLine.trim() );
           currentLine = '';
         }
         if ( line.indexOf('</') === 0  ) {
-          console.log( 'push:', currentLine.trim()  );
+          // console.log( 'push:', currentLine.trim()  );
           let trimmedLine = currentLine.trim();
           if ( trimmedLine.length > 500 ) { biggerPieces.push( '' ); }
           biggerPieces.push( currentLine.trim() );
@@ -54,13 +54,14 @@ export function simpleParse( source: string ) {
     });
   }
   if ( currentLine ) { 
-    console.log( 'pushX:', currentLine.trim()  );
+    // console.log( 'pushX:', currentLine.trim()  );
     biggerPieces.push( currentLine + '' ); 
   }
 
-  console.log( 'biggerPieces',biggerPieces );
+  // console.log( 'biggerPieces',biggerPieces );
 
-  console.log('pieces', source, pieces);
+  // console.log('pieces', source, pieces);
+  console.log(`Completed simpleParse: ${biggerPieces.length} biggerPieces found` );
 
   return biggerPieces;
 
