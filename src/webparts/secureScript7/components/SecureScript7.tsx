@@ -319,6 +319,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private async getEntirePage() {
     let originalShowRaw = this.state.showRawHTML === true ? true : false;
     this.setState({ showRawHTML: false });
+    await new Promise<void>(done => setTimeout(() => done(), 300));
+
     let htmlFragment = document.documentElement.innerHTML;
     let times = new Date();
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();  //This is required to reset all the counts
