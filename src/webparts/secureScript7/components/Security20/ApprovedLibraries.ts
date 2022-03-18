@@ -62,8 +62,8 @@ export const masterApprovedExternalCDNs: string[] = [
   '/_layouts/',
 
   //These are EXTERNAL standard CDNS
-  'https://code.jquery.com/',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesom/',
+  // 'https://code.jquery.com/',  //Removed 3/15/2022
+  // 'https://cdnjs.cloudflare.com/ajax/libs/font-awesom/',  //Removed 3/15/2022
 
 ];
 
@@ -166,6 +166,7 @@ export const linkCDNs : IFileTypeCDN = {
     //These are official corporate external links
     'https://api.teamtailor.com/v1/jobs', //Team Taylor Job Postings
     'https://career.autoliv.com', //Team Taylor Job Postings
+    'https://www.autoliv.com', //ALV
   
   ],
   Warn: [

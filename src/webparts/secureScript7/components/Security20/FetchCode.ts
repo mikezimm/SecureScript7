@@ -242,6 +242,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         let createTag = '';
         let matchTag1 = tag.match(hrefEqualDoubleQuotes);
         let matchTag2 = tag.match(hrefEqualSingleQuotes);
+        let matchTag3 = tag.replace(/&quot;/g, "'").match(hrefEqualSingleQuotes);
         let foundRegex = null;
 
         if ( matchTag1 !== null ) {
@@ -252,6 +253,10 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
             fileOriginal=  matchTag2[0];
             createTag = matchTag2[0].replace("href='","").replace("'","");
             foundRegex = "href='x'";
+        } else if ( matchTag3 !== null ) {
+            fileOriginal=  matchTag3[0];
+            createTag = matchTag3[0].replace("href='","").replace("'","");
+            foundRegex = "href=&quot;x&quot;";
         } else {
             alert(`Strange Tag: ${tag}` );
         }
