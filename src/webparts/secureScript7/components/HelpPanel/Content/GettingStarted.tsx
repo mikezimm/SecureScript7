@@ -17,6 +17,24 @@ export function gettingStartedContent( repoLinks: IRepoLinks ) {
     let html1 = <div>
         {/* Set to light yellow */}
         <div style={{ background: '#FEF9E7', padding: '10px' }}> 
+
+            <h2 style={{textDecoration: 'underline'}}>Before you start!</h2>
+            <p><h3>If you plan to build a full page app (hide SharePoint UI)</h3>
+                Be sure to follow these steps to minimize any styling issues:
+                <ul>
+                    <li>Start with a <b>Communication Site</b></li>
+                    <ul>
+                        <li>This is the only site that allows true 'Full Width webparts'</li>
+                    </ul>
+                    <li>Clear the home page completely (do not have any other webparts)</li>
+                    <ul>
+                        <li>Remove all site navigation links</li>
+                        <li>Replace site icon with transparent color box (to get rid of site logo.)</li>
+                    </ul>
+                    <li>Add SecureScript in the first Full Width section</li>
+                </ul>
+            </p>
+
             <h2 style={{textDecoration: 'underline'}}>Script Editor Properties</h2>
             <ul>
                 <li>Paste web url in the web url property - must be valid</li>

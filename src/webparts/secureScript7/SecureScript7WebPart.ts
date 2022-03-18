@@ -61,7 +61,8 @@ import { createAdvSecProfile } from './components/Security20/functions';  //secu
 
 // import { fetchSnippet } from './loadDangerous';
 import { fetchSnippetMike } from './components/Security20/FetchCode';
-import { executeScript } from './components/Security20/EvalScripts';
+// import { executeScript } from './components/Security20/EvalScripts';
+import { executeScript } from './components/Security20/EvalScripts20';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 
@@ -710,6 +711,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     // Validate approved location
     // const filesLocation = this.approvedLibraries.filter(loc => loc.key == library)[0];
     const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/files?$select=Name";
+    // const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/files";
 
     return this.context.spHttpClient.get(filesQuery, SPHttpClient.configurations.v1)
       .then((response: SPHttpClientResponse) => response.json())

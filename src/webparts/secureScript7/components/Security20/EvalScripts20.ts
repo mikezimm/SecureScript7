@@ -37,7 +37,7 @@ export async function evalScript(elem, _unqiueId: string, thisDocument: Document
       // IE has funky script nodes
       scriptTag.text = data;
   }
-
+  console.log('_unqiueId, scriptTag, child:', _unqiueId, scriptTag, headTag.firstChild );
   headTag.insertBefore(scriptTag, headTag.firstChild);
 }
 
@@ -110,8 +110,8 @@ export async function executeScript(element: HTMLElement, _unqiueId: string, thi
     }
 
     for (let i = 0; i < urls.length; i++) {
-    let scriptUrl: any = [];
-    let prefix = '';
+        let scriptUrl: any = [];
+        let prefix = '';
         try {
         scriptUrl = urls[i];
             // Add unique param to force load on each run to overcome smart navigation in the browser as needed
