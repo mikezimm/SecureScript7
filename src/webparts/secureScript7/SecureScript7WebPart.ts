@@ -69,7 +69,7 @@ import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 import { createWebpartHistory, ITrimThis, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
 
-import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
+import { saveAnalytics3 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
 import { IFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
@@ -1212,12 +1212,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     }
     //This will capture analytics for anything that is NOT just a view, or a certain % of views based on throttleAnalytics
     if ( list !== 'Views' || capture === true ) {
-      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}${list}` , saveObject, true );
+      saveAnalytics3( strings.analyticsWeb , `${strings.analyticsList}${list}` , saveObject, true );
     }
 
 
     if ( this.validDocsContacts !== '' ) {
-      saveAnalytics2( strings.analyticsWeb , `${strings.analyticsList}Props` , saveObject, true );
+      saveAnalytics3( strings.analyticsWeb , `${strings.analyticsList}Props` , saveObject, true );
     }
 
   }
