@@ -1045,30 +1045,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                 }),
 
               ]}, // this group
-              {
-                groupName: 'Advanced - Developers only',
-                groupFields: [
-                  PropertyPaneLabel("nothing", {
-                    text: 'If you are not a developer, DO NOT USE.'
-                  }),
-                  PropertyPaneToggle("spPageContextInfoClassic", {
-                    label: "Enable classic _spPageContextInfo",
-                    checked: this.properties.spPageContextInfoClassic,
-                    onText: "Enabled",
-                    offText: "Disabled"
-                  }),
-  
-                  PropertyPaneToggle("spPageContextInfoModern", {
-                    label: "Enable modern _spPageContextInfo",
-                    checked: this.properties.spPageContextInfoModern,
-                    onText: "Enabled",
-                    offText: "Disabled"
-                  }),
-  
-                ]}, // this group
+
             {
               groupName: 'Visitor Help Info (required)',
-              isCollapsed: false,
+              isCollapsed: true,
               groupFields: [
 
                 PropertyPaneDropdown('fullPanelAudience', <IPropertyPaneDropdownProps>{
@@ -1124,6 +1104,30 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
 
               ]}, // this group
+
+              {
+                groupName: 'Advanced - Developers only',
+                isCollapsed: true,
+                groupFields: [
+                  PropertyPaneLabel("nothing", {
+                    text: 'If you are not a developer, DO NOT USE.'
+                  }),
+                  PropertyPaneToggle("spPageContextInfoClassic", {
+                    label: "Enable classic _spPageContextInfo",
+                    checked: this.properties.spPageContextInfoClassic,
+                    onText: "Enabled",
+                    offText: "Disabled"
+                  }),
+  
+                  PropertyPaneToggle("spPageContextInfoModern", {
+                    label: "Enable modern _spPageContextInfo",
+                    checked: this.properties.spPageContextInfoModern,
+                    onText: "Enabled",
+                    offText: "Disabled"
+                  }),
+  
+              ]}, // this group
+
               FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
               FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
               FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),

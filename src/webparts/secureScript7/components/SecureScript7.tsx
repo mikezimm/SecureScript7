@@ -101,7 +101,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
    *                                                                                                                                
    */
 
+  private hideClassicIcon = <div style={{ float: 'right', display: 'inline-block'}}><Icon iconName={ 'ChromeClose' } onClick={ this.hideClassicWarn.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon></div>;
+  private hideModernIcon = <div style={{ float: 'right'}}><Icon iconName={ 'ChromeClose' } onClick={ this.hideModernWarn.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon></div>;
+  
   private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
+
   private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
   private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
   private toggleLiveWP = <Icon iconName={ 'Refresh' } onClick={ this.getLiveWebpart.bind(this) } style={ this.reStuleButtons() } title='Analyize live webpart'></Icon>;
@@ -141,15 +145,6 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         <br/>
         <li style={{ fontWeight: 'bold', fontSize: 'large' }}>Breaking any of these Terms of Use will cause your CDN access to be revoked.  aka your code will no longer work.</li>
       </ul>
-    </div>;
-
-    private spPageContextInfoClassic = <div className={ styles.classicContext }>
-      <h2>Classic <b>spPageContextInfo</b> is enabled</h2>
-      <div>These properties <b>can be deprecated at any time without any notice!  <span style={{ color: 'red'}} >USE AT YOUR OWN RISK</span></b>  </div>
-    </div>;
-
-    private spPageContextInfoModern = <div className={ styles.modernContext }>
-      <h2>Modern <b>spPageContextInfo</b> is enabled</h2>
     </div>;
 
   private tagPageNoteJS = 'Javascript Files';
@@ -267,8 +262,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       selectedKey: this.props.fetchInfo.selectedKey,
       selectedKeyFile: this.props.fetchInfo.selectedKey,
 
-      spPageContextInfoClassic: true,
-      spPageContextInfoModern: true,
+      contextWarnClassic: null,
+      contextWarnModern: null,
 
       fullBlockedHeight: true,
       showProfileLogic: false,
@@ -710,8 +705,26 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     
     //https://github.com/mikezimm/SecureScript7/issues/71
     if ( this.props.displayMode === DisplayMode.Edit ) {
-      if ( spPageContextInfoClassic === true ) {  spPageContextInfoContent.push( this.spPageContextInfoClassic ) ;  }
-      if ( spPageContextInfoModern === true ) {  spPageContextInfoContent.push( this.spPageContextInfoModern ) ;  }
+      const classicCollapse: React.CSSProperties = { height: this.state.contextWarnClassic , overflow: 'hidden'  };
+      const modernCollapse: React.CSSProperties = { height: this.state.contextWarnModern , overflow: 'hidden' };
+
+      
+      const classicContextBlock = <div className={ styles.classicContext } onClick={ this.toggleClassicWarnHeight.bind(this) } style={ classicCollapse }>
+        {/* <h2>Classic <b>spPageContextInfo</b> is enabled { this.hideClassicIcon } </h2> */}
+        <h2>Classic <b>spPageContextInfo</b> is enabled</h2>
+        <div>These properties <b>can be deprecated at any time without any notice!  <span style={{ paddingLeft: '20px', color: 'red'}} >USE AT YOUR OWN RISK</span></b>  </div>
+      </div>;
+
+      const modernContextBlock = <div className={ styles.modernContext } onClick={ this.toggleModernWarnHeight.bind(this) }  style={ modernCollapse }>
+        {/* <h2>Modern <b>spPageContextInfo</b> is enabled{ this.hideModernIcon }</h2> */}
+        <h2>Modern <b>spPageContextInfo</b> is enabled</h2>
+      </div>;
+
+
+      if ( spPageContextInfoClassic === true ) {  spPageContextInfoContent.push( <div style={ classicCollapse }>{ classicContextBlock }</div> ) ;  }
+      if ( spPageContextInfoModern === true ) {  spPageContextInfoContent.push( <div style={ modernCollapse }> { modernContextBlock } </div> ) ;  }
+      // if ( spPageContextInfoClassic === true ) {  spPageContextInfoContent.push( { classicContextBlock } ) ;  }
+      // if ( spPageContextInfoModern === true ) {  spPageContextInfoContent.push( { modernContextBlock } ) ;  }
     }
 
     /***
@@ -1075,6 +1088,30 @@ private getProfilePage() {
  *                                                              
  *                                                              
  */
+
+  
+   private toggleClassicWarnHeight( ) : void {
+    let newSetting = this.state.contextWarnClassic === null ? '12px' : null;
+    this.setState( { contextWarnClassic: newSetting } );
+  }
+
+  
+  private toggleModernWarnHeight( ) : void {
+    let newSetting = this.state.contextWarnModern === null ? '12px' : null;
+    this.setState( { contextWarnModern: newSetting } );
+  }
+
+  
+   private hideClassicWarn( ) : void {
+    this.setState( { contextWarnClassic: '0px' } );
+  }
+
+  
+  private hideModernWarn( ) : void {
+    this.setState( { contextWarnModern: '0px' } );
+  }
+
+
   private togglePropsHelp(){
       let newState = this.state.showPropsHelp === true ? false : true;
       this.setState( { showPropsHelp: newState });

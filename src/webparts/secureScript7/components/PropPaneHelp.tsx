@@ -104,13 +104,16 @@ const padRight40: React.CSSProperties = { paddingRight: '40px' };
 
 const CSSOverRideWarning = <div style={{fontSize: 'large' }}>
   <div className={ styles.topic} style={{fontSize: 'large' }}><mark>NOTICE</mark></div>
-  <div>Any 3rd party tool that modifies the page styling (like these) are using undocumented tricks </div>
-  <div>  - - <b>AND IS SUBJECT TO BREAK without notice by Microsoft</b>.</div>
+  <div>Any 3rd party app that modifies the page styling (like these) are using undocumented tricks </div>
+  <div>  - - <b>WHICH ARE SUBJECT TO BREAK without notice by Microsoft</b>.</div>
   <div>These settings are applied after this web part loads.</div>
   <div><b>Users may briefly see the original styling</b>.  Especially if their connection is slow or your page takes a long time to load.</div>
 </div>;
 
-
+const DeveloperWarning = <div style={{fontSize: 'large' }}>
+  <div className={ styles.topic} style={{fontSize: 'large' }}><mark>NOTICE</mark></div>
+  <div>ONLY turn these on IF you know what you are doing and need them.</div>
+</div>;
 
 export const WebPartHelpElement = <div>
   <Pivot 
@@ -170,6 +173,22 @@ export const WebPartHelpElement = <div>
         </div>
       </PivotItem>
 
+      <PivotItem headerText={ 'Advanced' } > 
+        <div className={ styles.helpContent}>
+
+          { DeveloperWarning }
+
+          <div className={ styles.topic}>Enable Classic Context</div>
+          <div>Using Classic context is NOT recommended or supported.  MSFT can and do remove features at any time without notice.</div>
+          <div className={ styles.topic}>Enable Classic Context</div>
+          <div>Allows you to reference Classic page context using window[_spPageContextInfo].property</div>
+
+          <div className={ styles.topic}>Enable Modern Context</div>
+          <div>Allows you to reference Modern page context using window[TBD].property</div>
+
+        </div>
+      </PivotItem>
+
       <PivotItem headerText={ 'Banner' } > 
         <div className={ styles.helpContent}>
           <div className={ styles.topic}>Show Banner</div>
@@ -192,7 +211,7 @@ export const WebPartHelpElement = <div>
 
           <div className={ styles.topic}>Style options</div>
           <div><mark><b>NOTE:</b></mark> May be required depending on our policy for this web part</div>
-          <div><b>Black on White:</b> "fontSize":"large","color":"black","background":"white","fontWeight":"600"</div>
+          <div><b>Black on White:</b> "fontSize":"large","color":"black","background":"white","fontWeight":"600","height":"42px"</div>
           <div><b>Corporate Dark Theme:</b> TBD</div>
 
           <div className={ styles.topic}>Banner Hover Effect</div>
