@@ -7,6 +7,7 @@ import {
   IPropertyPaneDropdownOption,
   PropertyPaneDropdown,
   IPropertyPaneDropdownProps,
+  PropertyPaneToggle,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
@@ -76,7 +77,6 @@ import { IFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterf
 import { getFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/FPSUser';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
-
 
 export const repoLink: IRepoLinks = links.gitRepoSecureScript7Small;
 
@@ -267,6 +267,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   // public render(): void {
   public async render() {
+
+    if (this.properties.spPageContextInfoClassic && !window["_spPageContextInfo"]) {
+      window["_spPageContextInfo"] = this.context.pageContext.legacyPageContext;
+    }
+
     this._unqiueId = this.context.instanceId;
 
     this.properties.replacePanelHTML = visitorPanelInfo( this.properties );
@@ -423,6 +428,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         fetchInfo: this.fetchInfo,
         fetchInstance: this.fetchInstance,
         showCodeIcon: showCodeIcon,
+
+        spPageContextInfoClassic: this.properties.spPageContextInfoClassic,
+        spPageContextInfoModern: this.properties.spPageContextInfoModern,
 
       }
     );
@@ -1032,6 +1040,21 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   label: 'Show Code Audience',
                   options: expandAudienceChoicesAll,
                 }),
+
+                PropertyPaneToggle("spPageContextInfoClassic", {
+                  label: "Enable classic _spPageContextInfo",
+                  checked: this.properties.spPageContextInfoClassic,
+                  onText: "Enabled",
+                  offText: "Disabled"
+                }),
+
+                PropertyPaneToggle("spPageContextInfoModern", {
+                  label: "Enable modern _spPageContextInfo",
+                  checked: this.properties.spPageContextInfoModern,
+                  onText: "Enabled",
+                  offText: "Disabled"
+                }),
+
               ]}, // this group
             {
               groupName: 'Visitor Help Info (required)',

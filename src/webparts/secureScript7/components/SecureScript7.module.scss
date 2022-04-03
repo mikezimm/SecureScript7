@@ -53,6 +53,52 @@
   animation-fill-mode: forwards;
 }
 
+//https://stackoverflow.com/a/42806793
+.classicContext {
+  // background: #FEFFAE;
+  // margin: 20px;
+  padding: 10px;
+  box-shadow: 9px 13px 22px 6px rgba(0,0,0,0.39);
+  // border: 20px solid transparent; /* <- here */
+  transition: border 1s;
+  transition: box-shadow 3s;
+  background: rgb(255,250,153);
+  background: radial-gradient(circle, rgba(255,250,153,1) 0%, rgba(255,220,220,1) 100%);
+
+  //https://www.geeksforgeeks.org/how-to-create-fade-in-effect-on-page-load-using-css/
+  animation: fadeInAnimation ease 2s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  h2 {
+    box-sizing: border-box;
+    margin: 2px 0px 10px;
+    font-size: large;
+  }
+}
+
+//https://stackoverflow.com/a/42806793
+.modernContext {
+  // background: #FEFFAE;
+  // margin: 20px;
+  padding: 10px;
+  box-shadow: 9px 13px 22px 6px rgba(0,0,0,0.39);
+  // border: 20px solid transparent; /* <- here */
+  transition: border 1s;
+  transition: box-shadow 3s;
+  background: rgb(255,250,153);
+  background: radial-gradient(circle, rgba(255,250,153,1) 0%, rgb(240, 255, 220) 100%);
+
+  //https://www.geeksforgeeks.org/how-to-create-fade-in-effect-on-page-load-using-css/
+  animation: fadeInAnimation ease 2s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  h2 {
+    box-sizing: border-box;
+    margin: 2px 0px 10px;
+    font-size: large;
+  }
+}
+
 @keyframes fadeInAnimation {
   0% {
       opacity: 0;

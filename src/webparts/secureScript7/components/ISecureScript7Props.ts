@@ -44,6 +44,9 @@ export interface ISecureScript7Props {
   errMessage: any;
   bannerProps: IWebpartBannerProps;
 
+  spPageContextInfoClassic: boolean;
+  spPageContextInfoModern: boolean;
+
   //Secure Script Props
   cdnMode: ICDNMode;
   cdnValid: boolean;

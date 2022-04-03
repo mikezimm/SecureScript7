@@ -143,6 +143,15 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       </ul>
     </div>;
 
+    private spPageContextInfoClassic = <div className={ styles.classicContext }>
+      <h2>Classic <b>spPageContextInfo</b> is enabled</h2>
+      <div>These properties <b>can be deprecated at any time without any notice!  <span style={{ color: 'red'}} >USE AT YOUR OWN RISK</span></b>  </div>
+    </div>;
+
+    private spPageContextInfoModern = <div className={ styles.modernContext }>
+      <h2>Modern <b>spPageContextInfo</b> is enabled</h2>
+    </div>;
+
   private tagPageNoteJS = 'Javascript Files';
   private tagPageNoteCSS = 'CSS Files';
   private tagPageNoteHTML = 'HTML Files';
@@ -384,6 +393,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       environmentMessage,
       hasTeamsContext,
       userDisplayName,
+      spPageContextInfoClassic,
+      spPageContextInfoModern,
 
     } = this.props;
 
@@ -689,6 +700,12 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let devHeader = this.state.showDevHeader === true ? <div><b>Props: </b> { 'this.props.lastPropChange' + ', ' + 'this.props.lastPropDetailChange' } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
     let termsOfUse = fetchInfo == null || fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
+
+    let spPageContextInfoContent : [] = [] ; //this.props.displayMode === DisplayMode.Edit && spPageContextInfoClassic === true ? [this.spPageContextInfoClassic ]: [];
+
+    if ( this.props.displayMode === DisplayMode.Edit && spPageContextInfoClassic === true ) { spPageContextInfoContent.push( this.spPageContextInfoClassic ) ; }
+    if ( this.props.displayMode === DisplayMode.Edit && spPageContextInfoModern === true ) { spPageContextInfoContent.push( this.spPageContextInfoModern ) ; }
+
     
 
     /***
@@ -777,6 +794,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     return (
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
+        { spPageContextInfoContent }
         { Banner }
         { propsHelp }
         { blockHTML }

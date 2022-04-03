@@ -111,6 +111,9 @@ export interface ISecureScript7WebPartProps {
     libraryPicker: string;
     libraryItemPicker: string;
     showCodeAudience: IExpandAudiences;
+    spPageContextInfoClassic: boolean;
+
+    spPageContextInfoModern: boolean;
 
     fpsImportProps: string;
 
