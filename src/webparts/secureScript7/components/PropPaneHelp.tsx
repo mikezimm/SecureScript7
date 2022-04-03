@@ -266,20 +266,20 @@ export const WebPartHelpElement = <div>
           <div className={ styles.topic}>If you plan to build a full page app (hide SharePoint UI)</div>
           <div>
             Be sure to follow these steps to minimize any styling issues:
-              <ul>
-                <li>Start with a <b>Communication Site</b></li>
-                <li>If you have a Teams style site, go to Site Gear &gt; Change the look &gt; Disable navigation</li>
-              <ul>
-                <li>This is the only site that allows true 'Full Width webparts'</li>
-              </ul>
-              <li><b>Clear the home page completely</b> (do not have any other webparts)</li>
-              <ul>
-                <li>Remove all site navigation links</li>
-                <li>Replace site icon with transparent color box (to get rid of site logo.)</li>
-              </ul>
-                <li>Add SecureScript in the first Full Width section</li>
-              </ul>
-            </div>
+            <ul>
+              <li>Start with a <b>Communication Site</b></li>
+              <li>If you have a Teams style site, go to Site Gear &gt; Change the look &gt; Disable navigation</li>
+            <ul>
+              <li>This is the only site that allows true 'Full Width webparts'</li>
+            </ul>
+            <li><b>Clear the home page completely</b> (do not have any other webparts)</li>
+            <ul>
+              <li>Remove all site navigation links</li>
+              <li>Replace site icon with transparent color box (to get rid of site logo.)</li>
+            </ul>
+              <li>Add SecureScript in the first Full Width section</li>
+            </ul>
+          </div>
         </div>
       </PivotItem>
 
