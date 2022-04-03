@@ -161,6 +161,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private bannerElement : HTMLDivElement;
   private scriptElement : HTMLDivElement;
 
+  private consoledClassicContext = false;
+  private consoledModernContext = false;
+
+
 
   /***
  *     .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
@@ -174,7 +178,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
  */
 
   protected onInit(): Promise<void> {
-    
 
     this._environmentMessage = this._getEnvironmentMessage();
 
@@ -269,11 +272,23 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   // public render(): void {
   public async render() {
 
+    // CLASSIC CONTEXT LOAD
     //https://github.com/mikezimm/SecureScript7/issues/71
     if (this.properties.spPageContextInfoClassic && !window["_spPageContextInfo"]) {
       window["_spPageContextInfo"] = this.context.pageContext.legacyPageContext;
-      if ( this.displayMode === DisplayMode.Edit ) { console.log('spPageContextInfoClassic:', this.context.pageContext.legacyPageContext ); }
     }
+    //This needs to be outside of the previous loop because that seems to get triggered during inital 'view' render before going into edit mode
+    if ( this.displayMode === DisplayMode.Edit && this.consoledClassicContext === false && this.properties.spPageContextInfoClassic  ) { 
+      console.log('spPageContextInfoClassic:', this.context.pageContext.legacyPageContext ); this.consoledClassicContext = true;  }
+
+    // MODERN CONTEXT LOAD
+    //https://github.com/mikezimm/SecureScript7/issues/71
+    if (this.properties.spPageContextInfoModern && !window["_pageContext"]) {
+      window["_pageContextInfo"] = this.context.pageContext;
+    }
+    //This needs to be outside of the previous loop because that seems to get triggered during inital 'view' render before going into edit mode
+    if ( this.displayMode === DisplayMode.Edit && this.consoledModernContext === false && this.properties.spPageContextInfoModern  ) { 
+      console.log('spPageContextInfoModern:', this.context.pageContext ); this.consoledModernContext = true; }
 
     this._unqiueId = this.context.instanceId;
 
@@ -1112,6 +1127,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   PropertyPaneLabel("nothing", {
                     text: 'If you are not a developer, DO NOT USE.'
                   }),
+
                   PropertyPaneToggle("spPageContextInfoClassic", {
                     label: "Enable classic _spPageContextInfo",
                     checked: this.properties.spPageContextInfoClassic,

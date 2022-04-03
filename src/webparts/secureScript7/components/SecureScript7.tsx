@@ -614,14 +614,23 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
        }
        buttons.push( <span style={{ padding: '0 20px' }}>{this.state.scope}</span> );
 
+       let contextInfo = null;
+       if( this.props.spPageContextInfoClassic || this.props.spPageContextInfoModern ) { 
+         let constRows = [];
+         if ( this.props.spPageContextInfoClassic ) constRows.push( <span style={{color:'red', paddingLeft: '20px'}}>_legacyPageConext</span> );
+         if ( this.props.spPageContextInfoModern ) constRows.push( <span style={{color:'green', paddingLeft: '20px'}}>_PageConext</span> );
+         contextInfo = <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Context loaded:</b> { constRows }</li>;
+        }
+
       //toggleReload
       originalInfo = <div style={{ background: '#dddd', padding: '10px 20px 40px 20px',  }}>
         <h2 style={{ color: 'darkblue', display: 'flex' }}>This is the original html <span style={{ display: 'flex', paddingLeft: '30px'}}>{ buttons }</span></h2>
         <div style={{ display: 'flex', alignItems: 'center'}}>
           <div>
             <ul>
-              <li><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
-              <li><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
+              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
+              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
+              { contextInfo }
             </ul>
           </div>
           <div>
