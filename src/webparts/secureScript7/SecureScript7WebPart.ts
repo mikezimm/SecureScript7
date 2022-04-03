@@ -8,6 +8,7 @@ import {
   PropertyPaneDropdown,
   IPropertyPaneDropdownProps,
   PropertyPaneToggle,
+  PropertyPaneLabel,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
@@ -268,8 +269,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   // public render(): void {
   public async render() {
 
+    //https://github.com/mikezimm/SecureScript7/issues/71
     if (this.properties.spPageContextInfoClassic && !window["_spPageContextInfo"]) {
       window["_spPageContextInfo"] = this.context.pageContext.legacyPageContext;
+      if ( this.displayMode === DisplayMode.Edit ) { console.log('spPageContextInfoClassic:', this.context.pageContext.legacyPageContext ); }
     }
 
     this._unqiueId = this.context.instanceId;
@@ -1041,21 +1044,28 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   options: expandAudienceChoicesAll,
                 }),
 
-                PropertyPaneToggle("spPageContextInfoClassic", {
-                  label: "Enable classic _spPageContextInfo",
-                  checked: this.properties.spPageContextInfoClassic,
-                  onText: "Enabled",
-                  offText: "Disabled"
-                }),
-
-                PropertyPaneToggle("spPageContextInfoModern", {
-                  label: "Enable modern _spPageContextInfo",
-                  checked: this.properties.spPageContextInfoModern,
-                  onText: "Enabled",
-                  offText: "Disabled"
-                }),
-
               ]}, // this group
+              {
+                groupName: 'Advanced - Developers only',
+                groupFields: [
+                  PropertyPaneLabel("nothing", {
+                    text: 'If you are not a developer, DO NOT USE.'
+                  }),
+                  PropertyPaneToggle("spPageContextInfoClassic", {
+                    label: "Enable classic _spPageContextInfo",
+                    checked: this.properties.spPageContextInfoClassic,
+                    onText: "Enabled",
+                    offText: "Disabled"
+                  }),
+  
+                  PropertyPaneToggle("spPageContextInfoModern", {
+                    label: "Enable modern _spPageContextInfo",
+                    checked: this.properties.spPageContextInfoModern,
+                    onText: "Enabled",
+                    offText: "Disabled"
+                  }),
+  
+                ]}, // this group
             {
               groupName: 'Visitor Help Info (required)',
               isCollapsed: false,

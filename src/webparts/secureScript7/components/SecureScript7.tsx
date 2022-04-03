@@ -266,6 +266,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       toggleTag: 'files',
       selectedKey: this.props.fetchInfo.selectedKey,
       selectedKeyFile: this.props.fetchInfo.selectedKey,
+
+      spPageContextInfoClassic: true,
+      spPageContextInfoModern: true,
+
       fullBlockedHeight: true,
       showProfileLogic: false,
       showPanel: false,
@@ -701,12 +705,14 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let termsOfUse = fetchInfo == null || fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
 
-    let spPageContextInfoContent : [] = [] ; //this.props.displayMode === DisplayMode.Edit && spPageContextInfoClassic === true ? [this.spPageContextInfoClassic ]: [];
-
-    if ( this.props.displayMode === DisplayMode.Edit && spPageContextInfoClassic === true ) { spPageContextInfoContent.push( this.spPageContextInfoClassic ) ; }
-    if ( this.props.displayMode === DisplayMode.Edit && spPageContextInfoModern === true ) { spPageContextInfoContent.push( this.spPageContextInfoModern ) ; }
+    let spPageContextInfoContent : any[] = [] ; //this.props.displayMode === DisplayMode.Edit && spPageContextInfoClassic === true ? [this.spPageContextInfoClassic ]: [];
 
     
+    //https://github.com/mikezimm/SecureScript7/issues/71
+    if ( this.props.displayMode === DisplayMode.Edit ) {
+      if ( spPageContextInfoClassic === true ) {  spPageContextInfoContent.push( this.spPageContextInfoClassic ) ;  }
+      if ( spPageContextInfoModern === true ) {  spPageContextInfoContent.push( this.spPageContextInfoModern ) ;  }
+    }
 
     /***
  *    d8888b.  .d8b.  d8b   db d88888b db      

@@ -105,6 +105,8 @@ export interface ISecureScript7State {
   fullBlockedHeight: boolean;
   toggleTag: 'files' | 'tags';
 
+  spPageContextInfoClassic: boolean;
+  spPageContextInfoModern: boolean;
   
   scope: IScope;
 
