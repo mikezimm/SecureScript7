@@ -1048,6 +1048,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   description: 'Optional message displayed at the top of the panel for the end user to see.'
                 }),
 
+                PropertyPaneTextField('panelMessageSupport',{
+                  label: 'Support Message',
+                  description: 'Optional message to the user when looking for support',
+                }),
+
                 PropertyPaneTextField('panelMessageDocumentation',{
                   label: 'Documentation message',
                   description: 'Optional message to the user shown directly above the Documentation link',
@@ -1069,7 +1074,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                 // }),
 
                 PropertyFieldPeoplePicker('supportContacts', {
-                  label: 'Suppor Contacts',
+                  label: 'Support Contacts',
                   initialData: this.properties.supportContacts,
                   allowDuplicate: false,
                   principalType: [ PrincipalType.Users, ],
@@ -1083,10 +1088,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   key: 'peopleFieldId'
                 }),
 
-                PropertyPaneTextField('panelMessageSupport',{
-                  label: 'Support Message',
-                  description: 'Optional message to the user when looking for support',
-                }),
 
 
               ]}, // this group

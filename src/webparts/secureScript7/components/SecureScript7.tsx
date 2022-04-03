@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 
 import styles from './SecureScript7.module.scss';
+
 import { ISecureScript7Props, ISecureScript7State, IScope } from './ISecureScript7Props';
 import { escape } from '@microsoft/sp-lodash-subset';
 
@@ -27,6 +28,10 @@ import { analyzeShippet  } from './Security20/FetchCode';
 
 import { simpleParse } from './Security20/Beautify/function';
 import DOMPurify from 'dompurify';
+
+//Added for Prop Panel Help
+import stylesP from './PropPanelHelp.module.scss';
+import { WebPartHelpElement } from './PropPaneHelp';
 
 import { SourceNothing,
       SourceSecure,
@@ -260,6 +265,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       fetchInfo: this.props.fetchInfo,
       scope: 'Loaded File',
       searchValue: '',
+
+      //Prop Panel Help
+      showPropsHelp: false,
+
     };
 
   }
@@ -387,6 +396,24 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     } = this.state;
 
     let securityProfile:  IAdvancedSecurityProfile = fetchInfo.securityProfile;
+
+
+    let propsHelp = <div className={ this.state.showPropsHelp !== true ? stylesP.bannerHide : stylesP.helpPropsShow  }>
+        { WebPartHelpElement }
+    </div>;
+
+   // let farBannerElementsArray = [];
+    let farBannerElementsArray = [...this.farBannerElements,
+      this.props.showCodeIcon !== true ? null : <Icon iconName={ 'Code' } onClick={ this.toggleOriginal.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
+    ];
+
+
+    if ( this.props.displayMode === DisplayMode.Edit ) {
+      farBannerElementsArray.push( 
+        <Icon iconName='OpenEnrollment' onClick={ this.togglePropsHelp.bind(this) } style={ defaultBannerCommandStyles }></Icon>
+      );
+    }
+
     /***
      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
      *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D 
@@ -399,11 +426,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
      */
 
 
-    // let farBannerElementsArray = [];
-    let farBannerElementsArray = [...this.farBannerElements,
-      this.props.showCodeIcon !== true ? null : <Icon iconName={ 'Code' } onClick={ this.toggleOriginal.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
-    ];
-
+ 
     let bannerSuffix = '';
     //Exclude the props.bannerProps.title if the webpart is narrow to make more responsive
     let bannerTitle = this.props.bannerProps.bannerWidth < 900 ? bannerSuffix : `${this.props.bannerProps.title} - ${bannerSuffix}`;
@@ -755,6 +778,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
         { Banner }
+        { propsHelp }
         { blockHTML }
         { originalInfo }
         { termsOfUse }
@@ -1027,6 +1051,10 @@ private getProfilePage() {
  *                                                              
  *                                                              
  */
+  private togglePropsHelp(){
+      let newState = this.state.showPropsHelp === true ? false : true;
+      this.setState( { showPropsHelp: newState });
+  }
 
   private toggleBlockWarnHeight( ) : void {
     let newSetting = this.state.fullBlockedHeight === true ? false : true;
