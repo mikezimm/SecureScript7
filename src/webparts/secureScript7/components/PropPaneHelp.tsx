@@ -140,28 +140,6 @@ export const WebPartHelpElement = <div>
           <div className={ styles.topic}>Show Code Audience</div>
           <div>This lets you target which users see the { ShowCodeIcon } icon which lets them see your code.</div>
           <div><mark><b>NOTE:</b></mark> Site Admins and Site Owners will always see this button.</div>
-
-          {/* <div className={ styles.topic}>Setting the Refiner 'Column Value'</div>
-          <div><mark><b>NOTE:</b></mark> ColumnNames in this webpart <b>MUST BE Internal Column names</b>.</div>
-          <div><b>Internal Column names</b> ARE NOT the Column Titles you see. { LinkFindInternalName }</div>
-          <div className={ styles.topic}>Simple column types (Text, Date, Number, Single/Multi Select Choice)</div>
-          <div><b>InternalColumnName</b> - Nothing special require for these column types</div> */}
-          {/* <div><b>UserColumnName/Title</b> - /Title shows the person's Name</div> */}
-
-          {/* <div>User columns (Single/Multi) on the main list (can not be part of lookup column)</div> */}
-
-          {/* <div className={ styles.topic}>User columns (Single/Multi) on the main list (can not be part of lookup column)</div>
-          <div><b>UserColumnName/Title</b> - /Title shows the person's Name</div>
-          <div>See the Users tab in this page for more information on using User columns</div>
-
-          <div className={ styles.topic}>Lookup columns (Single/Multi) - that are brought in under the LookupColumn</div>
-          <div><b>LookupColumnName/Title</b> - /Title shows the Title field from the lookup item</div>
-          <div><b>LookupColumnName/OtherField</b> - /OtherField is the InternalColumnName of the lookup column from the other list</div>
-
-          <div className={ styles.topic} style={{ textDecoration: 'underline'}}>Example with real column names</div> 
-          <div style={{ paddingTop: '8px'}}>Say you have a lookup column like 'CustomerPlant' which has a Title column (Plant name) and Country column (where it is located)</div>
-          <div>To show Customer Plant Title, use <b>CustomerPlant/Title</b></div>
-          <div>To show Customer Plant Country, use <b>CustomerPlant/Country</b></div> */}
         </div>
       </PivotItem>
     
@@ -195,16 +173,16 @@ export const WebPartHelpElement = <div>
       <PivotItem headerText={ 'Banner' } > 
         <div className={ styles.helpContent}>
           <div className={ styles.topic}>Show Banner</div>
-          <div>May allow you to hide the banner.  If disabled, it is required.</div>
+          <div>May allow you to hide the banner.  If toggle disabled, it is required.</div>
 
           <div className={ styles.topic}>Optional Web Part Title</div>
-          <div>Add Title to banner.</div>
+          <div>Add Title text to the web part banner.</div>
           <div>Depending on the web part, this may not be editable.</div>
 
-          <div className={ styles.topic}>Show Go to Home Page Icon</div>
+          <div className={ styles.topic}>Show 'Go to Home Page' <Icon iconName='Home'></Icon> Icon</div>
           <div>Displays the <Icon iconName='Home'></Icon> when you are not on the site's home page.</div>
 
-          <div className={ styles.topic}>Show Go to Parent Site Icon</div>
+          <div className={ styles.topic}>Show 'Go to Parent Site' <Icon iconName='Up'></Icon> Icon</div>
           <div>Displays the <Icon iconName='Up'></Icon> when you are not on the site's home page.</div>
 
           <div className={ styles.topic}>Go to Home, Parent audience</div>
@@ -277,6 +255,31 @@ export const WebPartHelpElement = <div>
           <div className={ styles.topic}>Padding</div>
           <div>Adjusts the padding around the webpart.  20px minimum.</div>
 
+        </div>
+      </PivotItem>
+
+      <PivotItem headerText={ 'Single Page Apps' } > 
+        <div className={ styles.helpContent}>
+
+          <div className={ styles.topic}>Before you start!</div>
+
+          <div className={ styles.topic}>If you plan to build a full page app (hide SharePoint UI)</div>
+          <div>
+            Be sure to follow these steps to minimize any styling issues:
+              <ul>
+                <li>Start with a <b>Communication Site</b></li>
+                <li>If you have a Teams style site, go to Site Gear &gt; Change the look &gt; Disable navigation</li>
+              <ul>
+                <li>This is the only site that allows true 'Full Width webparts'</li>
+              </ul>
+              <li><b>Clear the home page completely</b> (do not have any other webparts)</li>
+              <ul>
+                <li>Remove all site navigation links</li>
+                <li>Replace site icon with transparent color box (to get rid of site logo.)</li>
+              </ul>
+                <li>Add SecureScript in the first Full Width section</li>
+              </ul>
+            </div>
         </div>
       </PivotItem>
 
