@@ -414,7 +414,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
    // let farBannerElementsArray = [];
     let farBannerElementsArray = [...this.farBannerElements,
-      this.props.showCodeIcon !== true ? null : <Icon iconName={ 'Code' } onClick={ this.toggleOriginal.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
+      this.props.showCodeIcon !== true ? null : <div title={'Show Code Details'}><Icon iconName={ 'Code' } onClick={ this.toggleOriginal.bind(this) } style={ defaultBannerCommandStyles }></Icon></div>,
     ];
 
 

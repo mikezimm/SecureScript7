@@ -211,8 +211,8 @@ export const WebPartHelpElement = <div>
 
           <div className={ styles.topic}>Style options</div>
           <div><mark><b>NOTE:</b></mark> May be required depending on our policy for this web part</div>
-          <div><b>Black on White:</b> "fontSize":"large","color":"black","background":"white","fontWeight":"600","height":"42px"</div>
-          <div><b>Corporate Dark Theme:</b> TBD</div>
+          <div><b>Black on White:</b> "fontSize":"large","color":"black","background":"white","fontWeight":"600","height":"45px"</div>
+          <div><b>Corporate Dark Theme:</b> "fontSize":"large","color":"white","background":"#005495","fontWeight":"600","height":"45px"</div> 
 
           <div className={ styles.topic}>Banner Hover Effect</div>
           <div>Turns on or off the Mouse Hover effect.  If Toggle is off, the banner does not 'Fade In'.  Turn off if you want a solid color banner all the time.</div>
