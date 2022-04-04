@@ -95,7 +95,7 @@ export const linkOpenCloseRegex = /<a.*?href=.*?>/gi;
  */
 
 
-export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecurityProfile) {
+export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformance) {
     let base: IFetchInfo = {
         snippet: '',
         selectedKey: 'raw',
@@ -127,7 +127,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
         },
         securityProfile: securityProfile,
         summary: null,
-        performance: null,
+        performance: performance,
     };
 
     return base;
@@ -153,13 +153,13 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
         if ( !webUrl || webUrl.length < 1 ) {
             console.log('fetchSnippetMike Err 0:', webUrl, libraryPicker, libraryItemPicker );
-            return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Web URL is not valid.</div>', securityProfile ) ;
+            return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Web URL is not valid.</div>', securityProfile, performance ) ;
         } else if ( !libraryPicker || libraryPicker.length < 1 ) {
             console.log('fetchSnippetMike Err 1:', webUrl, libraryPicker, libraryItemPicker );
-            return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid library.</div>', securityProfile) ;
+            return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid library.</div>', securityProfile, performance ) ;
         } else if ( !libraryItemPicker || libraryItemPicker.length < 1 ) {
             console.log('fetchSnippetMike Err 2:', webUrl, libraryPicker, libraryItemPicker );
-            return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid Filename.</div>', securityProfile );
+            return baseFetchInfo( '<div style="height: 50, width: \'100%\'">Select a valid Filename.</div>', securityProfile, performance );
         }
 
         if ( webUrl === '' ) { webUrl = '/sites/SecureCDN'; }
