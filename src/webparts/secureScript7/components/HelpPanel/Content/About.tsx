@@ -33,7 +33,7 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      */
 
 
-    table.rows.push( createAboutRow('2022-04-04',"1.0.1.15","#69, #70 - Property Pane Help and updates.", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('2022-04-04',"1.0.1.15","#69, #70, - Property Pane Help and updates. #71 - context, #73 - load analytics, start #72", showRepoLinks === true ? repoLinks : null ) );
 
     table.rows.push( createAboutRow('2022-03-15',"1.0.1.14","#55, #56, #59, #60, #61, #63 - ", showRepoLinks === true ? repoLinks : null ) );
 
