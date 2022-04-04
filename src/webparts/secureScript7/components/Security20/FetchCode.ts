@@ -15,6 +15,10 @@ import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileTyp
 
 import { buildSourceRankArray, standardizeLocalLink } from './functions';
 
+import { startPerformInit, startPerformOp, updatePerformanceEnd } from '../Performance/functions';
+import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from '../Performance/IPerformance';
+import { DisplayMode } from '@microsoft/sp-core-library';
+
 /***
  *    d8888b. d88888b  d888b  d88888b db    db 
  *    88  `8D 88'     88' Y8b 88'     `8b  d8' 
@@ -123,6 +127,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
         },
         securityProfile: securityProfile,
         summary: null,
+        performance: null,
     };
 
     return base;
@@ -142,7 +147,9 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
 
 
 
-export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile  ) {
+export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformance, displayMode:DisplayMode  ) {
+
+        performance.fetch = startPerformOp( 'fetch', displayMode );
 
         if ( !webUrl || webUrl.length < 1 ) {
             console.log('fetchSnippetMike Err 0:', webUrl, libraryPicker, libraryItemPicker );
@@ -173,23 +180,28 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
         let postFetchTime = new Date();
 
-        let result :  IFetchInfo= await analyzeShippet (htmlFragment, preFetchTime, postFetchTime, securityProfile );
+        performance.fetch = updatePerformanceEnd( performance.fetch, true );
+
+        let result :  IFetchInfo= await analyzeShippet (htmlFragment, preFetchTime, postFetchTime, securityProfile, performance, displayMode );
 
         return result;
-        
+
     }
 
-    export async function analyzeShippet( htmlFragment: string , preFetchTime: any, postFetchTime: any, securityProfile: IAdvancedSecurityProfile  ) {
-/***
- *              d888888b  .d8b.   d888b       d888888b d8888b. d88888b d8b   db d888888b d888888b d88888b db    db 
- *              `~~88~~' d8' `8b 88' Y8b        `88'   88  `8D 88'     888o  88 `~~88~~'   `88'   88'     `8b  d8' 
- *                 88    88ooo88 88              88    88   88 88ooooo 88V8o 88    88       88    88ooo    `8bd8'  
- *                 88    88~~~88 88  ooo         88    88   88 88~~~~~ 88 V8o88    88       88    88~~~      88    
- *                 88    88   88 88. ~8~        .88.   88  .8D 88.     88  V888    88      .88.   88         88    
- *                 YP    YP   YP  Y888P       Y888888P Y8888D' Y88888P VP   V8P    YP    Y888888P YP         YP    
- *                                                                                                                 
- *                                                                                                                 
- */
+    export async function analyzeShippet( htmlFragment: string , preFetchTime: any, postFetchTime: any, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformance, displayMode:DisplayMode  ) {
+    /***
+     *              d888888b  .d8b.   d888b       d888888b d8888b. d88888b d8b   db d888888b d888888b d88888b db    db 
+     *              `~~88~~' d8' `8b 88' Y8b        `88'   88  `8D 88'     888o  88 `~~88~~'   `88'   88'     `8b  d8' 
+     *                 88    88ooo88 88              88    88   88 88ooooo 88V8o 88    88       88    88ooo    `8bd8'  
+     *                 88    88~~~88 88  ooo         88    88   88 88~~~~~ 88 V8o88    88       88    88~~~      88    
+     *                 88    88   88 88. ~8~        .88.   88  .8D 88.     88  V888    88      .88.   88         88    
+     *                 YP    YP   YP  Y888P       Y888888P Y8888D' Y88888P VP   V8P    YP    Y888888P YP         YP    
+     *                                                                                                                 
+     *                                                                                                                 
+     */
+
+     performance.analyze = startPerformOp( 'analyze' , displayMode );
+
     //This is just a handy array of Rank Names in order to get rank index:  SourceInfo
     let SourceNameRank: ICDNCheck[] = buildSourceRankArray();
 
@@ -333,6 +345,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         policyFlags: policyFlags,
         securityProfile: securityProfile,
         summary: null,
+        performance: null,
     };
 
     let allTags = [ ...scripts, ...css, ...img, ...link ];
@@ -366,6 +379,10 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
     if ( result.Local.length > 0 ) { result.selectedKey = 'Local' ; } else
     if ( result.Secure.length > 0 ) { result.selectedKey = 'SecureCDN' ; } else
     if ( result.Nothing.length > 0 ) { result.selectedKey = 'Nothing' ; }
+
+    performance.analyze = updatePerformanceEnd( performance.analyze, true );
+
+    result.performance = performance;
 
     result.summary = {
         performance: {

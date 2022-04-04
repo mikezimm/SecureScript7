@@ -46,6 +46,9 @@ import { SourceNothing,
 import { buildSourceRankArray,  } from './Security20/functions';
 import { tdProperties } from 'office-ui-fabric-react';
 
+import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './Performance/IPerformance';
+import { startPerformInit, startPerformOp, updatePerformanceEnd } from './Performance/functions';
+
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
 const pivotHeading0 : ICDNCheck = 'Block';  //2022-01-31: Added Pivot Tiles
@@ -341,7 +344,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let htmlFragment = document.documentElement.innerHTML;
     let times = new Date();
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();  //This is required to reset all the counts
-    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
+
+    const propsPerformance: ILoadPerformance = this.props.fetchInfo.performance;
+ 
+    let performance: ILoadPerformance = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
+
+
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode  );
+    performance.fetch = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.fetch ));
+    performance.jsEval = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.jsEval ));
+
     fetchInfo.selectedKey = this.state.selectedKey;
     this.setStateFetchInfo( fetchInfo, 'Entire Page', this.state.searchValue, originalShowRaw );
   }
@@ -355,7 +367,14 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();
     // this.setState( { scope: 'Current Webpart' } );
 
-    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
+    const propsPerformance: ILoadPerformance = this.props.fetchInfo.performance;
+ 
+    let performance: ILoadPerformance = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
+
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode   );
+    performance.fetch = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.fetch ));
+    performance.jsEval = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.jsEval ));
+
     fetchInfo.selectedKey = this.state.selectedKey;
     this.setStateFetchInfo( fetchInfo, 'Current Webpart', this.state.searchValue, this.state.showRawHTML );
 
@@ -406,7 +425,6 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     } = this.state;
 
     let securityProfile:  IAdvancedSecurityProfile = fetchInfo.securityProfile;
-
 
     let propsHelp = <div className={ this.state.showPropsHelp !== true ? stylesP.bannerHide : stylesP.helpPropsShow  }>
         { WebPartHelpElement }
@@ -587,6 +605,35 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
             />
           </div>;
 
+        const { fetch, jsEval, analyze } = fetchInfo.performance;
+
+        const loadRows = [
+          <tr>
+            <th>Process</th>
+            <th>Mode</th>
+            <th>Time</th>
+            <th>ms</th>
+          </tr>
+        ];
+        [ 'fetch', 'analyze', 'jsEval' ].map( part => {
+          const thisPart : IPerformanceOp = fetchInfo.performance[part];
+          if ( thisPart ) {
+            let time = thisPart.startStr;
+            loadRows.push( <tr>
+              <td>{ thisPart.label }</td>
+              <td>{ thisPart.mode === 1 ? 'View' : 'Edit' }</td>
+              <td>{ time }</td>
+              <td>{ thisPart.ms }</td>
+            </tr>);
+          }
+        });
+
+         const loadSummary = <div className={ styles.secProfile } style={{ paddingLeft: '50px'}}>
+           <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify(fetchInfo.performance.forceReloadScripts )}</div>
+           <table>
+              { loadRows }
+           </table>
+         </div>;
 
 
 /***
@@ -635,6 +682,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
           </div>
           <div>
             { searchElement }
+          </div>
+          <div>
+            { loadSummary }
           </div>
         </div>
 

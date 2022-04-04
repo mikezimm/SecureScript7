@@ -3,6 +3,8 @@ import {
     IPropertyPaneDropdownOption,
   } from '@microsoft/sp-property-pane';
 
+import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from '../Performance/IPerformance';
+
 
 export const FetchLibString = 'FetchLibraries';
 export const TenantCDN = '/sites/SecureCDN';
@@ -123,6 +125,7 @@ export interface ITagInfo {
         policyFlags: IPolicyFlags;
         securityProfile: IAdvancedSecurityProfile;
         summary: IFetchSummaryStats;
+        performance: ILoadPerformance;
   }
 
   export interface IFetchSummaryStats {

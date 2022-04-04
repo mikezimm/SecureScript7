@@ -282,22 +282,33 @@ export const WebPartHelpElement = <div>
 
           <div className={ styles.topic}>Before you start!</div>
 
-          <div className={ styles.topic}>If you plan to build a full page app (hide SharePoint UI)</div>
+          <div className={ styles.topic}>If you plan to build a full page app (Full expand web part at load time)</div>
           <div>
-            Be sure to follow these steps to minimize any styling issues:
-            <ul>
+            Be sure to follow these steps to improve performance and minimize any styling issues:
+            <ol>
               <li>Start with a <b>Communication Site</b></li>
-              <li>If you have a Teams style site, go to Site Gear &gt; Change the look &gt; Disable navigation</li>
-            <ul>
-              <li>This is the only site that allows true 'Full Width webparts'</li>
-            </ul>
+              <ul>
+                <li>This is the only site that allows true 'Full Width webparts'</li>
+              </ul>
             <li><b>Clear the home page completely</b> (do not have any other webparts)</li>
-            <ul>
-              <li>Remove all site navigation links</li>
-              <li>Replace site icon with transparent color box (to get rid of site logo.)</li>
-            </ul>
-              <li>Add SecureScript in the first Full Width section</li>
-            </ul>
+            <li>Minimize what SharePoint loads
+              <ol style={{ listStyleType: 'lower-alpha' }}>
+                <li>Go to Gear</li>
+                <li>Click 'Change the look'</li>
+                <li>Click Header
+                <ul>
+                  <li>Set Layout to minimal</li>
+                  <li>Set 'Site title visiblity' to off</li>
+                  <li>Remove your site logo</li>
+                  <li>Save Header settings</li>
+                </ul></li>
+                <li>Click Navigation
+                <ul>
+                  <li>Turn off Site Navigation</li>
+                </ul></li>
+              </ol></li>
+            <li>Add SecureScript in the first Full Width section</li>
+            </ol>
           </div>
         </div>
       </PivotItem>

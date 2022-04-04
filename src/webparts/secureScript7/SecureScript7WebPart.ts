@@ -77,6 +77,9 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { IFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { getFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/FPSUser';
 
+import { startPerformInit, startPerformOp, updatePerformanceEnd } from './components/Performance/functions';
+import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './components/Performance/IPerformance';
+
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
 export const repoLink: IRepoLinks = links.gitRepoSecureScript7Small;
@@ -164,7 +167,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private consoledClassicContext = false;
   private consoledModernContext = false;
 
-
+  private performance : ILoadPerformance = null;
 
   /***
  *     .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
@@ -191,7 +194,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.domElement.appendChild(this.bannerElement);
     this.domElement.appendChild(this.scriptElement);
 
-
     return super.onInit().then(_ => {
       // other init code may be present
 
@@ -213,6 +215,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       // sp.setup({
       //   spfxContext: this.context
       // });
+
+      this.performance = startPerformInit( this.properties.spPageContextInfoClassic, this.properties.spPageContextInfoModern, this.properties.forceReloadScripts, this.displayMode, false );
 
       this.urlParameters = getUrlVars();
 
@@ -241,6 +245,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         this.properties.documentationLinkDesc = 'Documentation';
       }
       
+      //Preset this on existing installations
+      // if ( this.properties.forceReloadScripts === undefined || this.properties.forceReloadScripts === null ) {
+      //   this.properties.forceReloadScripts = false;
+      // }
       //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
       this.thisHistoryInstance = createWebpartHistory( 'onInit' , 'new', this.context.pageContext.user.displayName );
       let priorHistory : IWebpartHistoryItem[] = this.properties.webpartHistory ? this.properties.webpartHistory.history : [];
@@ -250,7 +258,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       };
 
       if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
-        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = '"fontSize":"large","color":"black","background":"white","fontWeight":"600"' ; }
+        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = '"fontSize":"large","color":"black","background":"white","height":"45px","fontWeight":"600"' ; }
       }
 
     });
@@ -324,7 +332,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       //this. related info
       context: this.context ,
       clientWidth: this.domElement.clientWidth,
-      exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl ),
+      exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl, ),
 
       //Webpart related info
       panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
@@ -395,11 +403,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.snippet = '<mark>Web URL is not valid.</mark>';
   } else {
     // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
-    this.fetchInfo = await fetchSnippetMike( this.context, webPicker, libraryPicker, libraryItemPicker , this.securityProfile );
+    this.fetchInfo = await fetchSnippetMike( this.context, webPicker, libraryPicker, libraryItemPicker , this.securityProfile, this.performance, this.displayMode );
     //Reset fetchInstance which triggers some updates in react component
     this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
   }
-
+  this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
+  bannerProps.exportProps.performance = this.fetchInfo.performance;
 
   /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
@@ -482,12 +491,20 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     } else if ( this.fetchInfo.selectedKey === 'Warn' ) {
       if ( this.displayMode === DisplayMode.Read ) {
-        executeScript(this.scriptElement, this._unqiueId, document );
+
+        this.fetchInfo.performance.jsEval = startPerformOp( 'jsEval' , this.displayMode );
+        executeScript(this.scriptElement, this._unqiueId, document, this.properties.forceReloadScripts );
+        this.fetchInfo.performance.jsEval = updatePerformanceEnd( this.fetchInfo.performance.jsEval, true );
+
         this.saveLoadAnalytics( 'Execute Script', 'Warned', this.fetchInfo, 'Warns' );
       }
     } else {
       if ( this.displayMode === DisplayMode.Read ) {
-        executeScript(this.scriptElement, this._unqiueId, document );
+
+        this.fetchInfo.performance.jsEval = startPerformOp( 'jsEval' , this.displayMode );
+        executeScript(this.scriptElement, this._unqiueId, document, this.properties.forceReloadScripts );
+        this.fetchInfo.performance.jsEval = updatePerformanceEnd( this.fetchInfo.performance.jsEval, true );
+
         this.saveLoadAnalytics( 'Execute Script', this.fetchInfo.selectedKey, this.fetchInfo, 'Views' );
       }
     }
@@ -1057,6 +1074,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                 PropertyPaneDropdown('showCodeAudience', <IPropertyPaneDropdownProps>{
                   label: 'Show Code Audience',
                   options: expandAudienceChoicesAll,
+                }),
+
+                PropertyPaneToggle("forceReloadScripts", {
+                  label: "Force reload scripts every page refresh",
+                  onText: "Enabled",
+                  offText: "Disabled"
                 }),
 
               ]}, // this group

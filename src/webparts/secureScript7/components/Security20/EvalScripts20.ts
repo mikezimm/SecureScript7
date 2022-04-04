@@ -57,7 +57,7 @@ export async function evalScript(elem, _unqiueId: string, thisDocument: Document
 // Needed since innerHTML does not run scripts.
 //
 // Argument element is an element in the dom.
-export async function executeScript(element: HTMLElement, _unqiueId: string, thisDocument: Document) {
+export async function executeScript(element: HTMLElement, _unqiueId: string, thisDocument: Document, forceReloadScripts: boolean ) {
   console.log('Secure trace:  executeScript');
     // clean up added script tags in case of smart re-load
     const headTag = thisDocument.getElementsByTagName("head")[0] || thisDocument.documentElement;
@@ -109,14 +109,23 @@ export async function executeScript(element: HTMLElement, _unqiueId: string, thi
         window["define"].amd = null;
     }
 
+    let startLoad = new Date ().getTime();
     for (let i = 0; i < urls.length; i++) {
         let scriptUrl: any = [];
         let prefix = '';
         try {
-        scriptUrl = urls[i];
-            // Add unique param to force load on each run to overcome smart navigation in the browser as needed
+            scriptUrl = urls[i];
+
             prefix = scriptUrl.indexOf('?') === -1 ? '?' : '&';
-            scriptUrl += prefix + 'pnp=' + new Date().getTime();
+
+            // 2022-04-04:  Added this to try and resolve https://github.com/mikezimm/SecureScript7/issues/72
+            // Add unique param to force load on each run to overcome smart navigation in the browser as needed
+            if ( forceReloadScripts !== false ) { //Using !== false to force same behaviour on prior web part instances
+                scriptUrl += prefix + 'pnp=' + new Date().getTime();
+            } else {
+                // scriptUrl += prefix + 'pnp=' + 'fuzzyPawsSolutions';
+            }
+
             await SPComponentLoader.loadScript(scriptUrl, { globalExportsName: "ScriptGlobal" });
         } catch (error) {
         console.log('Secure trace:  error executeScript-prefix ', prefix);
@@ -126,6 +135,11 @@ export async function executeScript(element: HTMLElement, _unqiueId: string, thi
             }
         }
     }
+
+    let endLoad = new Date ().getTime();
+
+    console.log('Load Performance: forceReloadScripts, ms: ', forceReloadScripts, ( endLoad-startLoad ) );
+
     if (oldamd) {
         window["define"].amd = oldamd;
     }
