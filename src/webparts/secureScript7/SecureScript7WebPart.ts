@@ -129,6 +129,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private  expandoDefault = false;
   private filesList: any = [];
 
+  private exitPropPaneChanged = false;
+
   private fetchInstance: string = Math.floor(Math.random() * 79797979 ).toString();
 
   // private SecureProfile: ISecurityProfile = {
@@ -305,7 +307,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     let errMessage = '';
     this.validDocsContacts = '';
 
-    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + this.properties.documentationLinkUrl ; this.validDocsContacts += 'DocLink,'; }
+    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + ( this.properties.documentationLinkUrl ? this.properties.documentationLinkUrl : 'Empty.  ' ) ; this.validDocsContacts += 'DocLink,'; }
     if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; this.validDocsContacts += 'Contacts,'; }
 
     let errorObjArray :  any[] =[];
@@ -408,7 +410,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
   }
   this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
-  bannerProps.exportProps.performance = this.fetchInfo.performance;
+  // bannerProps.exportProps.performance = this.fetchInfo.performance;
 
   /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
@@ -859,6 +861,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private async _LinkIsValid(url)
   {
+      //Require this is filled out.
+      if ( !url ) { return false; }
+
       var http = new XMLHttpRequest();
       http.open('HEAD', url, false);
       let isValid = true;
@@ -887,9 +892,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   protected async onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any) {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
 
-    if ( propertyPath === 'documentationLinkUrl' ) {
+    if ( propertyPath === 'documentationLinkUrl' || propertyPath === 'fpsImportProps' ) {
       this.properties.documentationIsValid = await this._LinkIsValid( newValue );
-      console.log( `${newValue} ${ this.properties.documentationIsValid === true ? ' IS ' : ' IS NOT ' } Valid `);
+      console.log( `${ newValue ? newValue : 'Empty' } Docs Link ${ this.properties.documentationIsValid === true ? ' IS ' : ' IS NOT ' } Valid `);
       
     } else {
       if ( !this.properties.documentationIsValid ) { this.properties.documentationIsValid = false; }
@@ -911,14 +916,22 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     if ( propertyPath === 'fpsImportProps' ) {
 
-      let result = importProps( this.properties, newValue, [], importBlockProps );
+      if ( this.exitPropPaneChanged === true ) {//Added to prevent re-running this function on import.  Just want re-render. )
+        this.exitPropPaneChanged = false;  //Added to prevent re-running this function on import.  Just want re-render.
 
-      this.importErrorMessage = result.errMessage;
-      if ( result.importError === false ) {
-        this.properties.fpsImportProps = '';
-        this.context.propertyPane.refresh();
+      } else {
+        let result = importProps( this.properties, newValue, [], importBlockProps );
+
+        this.importErrorMessage = result.errMessage;
+        if ( result.importError === false ) {
+          this.properties.fpsImportProps = '';
+          this.context.propertyPane.refresh();
+        }
+        this.exitPropPaneChanged = true;  //Added to prevent re-running this function on import.  Just want re-render.
+        this.onPropertyPaneConfigurationStart();
+        // this.render();
       }
-      this.render();
+
 
     } else if ((propertyPath === 'webPicker') && (newValue) ) {
       this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
