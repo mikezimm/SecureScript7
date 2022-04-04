@@ -413,6 +413,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       userDisplayName,
       spPageContextInfoClassic,
       spPageContextInfoModern,
+      bannerProps,
 
     } = this.props;
 
@@ -457,9 +458,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  
     let bannerSuffix = '';
     //Exclude the props.bannerProps.title if the webpart is narrow to make more responsive
-    let bannerTitle = this.props.bannerProps.bannerWidth < 900 ? bannerSuffix : `${this.props.bannerProps.title} - ${bannerSuffix}`;
+    let bannerTitle = bannerProps.bannerWidth < 900 ? bannerSuffix : `${bannerProps.title} - ${bannerSuffix}`;
+    
     if ( bannerTitle === '' ) { bannerTitle = 'Secure Script 7' ; }
-    if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ' JS Disabled during Edit' ; }
+    if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ( bannerProps.bannerWidth > 1100 ? ' JS Disabled during Edit' : 'JS Disabled' ) ; }
 
     let errorUnapprovedComponent = null;
 
@@ -592,9 +594,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
 
         const searchElement = this.state.showRawHTML !== true ? null :
-          <div className = { null } style={{ paddingLeft: '50px', display: this.state.selectedKey === pivotHeading13 || this.state.selectedKey === 'raw' ? 'none' :  null }}><SearchBox
+          <div className = { null } style={{ paddingLeft: '15px', display: this.state.selectedKey === pivotHeading13 || this.state.selectedKey === 'raw' ? 'none' :  null }}><SearchBox
               // className={ styles.searchBox }
-              styles={{ root: { width: 250 } } }
+              styles={{ root: { width: 150 } } }
               placeholder="Search"
               defaultValue={ this.state.searchValue }
               value={ this.state.searchValue }
@@ -628,7 +630,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
           }
         });
 
-         const loadSummary = <div className={ styles.secProfile } style={{ paddingLeft: '50px'}}>
+         const loadSummary = <div className={ styles.secProfile } style={{ paddingLeft: '15px'}}>
            <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify(fetchInfo.performance.forceReloadScripts )}</div>
            <table>
               { loadRows }
@@ -647,6 +649,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  *                                                                                                             
  */
 
+      let webViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.webPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open Site ]</span>;
       let libViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.libraryPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open library ]</span>;
 
       let fileViewerhref = `${this.props.libraryPicker}/Forms/AllItems.aspx?id=${ this.props.fileRelativeUrl }&parent=${this.props.libraryPicker}`;
@@ -657,7 +660,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
           buttons.push( this.toggleTagFile );
         } else { buttons.push ( this.toggleTagTag ) ; }
         buttons.push( this.toggleLiveWP );
-        if ( this.props.bannerProps.showTricks === true ) { buttons.push( this.toggleFullPg ); }
+        if ( bannerProps.showTricks === true ) { buttons.push( this.toggleFullPg ); }
        }
        buttons.push( <span style={{ padding: '0 20px' }}>{this.state.scope}</span> );
 
@@ -670,12 +673,14 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         }
 
       //toggleReload
+      const flexStyles: React.CSSProperties = { color: 'darkblue', display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' };
       originalInfo = <div style={{ background: '#dddd', padding: '10px 20px 40px 20px',  }}>
         <h2 style={{ color: 'darkblue', display: 'flex' }}>This is the original html <span style={{ display: 'flex', paddingLeft: '30px'}}>{ buttons }</span></h2>
-        <div style={{ display: 'flex', alignItems: 'center'}}>
+        <div style={ flexStyles }>
           <div>
             <ul>
-              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
+              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Site:</b>{ ` ${this.props.webPicker}` } { webViewerLink } </li>
+              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Library:</b>{ ` ${this.props.libraryPicker.replace( this.props.webPicker,'' ) }` } { libViewerLink } </li>
               <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
               { contextInfo }
             </ul>
@@ -711,45 +716,46 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let Banner = <WebpartBanner 
 
-      FPSUser={ this.props.bannerProps.FPSUser }
-      exportProps={ this.props.bannerProps.exportProps }
-      showBanner={ this.props.bannerProps.showBanner }
-      bannerWidth={ this.props.bannerProps.bannerWidth }
-      pageContext={ this.props.bannerProps.pageContext }
+      FPSUser={ bannerProps.FPSUser }
+      exportProps={ bannerProps.exportProps }
+      showBanner={ bannerProps.showBanner }
+      // Adding this to adjust expected width for when prop pane could be opened
+      bannerWidth={ ( bannerProps.bannerWidth ) }
+      pageContext={ bannerProps.pageContext }
       title ={ bannerTitle }
-      panelTitle = { this.props.bannerProps.panelTitle }
-      bannerReactCSS={ this.props.bannerProps.bannerReactCSS }
+      panelTitle = { bannerProps.panelTitle }
+      bannerReactCSS={ bannerProps.bannerReactCSS }
       bannerCommandStyles={ defaultBannerCommandStyles }
-      showTricks={ this.props.bannerProps.showTricks }
-      showGoToParent={ this.props.bannerProps.showGoToParent }
-      showGoToHome={ this.props.bannerProps.showGoToHome }
-      onHomePage={ this.props.bannerProps.onHomePage }
+      showTricks={ bannerProps.showTricks }
+      showGoToParent={ bannerProps.showGoToParent }
+      showGoToHome={ bannerProps.showGoToHome }
+      onHomePage={ bannerProps.onHomePage }
 
       webpartHistory={ this.props.webpartHistory }
       
-      showBannerGear={ this.props.bannerProps.showBannerGear }
+      showBannerGear={ bannerProps.showBannerGear }
       
-      showFullPanel={ this.props.bannerProps.showFullPanel }
-      replacePanelHTML={ this.props.bannerProps.replacePanelHTML }
-      replacePanelWarning={ this.props.bannerProps.replacePanelWarning }
+      showFullPanel={ bannerProps.showFullPanel }
+      replacePanelHTML={ bannerProps.replacePanelHTML }
+      replacePanelWarning={ bannerProps.replacePanelWarning }
 
-      hoverEffect={ this.props.bannerProps.hoverEffect }
-      gitHubRepo={ this.props.bannerProps.gitHubRepo }
-      earyAccess={ this.props.bannerProps.earyAccess }
-      wideToggle={ this.props.bannerProps.wideToggle }
+      hoverEffect={ bannerProps.hoverEffect }
+      gitHubRepo={ bannerProps.gitHubRepo }
+      earyAccess={ bannerProps.earyAccess }
+      wideToggle={ bannerProps.wideToggle }
       nearElements = { this.nearBannerElements }
       farElements = { farBannerElementsArray }
 
-      showRepoLinks={ this.props.bannerProps.showRepoLinks }
-      showExport={ this.props.bannerProps.showExport }
+      showRepoLinks={ bannerProps.showRepoLinks }
+      showExport={ bannerProps.showExport }
       //2022-02-17:  Added these for expandoramic mode
-      domElement = { this.props.bannerProps.domElement }
-      enableExpandoramic = { this.props.bannerProps.enableExpandoramic }
-      expandoDefault = { this.props.bannerProps.expandoDefault }
-      expandoStyle = { this.props.bannerProps.expandoStyle}
-      expandAlert = { this.props.bannerProps.expandAlert }
-      expandConsole = { this.props.bannerProps.expandConsole }
-      expandoPadding = { this.props.bannerProps.expandoPadding }
+      domElement = { bannerProps.domElement }
+      enableExpandoramic = { bannerProps.enableExpandoramic }
+      expandoDefault = { bannerProps.expandoDefault }
+      expandoStyle = { bannerProps.expandoStyle}
+      expandAlert = { bannerProps.expandAlert }
+      expandConsole = { bannerProps.expandConsole }
+      expandoPadding = { bannerProps.expandoPadding }
 
     ></WebpartBanner>;
 

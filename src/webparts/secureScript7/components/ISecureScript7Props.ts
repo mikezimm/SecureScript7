@@ -50,6 +50,9 @@ export interface ISecureScript7Props {
   //Secure Script Props
   cdnMode: ICDNMode;
   cdnValid: boolean;
+
+  webPicker: string;
+
   libraryPicker: string;
   libraryItemPicker: string;
   approvedLibraries: any[];

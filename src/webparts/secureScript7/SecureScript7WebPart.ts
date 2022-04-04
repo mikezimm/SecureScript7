@@ -333,7 +333,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       FPSUser: this.FPSUser,
       //this. related info
       context: this.context ,
-      clientWidth: this.domElement.clientWidth,
+      clientWidth: ( this.domElement.clientWidth - ( this.displayMode === DisplayMode.Edit ? 250 : 0) ),
       exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl, ),
 
       //Webpart related info
@@ -449,6 +449,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         displayMode: this.displayMode,
         cdnMode: this.cdnMode,
         cdnValid: this.cdnValid, 
+        webPicker: webPicker,
         libraryPicker: libraryPicker,
         libraryItemPicker: this.properties.libraryItemPicker,
         fileRelativeUrl: `${libraryPicker}/${this.properties.libraryItemPicker}`,
