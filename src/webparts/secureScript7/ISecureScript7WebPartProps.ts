@@ -37,7 +37,7 @@ export const exportIgnoreProps = [
 //These props will not be imported even if they are in one of the change arrays above (fail-safe)
 //This was done so user could not manually insert specific props to over-right fail-safes built in to the webpart
 export const importBlockProps = [
-  'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks', 'showRepoLinks', 'showExport', 'fpsImportProps', 'fullPanelAudience', 'documentationIsValid',
+  'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks', 'showRepoLinks', 'showExport', 'fpsImportProps', 'fullPanelAudience', 'documentationIsValid', 'currentWeb'
 ];
 
  //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
