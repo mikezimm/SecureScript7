@@ -128,8 +128,8 @@ export async function executeScript(element: HTMLElement, _unqiueId: string, thi
 
             await SPComponentLoader.loadScript(scriptUrl, { globalExportsName: "ScriptGlobal" });
         } catch (error) {
-        console.log('Secure trace:  error executeScript-prefix ', prefix);
-        console.log('Secure trace:  error executeScript-scriptUrl ', scriptUrl);
+            console.log('Secure trace:  error executeScript-prefix ', prefix);
+            console.log('Secure trace:  error executeScript-scriptUrl ', scriptUrl);
             if (console.error) {
                 console.error(error);
             }

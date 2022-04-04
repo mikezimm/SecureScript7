@@ -284,7 +284,7 @@ export const WebPartHelpElement = <div>
 
           <div className={ styles.topic}>If you plan to build a full page app (Full expand web part at load time)</div>
           <div>
-            Be sure to follow these steps to improve performance and minimize any styling issues:
+            Be sure to follow these steps to improve performance and minimize any styling issues and delays:
             <ol>
               <li>Start with a <b>Communication Site</b></li>
               <ul>
