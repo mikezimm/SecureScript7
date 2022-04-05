@@ -37,7 +37,7 @@ export function whyContent( repoLinks: IRepoLinks ) {
             <li>Require HTML/Scripts to be contained in approved locations.</li>
             <li>Log who edits webpart properties (ie who is determining what scritps site users will run). <b> - Optional</b></li>
             <li>Log what scripts were executed by users and when - to allow tracability of there is a security issue. <b> - Optional</b></li>
-            <li>Content Edtiro Code breakdown - including all js, css, links, images referenced in the html</li>
+            <li>Content Editor Code breakdown - including all js, css, links, images referenced in the html</li>
             <li>Code breakdown - of the loaded web part or entire page</li>
             <li>Performance analytics right in the web part</li>
             <li>Easy visiblity and access to the Site, Library and file that is embeded/loaded.</li>
