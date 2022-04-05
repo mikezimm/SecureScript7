@@ -657,8 +657,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       let titleFile = displayFile + '';
 
       let fileFolders = displayFile.split('/');
-      fileFolders.map( (folder, index ) => {
-          folder = index === fileFolders.length -1 ? folder : '..';
+      fileFolders = fileFolders.map( (folder, index ) => {
+          return folder = index === fileFolders.length -1 ? folder : '..';
       });
       displayFile = fileFolders.join('/');
 
