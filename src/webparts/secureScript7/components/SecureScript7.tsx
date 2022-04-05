@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 
 import styles from './SecureScript7.module.scss';
+
 import { ISecureScript7Props, ISecureScript7State, IScope } from './ISecureScript7Props';
 import { escape } from '@microsoft/sp-lodash-subset';
 
@@ -28,6 +29,10 @@ import { analyzeShippet  } from './Security20/FetchCode';
 import { simpleParse } from './Security20/Beautify/function';
 import DOMPurify from 'dompurify';
 
+//Added for Prop Panel Help
+import stylesP from './PropPanelHelp.module.scss';
+import { WebPartHelpElement } from './PropPaneHelp';
+
 import { SourceNothing,
       SourceSecure,
       SourceLocal,
@@ -40,6 +45,9 @@ import { SourceNothing,
 
 import { buildSourceRankArray,  } from './Security20/functions';
 import { tdProperties } from 'office-ui-fabric-react';
+
+import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './Performance/IPerformance';
+import { startPerformInit, startPerformOp, updatePerformanceEnd } from './Performance/functions';
 
 const stockPickerHTML = '<div class="tradingview-widget-container"><div id="tradingview"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL Chart</span></a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>      <script type="text/javascript">      new TradingView.widget(      {      "width": 980,      "height": 610,      "symbol": "NASDAQ:AAPL",      "interval": "D",      "timezone": "Etc/UTC",      "theme": "light",      "style": "1",      "locale": "en",      "toolbar_bg": "#f1f3f6",      "enable_publishing": false,      "allow_symbol_change": true,"container_id": "tradingview"});</script></div>';
 
@@ -96,7 +104,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
    *                                                                                                                                
    */
 
+  private hideClassicIcon = <div style={{ float: 'right', display: 'inline-block'}}><Icon iconName={ 'ChromeClose' } onClick={ this.hideClassicWarn.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon></div>;
+  private hideModernIcon = <div style={{ float: 'right'}}><Icon iconName={ 'ChromeClose' } onClick={ this.hideModernWarn.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon></div>;
+  
   private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
+
   private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
   private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
   private toggleLiveWP = <Icon iconName={ 'Refresh' } onClick={ this.getLiveWebpart.bind(this) } style={ this.reStuleButtons() } title='Analyize live webpart'></Icon>;
@@ -252,6 +264,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       toggleTag: 'files',
       selectedKey: this.props.fetchInfo.selectedKey,
       selectedKeyFile: this.props.fetchInfo.selectedKey,
+
+      contextWarnClassic: null,
+      contextWarnModern: null,
+
       fullBlockedHeight: true,
       showProfileLogic: false,
       showPanel: false,
@@ -260,6 +276,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       fetchInfo: this.props.fetchInfo,
       scope: 'Loaded File',
       searchValue: '',
+
+      //Prop Panel Help
+      showPropsHelp: false,
+
     };
 
   }
@@ -324,7 +344,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let htmlFragment = document.documentElement.innerHTML;
     let times = new Date();
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();  //This is required to reset all the counts
-    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
+
+    const propsPerformance: ILoadPerformance = this.props.fetchInfo.performance;
+ 
+    let performance: ILoadPerformance = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
+
+
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode  );
+    performance.fetch = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.fetch ));
+    performance.jsEval = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.jsEval ));
+
     fetchInfo.selectedKey = this.state.selectedKey;
     this.setStateFetchInfo( fetchInfo, 'Entire Page', this.state.searchValue, originalShowRaw );
   }
@@ -338,7 +367,14 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();
     // this.setState( { scope: 'Current Webpart' } );
 
-    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile  );
+    const propsPerformance: ILoadPerformance = this.props.fetchInfo.performance;
+ 
+    let performance: ILoadPerformance = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
+
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode   );
+    performance.fetch = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.fetch ));
+    performance.jsEval = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.jsEval ));
+
     fetchInfo.selectedKey = this.state.selectedKey;
     this.setStateFetchInfo( fetchInfo, 'Current Webpart', this.state.searchValue, this.state.showRawHTML );
 
@@ -375,6 +411,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       environmentMessage,
       hasTeamsContext,
       userDisplayName,
+      spPageContextInfoClassic,
+      spPageContextInfoModern,
+      bannerProps,
 
     } = this.props;
 
@@ -387,6 +426,23 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     } = this.state;
 
     let securityProfile:  IAdvancedSecurityProfile = fetchInfo.securityProfile;
+
+    let propsHelp = <div className={ this.state.showPropsHelp !== true ? stylesP.bannerHide : stylesP.helpPropsShow  }>
+        { WebPartHelpElement }
+    </div>;
+
+   // let farBannerElementsArray = [];
+    let farBannerElementsArray = [...this.farBannerElements,
+      this.props.showCodeIcon !== true ? null : <div title={'Show Code Details'}><Icon iconName={ 'Code' } onClick={ this.toggleOriginal.bind(this) } style={ defaultBannerCommandStyles }></Icon></div>,
+    ];
+
+
+    if ( this.props.displayMode === DisplayMode.Edit ) {
+      farBannerElementsArray.push( 
+        <Icon iconName='OpenEnrollment' onClick={ this.togglePropsHelp.bind(this) } style={ defaultBannerCommandStyles }></Icon>
+      );
+    }
+
     /***
      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
      *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D 
@@ -399,16 +455,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
      */
 
 
-    // let farBannerElementsArray = [];
-    let farBannerElementsArray = [...this.farBannerElements,
-      this.props.showCodeIcon !== true ? null : <Icon iconName={ 'Code' } onClick={ this.toggleOriginal.bind(this) } style={ defaultBannerCommandStyles }></Icon>,
-    ];
-
+ 
     let bannerSuffix = '';
     //Exclude the props.bannerProps.title if the webpart is narrow to make more responsive
-    let bannerTitle = this.props.bannerProps.bannerWidth < 900 ? bannerSuffix : `${this.props.bannerProps.title} - ${bannerSuffix}`;
+    let bannerTitle = bannerProps.bannerWidth < 900 ? bannerProps.title : `${bannerProps.title} - ${bannerSuffix}`;
+    
     if ( bannerTitle === '' ) { bannerTitle = 'Secure Script 7' ; }
-    if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ' JS Disabled during Edit' ; }
+    if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ( bannerProps.bannerWidth > 1100 ? ' JS Disabled during Edit' : 'JS Disabled' ) ; }
 
     let errorUnapprovedComponent = null;
 
@@ -541,9 +594,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
 
         const searchElement = this.state.showRawHTML !== true ? null :
-          <div className = { null } style={{ paddingLeft: '50px', display: this.state.selectedKey === pivotHeading13 || this.state.selectedKey === 'raw' ? 'none' :  null }}><SearchBox
+          <div className = { null } style={{ paddingLeft: '15px', display: this.state.selectedKey === pivotHeading13 || this.state.selectedKey === 'raw' ? 'none' :  null }}><SearchBox
               // className={ styles.searchBox }
-              styles={{ root: { width: 250 } } }
+              styles={{ root: { width: 150 } } }
               placeholder="Search"
               defaultValue={ this.state.searchValue }
               value={ this.state.searchValue }
@@ -554,6 +607,35 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
             />
           </div>;
 
+        const { fetch, jsEval, analyze } = fetchInfo.performance;
+
+        const loadRows = [
+          <tr>
+            <th>Process</th>
+            <th>Mode</th>
+            <th>Time</th>
+            <th>ms</th>
+          </tr>
+        ];
+        [ 'fetch', 'analyze', 'jsEval' ].map( part => {
+          const thisPart : IPerformanceOp = fetchInfo.performance[part];
+          if ( thisPart ) {
+            let time = thisPart.startStr;
+            loadRows.push( <tr>
+              <td>{ thisPart.label }</td>
+              <td>{ thisPart.mode === 1 ? 'View' : 'Edit' }</td>
+              <td>{ time }</td>
+              <td>{ thisPart.ms }</td>
+            </tr>);
+          }
+        });
+
+         const loadSummary = <div className={ styles.secProfile } style={{ paddingLeft: '15px'}}>
+           <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify(fetchInfo.performance.forceReloadScripts )}</div>
+           <table>
+              { loadRows }
+           </table>
+         </div>;
 
 
 /***
@@ -567,32 +649,59 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  *                                                                                                             
  */
 
+      let webViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.webPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open Site ]</span>;
       let libViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.libraryPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open library ]</span>;
 
+      let displayFile = this.props.libraryItemPicker + '';
+      displayFile = displayFile.replace(`${this.props.libraryPicker}/`,'');
+      let titleFile = displayFile + '';
+
+      let fileFolders = displayFile.split('/');
+      fileFolders = fileFolders.map( (folder, index ) => {
+          return folder = index === fileFolders.length -1 ? folder : '..';
+      });
+      displayFile = fileFolders.join('/');
+
       let fileViewerhref = `${this.props.libraryPicker}/Forms/AllItems.aspx?id=${ this.props.fileRelativeUrl }&parent=${this.props.libraryPicker}`;
-      let fileViewerLink = <span onClick={() => this.onFileClick( fileViewerhref )} style={{ color: 'blue' , cursor: 'pointer' }} > [ open file in editor ]</span>;
+      let fileViewerLink = <span onClick={() => this.onFileClick( fileViewerhref )} style={{ color: 'blue' , cursor: 'pointer' }} title={ titleFile }> [ open file in editor ]</span>;
+
       let buttons = [this.toggleRawIcon];
       if ( this.state.showRawHTML !== false ) {
         if ( this.state.toggleTag === 'files' ) {
           buttons.push( this.toggleTagFile );
         } else { buttons.push ( this.toggleTagTag ) ; }
         buttons.push( this.toggleLiveWP );
-        if ( this.props.bannerProps.showTricks === true ) { buttons.push( this.toggleFullPg ); }
+        if ( bannerProps.showTricks === true ) { buttons.push( this.toggleFullPg ); }
        }
        buttons.push( <span style={{ padding: '0 20px' }}>{this.state.scope}</span> );
 
+       let contextInfo = null;
+       if( this.props.spPageContextInfoClassic || this.props.spPageContextInfoModern ) { 
+         let constRows = [];
+         if ( this.props.spPageContextInfoClassic ) constRows.push( <span style={{color:'red', paddingLeft: '20px'}}>_legacyPageConext</span> );
+         if ( this.props.spPageContextInfoModern ) constRows.push( <span style={{color:'green', paddingLeft: '20px'}}>_PageConext</span> );
+         contextInfo = <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Context loaded:</b> { constRows }</li>;
+        }
+
       //toggleReload
+      const flexStyles: React.CSSProperties = { color: 'darkblue', display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' };
+
       originalInfo = <div style={{ background: '#dddd', padding: '10px 20px 40px 20px',  }}>
         <h2 style={{ color: 'darkblue', display: 'flex' }}>This is the original html <span style={{ display: 'flex', paddingLeft: '30px'}}>{ buttons }</span></h2>
-        <div style={{ display: 'flex', alignItems: 'center'}}>
+        <div style={ flexStyles }>
           <div>
             <ul>
-              <li><b>Library:</b>{ ` ${this.props.libraryPicker}` } { libViewerLink } </li>
-              <li><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
+              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Site:</b>{ ` ${this.props.webPicker}` } { webViewerLink } </li>
+              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Library:</b>{ ` ${this.props.libraryPicker.replace( this.props.webPicker,'' ) }` } { libViewerLink } </li>
+              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>File:</b> { displayFile } {  fileViewerLink }  </li>
+              { contextInfo }
             </ul>
           </div>
           <div>
             { searchElement }
+          </div>
+          <div>
+            { loadSummary }
           </div>
         </div>
 
@@ -619,45 +728,46 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let Banner = <WebpartBanner 
 
-      FPSUser={ this.props.bannerProps.FPSUser }
-      exportProps={ this.props.bannerProps.exportProps }
-      showBanner={ this.props.bannerProps.showBanner }
-      bannerWidth={ this.props.bannerProps.bannerWidth }
-      pageContext={ this.props.bannerProps.pageContext }
+      FPSUser={ bannerProps.FPSUser }
+      exportProps={ bannerProps.exportProps }
+      showBanner={ bannerProps.showBanner }
+      // Adding this to adjust expected width for when prop pane could be opened
+      bannerWidth={ ( bannerProps.bannerWidth ) }
+      pageContext={ bannerProps.pageContext }
       title ={ bannerTitle }
-      panelTitle = { this.props.bannerProps.panelTitle }
-      bannerReactCSS={ this.props.bannerProps.bannerReactCSS }
+      panelTitle = { bannerProps.panelTitle }
+      bannerReactCSS={ bannerProps.bannerReactCSS }
       bannerCommandStyles={ defaultBannerCommandStyles }
-      showTricks={ this.props.bannerProps.showTricks }
-      showGoToParent={ this.props.bannerProps.showGoToParent }
-      showGoToHome={ this.props.bannerProps.showGoToHome }
-      onHomePage={ this.props.bannerProps.onHomePage }
+      showTricks={ bannerProps.showTricks }
+      showGoToParent={ bannerProps.showGoToParent }
+      showGoToHome={ bannerProps.showGoToHome }
+      onHomePage={ bannerProps.onHomePage }
 
       webpartHistory={ this.props.webpartHistory }
       
-      showBannerGear={ this.props.bannerProps.showBannerGear }
+      showBannerGear={ bannerProps.showBannerGear }
       
-      showFullPanel={ this.props.bannerProps.showFullPanel }
-      replacePanelHTML={ this.props.bannerProps.replacePanelHTML }
-      replacePanelWarning={ this.props.bannerProps.replacePanelWarning }
+      showFullPanel={ bannerProps.showFullPanel }
+      replacePanelHTML={ bannerProps.replacePanelHTML }
+      replacePanelWarning={ bannerProps.replacePanelWarning }
 
-      hoverEffect={ this.props.bannerProps.hoverEffect }
-      gitHubRepo={ this.props.bannerProps.gitHubRepo }
-      earyAccess={ this.props.bannerProps.earyAccess }
-      wideToggle={ this.props.bannerProps.wideToggle }
+      hoverEffect={ bannerProps.hoverEffect }
+      gitHubRepo={ bannerProps.gitHubRepo }
+      earyAccess={ bannerProps.earyAccess }
+      wideToggle={ bannerProps.wideToggle }
       nearElements = { this.nearBannerElements }
       farElements = { farBannerElementsArray }
 
-      showRepoLinks={ this.props.bannerProps.showRepoLinks }
-      showExport={ this.props.bannerProps.showExport }
+      showRepoLinks={ bannerProps.showRepoLinks }
+      showExport={ bannerProps.showExport }
       //2022-02-17:  Added these for expandoramic mode
-      domElement = { this.props.bannerProps.domElement }
-      enableExpandoramic = { this.props.bannerProps.enableExpandoramic }
-      expandoDefault = { this.props.bannerProps.expandoDefault }
-      expandoStyle = { this.props.bannerProps.expandoStyle}
-      expandAlert = { this.props.bannerProps.expandAlert }
-      expandConsole = { this.props.bannerProps.expandConsole }
-      expandoPadding = { this.props.bannerProps.expandoPadding }
+      domElement = { bannerProps.domElement }
+      enableExpandoramic = { bannerProps.enableExpandoramic }
+      expandoDefault = { bannerProps.expandoDefault }
+      expandoStyle = { bannerProps.expandoStyle}
+      expandAlert = { bannerProps.expandAlert }
+      expandConsole = { bannerProps.expandConsole }
+      expandoPadding = { bannerProps.expandoPadding }
 
     ></WebpartBanner>;
 
@@ -666,7 +776,33 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let devHeader = this.state.showDevHeader === true ? <div><b>Props: </b> { 'this.props.lastPropChange' + ', ' + 'this.props.lastPropDetailChange' } - <b>State: lastStateChange: </b> { this.state.lastStateChange  } </div> : null ;
 
     let termsOfUse = fetchInfo == null || fetchInfo.snippet.length === 0 ? this.termsOfUse : null;
+
+    let spPageContextInfoContent : any[] = [] ; //this.props.displayMode === DisplayMode.Edit && spPageContextInfoClassic === true ? [this.spPageContextInfoClassic ]: [];
+
     
+    //https://github.com/mikezimm/SecureScript7/issues/71
+    if ( this.props.displayMode === DisplayMode.Edit ) {
+      const classicCollapse: React.CSSProperties = { height: this.state.contextWarnClassic , overflow: 'hidden'  };
+      const modernCollapse: React.CSSProperties = { height: this.state.contextWarnModern , overflow: 'hidden' };
+
+      
+      const classicContextBlock = <div className={ styles.classicContext } onClick={ this.toggleClassicWarnHeight.bind(this) } style={ classicCollapse }>
+        {/* <h2>Classic <b>spPageContextInfo</b> is enabled { this.hideClassicIcon } </h2> */}
+        <h2>Classic <b>spPageContextInfo</b> is enabled</h2>
+        <div>These properties <b>can be deprecated at any time without any notice!  <span style={{ paddingLeft: '20px', color: 'red'}} >USE AT YOUR OWN RISK</span></b>  </div>
+      </div>;
+
+      const modernContextBlock = <div className={ styles.modernContext } onClick={ this.toggleModernWarnHeight.bind(this) }  style={ modernCollapse }>
+        {/* <h2>Modern <b>spPageContextInfo</b> is enabled{ this.hideModernIcon }</h2> */}
+        <h2>Modern <b>spPageContextInfo</b> is enabled</h2>
+      </div>;
+
+
+      if ( spPageContextInfoClassic === true ) {  spPageContextInfoContent.push( <div style={ classicCollapse }>{ classicContextBlock }</div> ) ;  }
+      if ( spPageContextInfoModern === true ) {  spPageContextInfoContent.push( <div style={ modernCollapse }> { modernContextBlock } </div> ) ;  }
+      // if ( spPageContextInfoClassic === true ) {  spPageContextInfoContent.push( { classicContextBlock } ) ;  }
+      // if ( spPageContextInfoModern === true ) {  spPageContextInfoContent.push( { modernContextBlock } ) ;  }
+    }
 
     /***
  *    d8888b.  .d8b.  d8b   db d88888b db      
@@ -754,7 +890,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     return (
       <section className={`${styles.secureScript7} ${hasTeamsContext ? styles.teams : ''}`}>
         { devHeader }
+        { spPageContextInfoContent }
         { Banner }
+        { propsHelp }
         { blockHTML }
         { originalInfo }
         { termsOfUse }
@@ -1027,6 +1165,34 @@ private getProfilePage() {
  *                                                              
  *                                                              
  */
+
+  
+   private toggleClassicWarnHeight( ) : void {
+    let newSetting = this.state.contextWarnClassic === null ? '12px' : null;
+    this.setState( { contextWarnClassic: newSetting } );
+  }
+
+  
+  private toggleModernWarnHeight( ) : void {
+    let newSetting = this.state.contextWarnModern === null ? '12px' : null;
+    this.setState( { contextWarnModern: newSetting } );
+  }
+
+  
+   private hideClassicWarn( ) : void {
+    this.setState( { contextWarnClassic: '0px' } );
+  }
+
+  
+  private hideModernWarn( ) : void {
+    this.setState( { contextWarnModern: '0px' } );
+  }
+
+
+  private togglePropsHelp(){
+      let newState = this.state.showPropsHelp === true ? false : true;
+      this.setState( { showPropsHelp: newState });
+  }
 
   private toggleBlockWarnHeight( ) : void {
     let newSetting = this.state.fullBlockedHeight === true ? false : true;

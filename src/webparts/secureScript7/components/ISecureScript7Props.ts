@@ -44,9 +44,15 @@ export interface ISecureScript7Props {
   errMessage: any;
   bannerProps: IWebpartBannerProps;
 
+  spPageContextInfoClassic: boolean;
+  spPageContextInfoModern: boolean;
+
   //Secure Script Props
   cdnMode: ICDNMode;
   cdnValid: boolean;
+
+  webPicker: string;
+
   libraryPicker: string;
   libraryItemPicker: string;
   approvedLibraries: any[];
@@ -63,8 +69,8 @@ export interface ISecureScript7Props {
   showCodeIcon: boolean;
 
 
-    //ADDED FOR WEBPART HISTORY:  
-    webpartHistory: IWebpartHistory;
+  //ADDED FOR WEBPART HISTORY:  
+  webpartHistory: IWebpartHistory;
 
 }
 
@@ -83,6 +89,10 @@ export interface ISecureScript7State {
 
   fetchInfo: IFetchInfo;
   
+  //Prop Panel Help
+  showPropsHelp: boolean;
+
+
   lastStateChange: string;
   showDevHeader: boolean;
   isSiteAdmin: boolean;
@@ -98,6 +108,8 @@ export interface ISecureScript7State {
   fullBlockedHeight: boolean;
   toggleTag: 'files' | 'tags';
 
+  contextWarnClassic: string;
+  contextWarnModern: string;
   
   scope: IScope;
 

@@ -7,6 +7,8 @@ import {
   IPropertyPaneDropdownOption,
   PropertyPaneDropdown,
   IPropertyPaneDropdownProps,
+  PropertyPaneToggle,
+  PropertyPaneLabel,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
@@ -54,7 +56,7 @@ import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import { approvedSites, throttleAnalytics} from './components/Security20/ApprovedLibraries';
 import { approvedLibraries, } from './components/Security20/ApprovedPropPane';
 
-import { IApprovedCDNs, IFetchInfo, approvedFileTypes } from './components/Security20/interface';
+import { IApprovedCDNs, IFetchInfo, approvedFileTypes, approvedFilePickerTypes } from './components/Security20/interface';
 
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 import { createAdvSecProfile } from './components/Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
@@ -75,8 +77,10 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { IFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { getFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/FPSUser';
 
-require('../../services/propPane/GrayPropPaneAccordions.css');
+import { startPerformInit, startPerformOp, updatePerformanceEnd } from './components/Performance/functions';
+import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './components/Performance/IPerformance';
 
+require('../../services/propPane/GrayPropPaneAccordions.css');
 
 export const repoLink: IRepoLinks = links.gitRepoSecureScript7Small;
 
@@ -125,6 +129,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private  expandoDefault = false;
   private filesList: any = [];
 
+  private exitPropPaneChanged = false;
+
   private fetchInstance: string = Math.floor(Math.random() * 79797979 ).toString();
 
   // private SecureProfile: ISecurityProfile = {
@@ -160,6 +166,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private bannerElement : HTMLDivElement;
   private scriptElement : HTMLDivElement;
 
+  private consoledClassicContext = false;
+  private consoledModernContext = false;
+
+  private performance : ILoadPerformance = null;
 
   /***
  *     .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
@@ -173,7 +183,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
  */
 
   protected onInit(): Promise<void> {
-    
 
     this._environmentMessage = this._getEnvironmentMessage();
 
@@ -186,7 +195,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.domElement.innerHTML = '<div></div>';
     this.domElement.appendChild(this.bannerElement);
     this.domElement.appendChild(this.scriptElement);
-
 
     return super.onInit().then(_ => {
       // other init code may be present
@@ -209,6 +217,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       // sp.setup({
       //   spfxContext: this.context
       // });
+
+      this.performance = startPerformInit( this.properties.spPageContextInfoClassic, this.properties.spPageContextInfoModern, this.properties.forceReloadScripts, this.displayMode, false );
 
       this.urlParameters = getUrlVars();
 
@@ -237,6 +247,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         this.properties.documentationLinkDesc = 'Documentation';
       }
       
+      //Preset this on existing installations
+      // if ( this.properties.forceReloadScripts === undefined || this.properties.forceReloadScripts === null ) {
+      //   this.properties.forceReloadScripts = false;
+      // }
       //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
       this.thisHistoryInstance = createWebpartHistory( 'onInit' , 'new', this.context.pageContext.user.displayName );
       let priorHistory : IWebpartHistoryItem[] = this.properties.webpartHistory ? this.properties.webpartHistory.history : [];
@@ -246,7 +260,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       };
 
       if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
-        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = '"fontSize":"large","color":"black","background":"white","fontWeight":"600"' ; }
+        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = '"fontSize":"large","color":"black","background":"white","height":"45px","fontWeight":"600"' ; }
       }
 
     });
@@ -267,6 +281,25 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   // public render(): void {
   public async render() {
+
+    // CLASSIC CONTEXT LOAD
+    //https://github.com/mikezimm/SecureScript7/issues/71
+    if (this.properties.spPageContextInfoClassic && !window["_spPageContextInfo"]) {
+      window["_spPageContextInfo"] = this.context.pageContext.legacyPageContext;
+    }
+    //This needs to be outside of the previous loop because that seems to get triggered during inital 'view' render before going into edit mode
+    if ( this.displayMode === DisplayMode.Edit && this.consoledClassicContext === false && this.properties.spPageContextInfoClassic  ) { 
+      console.log('spPageContextInfoClassic:', this.context.pageContext.legacyPageContext ); this.consoledClassicContext = true;  }
+
+    // MODERN CONTEXT LOAD
+    //https://github.com/mikezimm/SecureScript7/issues/71
+    if (this.properties.spPageContextInfoModern && !window["_pageContext"]) {
+      window["_pageContextInfo"] = this.context.pageContext;
+    }
+    //This needs to be outside of the previous loop because that seems to get triggered during inital 'view' render before going into edit mode
+    if ( this.displayMode === DisplayMode.Edit && this.consoledModernContext === false && this.properties.spPageContextInfoModern  ) { 
+      console.log('spPageContextInfoModern:', this.context.pageContext ); this.consoledModernContext = true; }
+
     this._unqiueId = this.context.instanceId;
 
     this.properties.replacePanelHTML = visitorPanelInfo( this.properties );
@@ -274,7 +307,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     let errMessage = '';
     this.validDocsContacts = '';
 
-    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + this.properties.documentationLinkUrl ; this.validDocsContacts += 'DocLink,'; }
+    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + ( this.properties.documentationLinkUrl ? this.properties.documentationLinkUrl : 'Empty.  ' ) ; this.validDocsContacts += 'DocLink,'; }
     if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; this.validDocsContacts += 'Contacts,'; }
 
     let errorObjArray :  any[] =[];
@@ -300,8 +333,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       FPSUser: this.FPSUser,
       //this. related info
       context: this.context ,
-      clientWidth: this.domElement.clientWidth,
-      exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl ),
+      clientWidth: ( this.domElement.clientWidth - ( this.displayMode === DisplayMode.Edit ? 250 : 0) ),
+      exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl, ),
 
       //Webpart related info
       panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
@@ -372,11 +405,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     this.snippet = '<mark>Web URL is not valid.</mark>';
   } else {
     // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
-    this.fetchInfo = await fetchSnippetMike( this.context, webPicker, libraryPicker, libraryItemPicker , this.securityProfile );
+    this.fetchInfo = await fetchSnippetMike( this.context, webPicker, libraryPicker, libraryItemPicker , this.securityProfile, this.performance, this.displayMode );
     //Reset fetchInstance which triggers some updates in react component
     this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
   }
-
+  this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
+  // bannerProps.exportProps.performance = this.fetchInfo.performance;
 
   /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
@@ -415,14 +449,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         displayMode: this.displayMode,
         cdnMode: this.cdnMode,
         cdnValid: this.cdnValid, 
+        webPicker: webPicker,
         libraryPicker: libraryPicker,
-        libraryItemPicker: this.properties.libraryItemPicker,
-        fileRelativeUrl: `${libraryPicker}/${this.properties.libraryItemPicker}`,
+        libraryItemPicker: `${this.properties.libraryItemPicker}`, //Fix downstream mutation
+        fileRelativeUrl: `${this.properties.libraryItemPicker}`,
         approvedLibraries: this.approvedLibraries,
         domElement: this.domElement,
         fetchInfo: this.fetchInfo,
         fetchInstance: this.fetchInstance,
         showCodeIcon: showCodeIcon,
+
+        spPageContextInfoClassic: this.properties.spPageContextInfoClassic,
+        spPageContextInfoModern: this.properties.spPageContextInfoModern,
 
       }
     );
@@ -456,12 +494,20 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     } else if ( this.fetchInfo.selectedKey === 'Warn' ) {
       if ( this.displayMode === DisplayMode.Read ) {
-        executeScript(this.scriptElement, this._unqiueId, document );
+
+        this.fetchInfo.performance.jsEval = startPerformOp( 'jsEval' , this.displayMode );
+        executeScript(this.scriptElement, this._unqiueId, document, this.properties.forceReloadScripts );
+        this.fetchInfo.performance.jsEval = updatePerformanceEnd( this.fetchInfo.performance.jsEval, true );
+
         this.saveLoadAnalytics( 'Execute Script', 'Warned', this.fetchInfo, 'Warns' );
       }
     } else {
       if ( this.displayMode === DisplayMode.Read ) {
-        executeScript(this.scriptElement, this._unqiueId, document );
+
+        this.fetchInfo.performance.jsEval = startPerformOp( 'jsEval' , this.displayMode );
+        executeScript(this.scriptElement, this._unqiueId, document, this.properties.forceReloadScripts );
+        this.fetchInfo.performance.jsEval = updatePerformanceEnd( this.fetchInfo.performance.jsEval, true );
+
         this.saveLoadAnalytics( 'Execute Script', this.fetchInfo.selectedKey, this.fetchInfo, 'Views' );
       }
     }
@@ -710,7 +756,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     console.log('getLibraryItemsList', filesLocation );
     // Validate approved location
     // const filesLocation = this.approvedLibraries.filter(loc => loc.key == library)[0];
-    const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/files?$select=Name";
+
+    // /_api/web/lists/getbytitle('" + filesLocation.library + "')/Items?$select=FileLeafRef
+    const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/Items?$select=FileLeafRef,FileRef";
     // const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/files";
 
     return this.context.spHttpClient.get(filesQuery, SPHttpClient.configurations.v1)
@@ -785,12 +833,27 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   // store items
 
                   console.log('onPropertyPaneConfigurationStart: files', files );
-                  this.filesList = [];
-                  this.libraryItemsList = files.map(file => { 
-                    this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
-                    return { key: file.Name, text: file.Name }; }
-                    );
 
+                  this.filesList = [];
+
+                  let items = files.map(file => { 
+                    this.filesList.push( { Name: file.FileLeafRef, id: file['@odata.id'], type: file['@odata.id'] });
+                    return { key: file.FileRef, text: file.FileLeafRef };
+                   });
+      
+                  //Issue #6 & #7
+                  let filteredItems = [];
+      
+                  items.map( item => {
+                    let extension = item.key.substr(item.key.lastIndexOf(".") + 1).toLowerCase();
+                    if ( extension && extension.length > 0 && approvedFilePickerTypes.indexOf(extension) > -1 ) { 
+                      filteredItems.push( item ) ;
+                     }
+                  });
+
+                  this.libraryItemsList = sortObjectArrayByStringKey( filteredItems, 'asc', 'text' );
+      
+                  // enable item selector
                   this.itemsDropdownDisabled = false;
                   this.context.propertyPane.refresh();
                 });
@@ -816,6 +879,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private async _LinkIsValid(url)
   {
+      //Require this is filled out.
+      if ( !url ) { return false; }
+
       var http = new XMLHttpRequest();
       http.open('HEAD', url, false);
       let isValid = true;
@@ -844,9 +910,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   protected async onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any) {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
 
-    if ( propertyPath === 'documentationLinkUrl' ) {
+    if ( propertyPath === 'documentationLinkUrl' || propertyPath === 'fpsImportProps' ) {
       this.properties.documentationIsValid = await this._LinkIsValid( newValue );
-      console.log( `${newValue} ${ this.properties.documentationIsValid === true ? ' IS ' : ' IS NOT ' } Valid `);
+      console.log( `${ newValue ? newValue : 'Empty' } Docs Link ${ this.properties.documentationIsValid === true ? ' IS ' : ' IS NOT ' } Valid `);
       
     } else {
       if ( !this.properties.documentationIsValid ) { this.properties.documentationIsValid = false; }
@@ -868,14 +934,22 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     if ( propertyPath === 'fpsImportProps' ) {
 
-      let result = importProps( this.properties, newValue, [], importBlockProps );
+      if ( this.exitPropPaneChanged === true ) {//Added to prevent re-running this function on import.  Just want re-render. )
+        this.exitPropPaneChanged = false;  //Added to prevent re-running this function on import.  Just want re-render.
 
-      this.importErrorMessage = result.errMessage;
-      if ( result.importError === false ) {
-        this.properties.fpsImportProps = '';
-        this.context.propertyPane.refresh();
+      } else {
+        let result = importProps( this.properties, newValue, [], importBlockProps );
+
+        this.importErrorMessage = result.errMessage;
+        if ( result.importError === false ) {
+          this.properties.fpsImportProps = '';
+          this.context.propertyPane.refresh();
+        }
+        this.exitPropPaneChanged = true;  //Added to prevent re-running this function on import.  Just want re-render.
+        this.onPropertyPaneConfigurationStart();
+        // this.render();
       }
-      this.render();
+
 
     } else if ((propertyPath === 'webPicker') && (newValue) ) {
       this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
@@ -930,9 +1004,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           if (files.length) {
             // store items
             this.filesList = [];
+
             let items = files.map(file => { 
-              this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
-              return { key: file.Name, text: file.Name };
+              this.filesList.push( { Name: file.FileLeafRef, id: file['@odata.id'], type: file['@odata.id'] });
+              return { key: file.FileRef, text: file.FileLeafRef };
              });
 
             //Issue #6 & #7
@@ -940,11 +1015,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
             items.map( item => {
               let extension = item.key.substr(item.key.lastIndexOf(".") + 1).toLowerCase();
-              if ( extension && extension.length > 0 && approvedFileTypes.indexOf(extension) > -1 ) { 
+              if ( extension && extension.length > 0 && approvedFilePickerTypes.indexOf(extension) > -1 ) { 
                 filteredItems.push( item ) ;
                }
             });
-            this.libraryItemsList = sortObjectArrayByStringKey( filteredItems, 'asc', 'key' );
+            this.libraryItemsList = sortObjectArrayByStringKey( filteredItems, 'asc', 'text' );
 
             // enable item selector
             this.itemsDropdownDisabled = false;
@@ -1032,10 +1107,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   label: 'Show Code Audience',
                   options: expandAudienceChoicesAll,
                 }),
+
+                PropertyPaneToggle("forceReloadScripts", {
+                  label: "Force reload scripts every page refresh",
+                  onText: "Enabled",
+                  offText: "Disabled"
+                }),
+
               ]}, // this group
+
             {
               groupName: 'Visitor Help Info (required)',
-              isCollapsed: false,
+              isCollapsed: true,
               groupFields: [
 
                 PropertyPaneDropdown('fullPanelAudience', <IPropertyPaneDropdownProps>{
@@ -1046,6 +1129,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                 PropertyPaneTextField('panelMessageDescription1',{
                   label: 'Panel Description',
                   description: 'Optional message displayed at the top of the panel for the end user to see.'
+                }),
+
+                PropertyPaneTextField('panelMessageSupport',{
+                  label: 'Support Message',
+                  description: 'Optional message to the user when looking for support',
                 }),
 
                 PropertyPaneTextField('panelMessageDocumentation',{
@@ -1069,7 +1157,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                 // }),
 
                 PropertyFieldPeoplePicker('supportContacts', {
-                  label: 'Suppor Contacts',
+                  label: 'Support Contacts',
                   initialData: this.properties.supportContacts,
                   allowDuplicate: false,
                   principalType: [ PrincipalType.Users, ],
@@ -1083,13 +1171,34 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   key: 'peopleFieldId'
                 }),
 
-                PropertyPaneTextField('panelMessageSupport',{
-                  label: 'Support Message',
-                  description: 'Optional message to the user when looking for support',
-                }),
 
 
               ]}, // this group
+
+              {
+                groupName: 'Advanced - Developers only',
+                isCollapsed: true,
+                groupFields: [
+                  PropertyPaneLabel("nothing", {
+                    text: 'If you are not a developer, DO NOT USE.'
+                  }),
+
+                  PropertyPaneToggle("spPageContextInfoClassic", {
+                    label: "Enable classic _spPageContextInfo",
+                    checked: this.properties.spPageContextInfoClassic,
+                    onText: "Enabled",
+                    offText: "Disabled"
+                  }),
+  
+                  PropertyPaneToggle("spPageContextInfoModern", {
+                    label: "Enable modern _spPageContextInfo",
+                    checked: this.properties.spPageContextInfoModern,
+                    onText: "Enabled",
+                    offText: "Disabled"
+                  }),
+  
+              ]}, // this group
+
               FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
               FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
               FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),

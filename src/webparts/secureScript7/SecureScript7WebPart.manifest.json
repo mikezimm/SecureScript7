@@ -31,6 +31,7 @@
       "libraryPicker": "",
       "libraryItemPicker": "",
       "showCodeAudience": "Site Owners",
+      "forceReloadScripts": false,
       "enableExpandoramic": true,
       "expandoDefault": false,
       "expandoStyle": "",

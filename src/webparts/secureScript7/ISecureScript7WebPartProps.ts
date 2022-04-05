@@ -10,6 +10,8 @@ import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/Pro
 
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 
+import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './components/Performance/IPerformance';
+
 export const changeExpando = [ 
   'enableExpandoramic','expandoDefault','expandoStyle', 'expandoPadding', 'expandoAudience',
   ];
@@ -35,7 +37,7 @@ export const exportIgnoreProps = [
 //These props will not be imported even if they are in one of the change arrays above (fail-safe)
 //This was done so user could not manually insert specific props to over-right fail-safes built in to the webpart
 export const importBlockProps = [
-  'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks', 'showRepoLinks', 'showExport', 'fpsImportProps', 'fullPanelAudience', 'documentationIsValid',
+  'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks', 'showRepoLinks', 'showExport', 'fpsImportProps', 'fullPanelAudience', 'documentationIsValid', 'currentWeb'
 ];
 
  //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
@@ -111,6 +113,13 @@ export interface ISecureScript7WebPartProps {
     libraryPicker: string;
     libraryItemPicker: string;
     showCodeAudience: IExpandAudiences;
+
+    spPageContextInfoClassic: boolean;
+    spPageContextInfoModern: boolean;
+
+    forceReloadScripts: boolean;  // 2022-04-04:  Added this to try and resolve https://github.com/mikezimm/SecureScript7/issues/72
+
+    loadPerformance: ILoadPerformance;
 
     fpsImportProps: string;
 

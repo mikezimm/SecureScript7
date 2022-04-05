@@ -57,6 +57,7 @@
 
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
 import { changeScript, changeVisitor, exportIgnoreProps, changeExpando, changeBanner, changefpsOptions1, changefpsOptions2,  } from './ISecureScript7WebPartProps';
+import { ILoadPerformance, IPerformanceOp } from './components/Performance/IPerformance';
 
 
 
@@ -96,13 +97,14 @@ import { changeScript, changeVisitor, exportIgnoreProps, changeExpando, changeBa
  * buildExportProps builds up an object of specific webpart properties that can be exported via the help panel
  * @returns exportObject
  */
- export function buildExportProps( wpProps : ISecureScript7WebPartProps, wpInstanceID: string, currentWeb: string ) {
+ export function buildExportProps( wpProps : ISecureScript7WebPartProps, wpInstanceID: string, currentWeb: string, ) {
     let exportStructure :any = {};
     // let wpInstanceIDSplit = wpInstanceID.split('|');
     // exportStructure.wpInstanceID = [ wpInstanceIDSplit[0], wpInstanceIDSplit[1], wpInstanceIDSplit[3]].join(' ~ ');
 
     exportStructure.wpInstanceID = wpInstanceID;
     exportStructure.currentWeb = currentWeb;
+
 
     exportStructure.Script = changeScript;
 
