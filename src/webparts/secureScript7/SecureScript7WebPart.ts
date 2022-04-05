@@ -56,7 +56,7 @@ import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import { approvedSites, throttleAnalytics} from './components/Security20/ApprovedLibraries';
 import { approvedLibraries, } from './components/Security20/ApprovedPropPane';
 
-import { IApprovedCDNs, IFetchInfo, approvedFileTypes } from './components/Security20/interface';
+import { IApprovedCDNs, IFetchInfo, approvedFileTypes, approvedFilePickerTypes } from './components/Security20/interface';
 
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 import { createAdvSecProfile } from './components/Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
@@ -451,8 +451,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         cdnValid: this.cdnValid, 
         webPicker: webPicker,
         libraryPicker: libraryPicker,
-        libraryItemPicker: this.properties.libraryItemPicker,
-        fileRelativeUrl: `${libraryPicker}/${this.properties.libraryItemPicker}`,
+        libraryItemPicker: `${this.properties.libraryItemPicker}`, //Fix downstream mutation
+        fileRelativeUrl: `${this.properties.libraryItemPicker}`,
         approvedLibraries: this.approvedLibraries,
         domElement: this.domElement,
         fetchInfo: this.fetchInfo,
@@ -758,7 +758,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     // const filesLocation = this.approvedLibraries.filter(loc => loc.key == library)[0];
 
     // /_api/web/lists/getbytitle('" + filesLocation.library + "')/Items?$select=FileLeafRef
-    const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/files?$select=Name";
+    const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/Items?$select=FileLeafRef,FileRef";
     // const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/files";
 
     return this.context.spHttpClient.get(filesQuery, SPHttpClient.configurations.v1)
@@ -833,12 +833,27 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   // store items
 
                   console.log('onPropertyPaneConfigurationStart: files', files );
-                  this.filesList = [];
-                  this.libraryItemsList = files.map(file => { 
-                    this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
-                    return { key: file.Name, text: file.Name }; }
-                    );
 
+                  this.filesList = [];
+
+                  let items = files.map(file => { 
+                    this.filesList.push( { Name: file.FileLeafRef, id: file['@odata.id'], type: file['@odata.id'] });
+                    return { key: file.FileRef, text: file.FileLeafRef };
+                   });
+      
+                  //Issue #6 & #7
+                  let filteredItems = [];
+      
+                  items.map( item => {
+                    let extension = item.key.substr(item.key.lastIndexOf(".") + 1).toLowerCase();
+                    if ( extension && extension.length > 0 && approvedFilePickerTypes.indexOf(extension) > -1 ) { 
+                      filteredItems.push( item ) ;
+                     }
+                  });
+
+                  this.libraryItemsList = sortObjectArrayByStringKey( filteredItems, 'asc', 'text' );
+      
+                  // enable item selector
                   this.itemsDropdownDisabled = false;
                   this.context.propertyPane.refresh();
                 });
@@ -989,9 +1004,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           if (files.length) {
             // store items
             this.filesList = [];
+
             let items = files.map(file => { 
-              this.filesList.push( { Name: file.Name, id: file['@odata.id'], type: file['@odata.id'] });
-              return { key: file.Name, text: file.Name };
+              this.filesList.push( { Name: file.FileLeafRef, id: file['@odata.id'], type: file['@odata.id'] });
+              return { key: file.FileRef, text: file.FileLeafRef };
              });
 
             //Issue #6 & #7
@@ -999,11 +1015,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
             items.map( item => {
               let extension = item.key.substr(item.key.lastIndexOf(".") + 1).toLowerCase();
-              if ( extension && extension.length > 0 && approvedFileTypes.indexOf(extension) > -1 ) { 
+              if ( extension && extension.length > 0 && approvedFilePickerTypes.indexOf(extension) > -1 ) { 
                 filteredItems.push( item ) ;
                }
             });
-            this.libraryItemsList = sortObjectArrayByStringKey( filteredItems, 'asc', 'key' );
+            this.libraryItemsList = sortObjectArrayByStringKey( filteredItems, 'asc', 'text' );
 
             // enable item selector
             this.itemsDropdownDisabled = false;

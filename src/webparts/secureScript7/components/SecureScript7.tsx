@@ -652,8 +652,19 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       let webViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.webPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open Site ]</span>;
       let libViewerLink = <span onClick={() => this.onFileClick( encodeDecodeString(this.props.libraryPicker, 'decode') )} style={{ color: 'blue' , cursor: 'pointer' }}> [ open library ]</span>;
 
+      let displayFile = this.props.libraryItemPicker + '';
+      displayFile = displayFile.replace(`${this.props.libraryPicker}/`,'');
+      let titleFile = displayFile + '';
+
+      let fileFolders = displayFile.split('/');
+      fileFolders.map( (folder, index ) => {
+          folder = index === fileFolders.length -1 ? folder : '..';
+      });
+      displayFile = fileFolders.join('/');
+
       let fileViewerhref = `${this.props.libraryPicker}/Forms/AllItems.aspx?id=${ this.props.fileRelativeUrl }&parent=${this.props.libraryPicker}`;
-      let fileViewerLink = <span onClick={() => this.onFileClick( fileViewerhref )} style={{ color: 'blue' , cursor: 'pointer' }} > [ open file in editor ]</span>;
+      let fileViewerLink = <span onClick={() => this.onFileClick( fileViewerhref )} style={{ color: 'blue' , cursor: 'pointer' }} title={ titleFile }> [ open file in editor ]</span>;
+
       let buttons = [this.toggleRawIcon];
       if ( this.state.showRawHTML !== false ) {
         if ( this.state.toggleTag === 'files' ) {
@@ -674,6 +685,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
       //toggleReload
       const flexStyles: React.CSSProperties = { color: 'darkblue', display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' };
+
       originalInfo = <div style={{ background: '#dddd', padding: '10px 20px 40px 20px',  }}>
         <h2 style={{ color: 'darkblue', display: 'flex' }}>This is the original html <span style={{ display: 'flex', paddingLeft: '30px'}}>{ buttons }</span></h2>
         <div style={ flexStyles }>
@@ -681,7 +693,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
             <ul>
               <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Site:</b>{ ` ${this.props.webPicker}` } { webViewerLink } </li>
               <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>Library:</b>{ ` ${this.props.libraryPicker.replace( this.props.webPicker,'' ) }` } { libViewerLink } </li>
-              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>File:</b> { this.props.libraryItemPicker} {  fileViewerLink }  </li>
+              <li style={{ paddingBottom: '8px', fontSize: 'larger' }}><b>File:</b> { displayFile } {  fileViewerLink }  </li>
               { contextInfo }
             </ul>
           </div>

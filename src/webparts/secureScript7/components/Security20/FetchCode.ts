@@ -164,7 +164,8 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
         if ( webUrl === '' ) { webUrl = '/sites/SecureCDN'; }
 
-        let fileURL = libraryPicker + "/" + libraryItemPicker;
+        // let fileURL = libraryPicker + "/" + libraryItemPicker;
+        let fileURL = libraryItemPicker;
 
         const snippetURLQuery = webUrl + `/_api/web/getFileByServerRelativeUrl('${fileURL}')/$value`;
 

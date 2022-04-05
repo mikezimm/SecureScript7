@@ -295,3 +295,5 @@ export interface ITagInfo {
   //NOTE:  ALWAYS Have approvedFileTypes in lower case for filtering purposes
   export type IApprovedFileType = 'html' | 'css' | 'js' | 'img' | 'link' | 'raw' | 'all' ;
   export const approvedFileTypes : IApprovedFileType[] = [ 'html', 'css', 'js', 'img' , 'link' ];
+
+  export const approvedFilePickerTypes : IApprovedFileType[] = [ 'html', 'js' ]; 
