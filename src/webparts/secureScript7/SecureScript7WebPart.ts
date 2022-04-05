@@ -756,6 +756,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     console.log('getLibraryItemsList', filesLocation );
     // Validate approved location
     // const filesLocation = this.approvedLibraries.filter(loc => loc.key == library)[0];
+
+    // /_api/web/lists/getbytitle('" + filesLocation.library + "')/Items?$select=FileLeafRef
     const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/files?$select=Name";
     // const filesQuery = window.location.origin + filesLocation.siteRelativeURL + "_api/web/lists/getbytitle('" + filesLocation.text + "')/files";
 
