@@ -458,7 +458,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  
     let bannerSuffix = '';
     //Exclude the props.bannerProps.title if the webpart is narrow to make more responsive
-    let bannerTitle = bannerProps.bannerWidth < 900 ? bannerSuffix : `${bannerProps.title} - ${bannerSuffix}`;
+    let bannerTitle = bannerProps.bannerWidth < 900 ? bannerProps.title : `${bannerProps.title} - ${bannerSuffix}`;
     
     if ( bannerTitle === '' ) { bannerTitle = 'Secure Script 7' ; }
     if ( this.props.displayMode === DisplayMode.Edit ) { bannerTitle += ( bannerProps.bannerWidth > 1100 ? ' JS Disabled during Edit' : 'JS Disabled' ) ; }
