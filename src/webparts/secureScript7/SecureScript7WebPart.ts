@@ -21,7 +21,8 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 
 import { createFPSWindowProps, initializeFPSSection, initializeFPSPage, webpartInstance, initializeMinimalStyle } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSDocument';
 
-import { FPSOptionsGroupBasic, FPSBanner2Group, FPSOptionsGroupAdvanced } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup2';
+// import { FPSOptionsGroupBasic, FPSBanner2Group, FPSOptionsGroupAdvanced } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup2';
+import { FPSOptionsGroupBasic, FPSBanner3Group, FPSOptionsGroupAdvanced } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup3';
 import { FPSOptionsExpando, expandAudienceChoicesAll } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando'; //expandAudienceChoicesAll
 
 import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
@@ -70,6 +71,9 @@ import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 
 import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 import { createWebpartHistory, ITrimThis, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
+
+
+import { bannerThemes, bannerThemeKeys, makeCSSPropPaneString, createBannerStyleStr, createBannerStyleObj } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults';
 
 import { saveAnalytics3 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
@@ -260,7 +264,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       };
 
       if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
-        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = '"fontSize":"large","color":"black","background":"white","height":"45px","fontWeight":"600"' ; }
+        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
+        if ( !this.properties.bannerCmdStyle ) { this.properties.bannerCmdStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
       }
 
     });
@@ -932,6 +937,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     // console.log('webpartHistory:', this.thisHistoryInstance, this.properties.webpartHistory );
 
+
     if ( propertyPath === 'fpsImportProps' ) {
 
       if ( this.exitPropPaneChanged === true ) {//Added to prevent re-running this function on import.  Just want re-render. )
@@ -950,6 +956,16 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         // this.render();
       }
 
+    } else if ( propertyPath === 'bannerStyle' || propertyPath === 'bannerCmdStyle' )  {
+      this.properties[ propertyPath ] = newValue;
+      this.context.propertyPane.refresh();
+
+    } else if (propertyPath === 'bannerStyleChoice')  {
+      // bannerThemes, bannerThemeKeys, makeCSSPropPaneString
+
+      this.properties.bannerStyle = createBannerStyleStr( newValue, 'banner' );
+      this.properties.bannerCmdStyle = createBannerStyleStr( newValue, 'cmd' );
+      this.context.propertyPane.refresh();
 
     } else if ((propertyPath === 'webPicker') && (newValue) ) {
       this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
@@ -1199,7 +1215,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   
               ]}, // this group
 
-              FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
+              FPSBanner3Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
               FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
               FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),
   

@@ -101,6 +101,49 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 		goToHomePage( e, this.props.pageContext );		
 	}
 
+	private updateNearElements( keySiteProps: IKeySiteProps ) {
+		if ( this.props.showBannerGear === true ) {
+			this.nearElements.push( <Icon iconName='PlayerSettings' onClick={ this.showSettings.bind(this) } style={ this.props.bannerCmdReactCSS } title="Show Settings quick links and info"></Icon> );
+			this.hasNear = true;
+			this.hasNearOrFar = true;
+			let bannerContent = bannerSettingsContent( this.props.showTricks, this.props.pageContext, keySiteProps, this.props.bannerCmdReactCSS, this.props.bannerWidth );
+			this.settingsContent = bannerContent.content;
+			this.showSettingsAsPivot = bannerContent.showSettingsAsPivot;
+
+		}
+
+		if ( this.props.enableExpandoramic === true ) {
+			let thisIcon = this.props.expandoDefault === true ? 'BackToWindow' : 'ChromeFullScreen';
+			this.nearElements.push( <Icon iconName={'ChromeFullScreen'} onClick={ this._toggleExpando.bind(this) } style={ this.props.bannerCmdReactCSS } title="Toggle Expandoramic Mode"></Icon> );
+			this.hasNear = true;
+			this.hasNearOrFar = true;
+		}
+
+		if ( this.props.onHomePage !== true && this.props.showGoToHome === true ) {
+			let titleHome = 'Go to Home Page of current site';
+			this.hasNear = true;
+			this.hasNearOrFar = true;
+
+			//This is the easy fix that assumes the page is not in a folder in site pages.
+			this.nearElements.push(<div style={{ paddingRight: null }} className={ '' } title={ titleHome } >
+				<Icon iconName='Home' onClick={ this.jumpToHomePage.bind(this) } style={ this.props.bannerCmdReactCSS }></Icon>
+			</div>);
+		}
+
+		if ( this.props.showGoToParent === true && this.props.pageContext.site.absoluteUrl !== this.props.pageContext.web.absoluteUrl ) {
+			let title = 'Go to parent site';
+			this.hasNear = true;
+			this.hasNearOrFar = true;
+
+			this.nearElements.push(<div style={{ paddingRight: null }} className={ '' } title={ title}>
+				<Icon iconName='Up' onClick={ this.jumpToParentSite.bind(this) } style={ this.props.bannerCmdReactCSS }></Icon>
+			</div>);
+
+		}
+		
+		this.nearElements.push(...this.props.nearElements );
+	}
+
     constructor(props: IWebpartBannerProps) {
 			super(props);
 			
@@ -137,46 +180,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				BrokenPermissions: null, // TBD
 			};
 
-			if ( this.props.showBannerGear === true ) {
-				this.nearElements.push( <Icon iconName='PlayerSettings' onClick={ this.showSettings.bind(this) } style={ this.props.bannerCommandStyles } title="Show Settings quick links and info"></Icon> );
-				this.hasNear = true;
-				this.hasNearOrFar = true;
-				let bannerContent = bannerSettingsContent( this.props.showTricks, this.props.pageContext, keySiteProps, this.props.bannerCommandStyles, this.props.bannerWidth );
-				this.settingsContent = bannerContent.content;
-				this.showSettingsAsPivot = bannerContent.showSettingsAsPivot;
-
-			}
-
-			if ( this.props.enableExpandoramic === true ) {
-				let thisIcon = this.props.expandoDefault === true ? 'BackToWindow' : 'ChromeFullScreen';
-				this.nearElements.push( <Icon iconName={'ChromeFullScreen'} onClick={ this._toggleExpando.bind(this) } style={ this.props.bannerCommandStyles } title="Toggle Expandoramic Mode"></Icon> );
-				this.hasNear = true;
-				this.hasNearOrFar = true;
-			}
-
-			if ( this.props.onHomePage !== true && this.props.showGoToHome === true ) {
-				let titleHome = 'Go to Home Page of current site';
-				this.hasNear = true;
-				this.hasNearOrFar = true;
-
-				//This is the easy fix that assumes the page is not in a folder in site pages.
-				this.nearElements.push(<div style={{ paddingRight: null }} className={ '' } title={ titleHome } >
-					<Icon iconName='Home' onClick={ this.jumpToHomePage.bind(this) } style={ this.props.bannerCommandStyles }></Icon>
-				</div>);
-			}
-	
-			if ( this.props.showGoToParent === true && this.props.pageContext.site.absoluteUrl !== this.props.pageContext.web.absoluteUrl ) {
-				let title = 'Go to parent site';
-				this.hasNear = true;
-				this.hasNearOrFar = true;
-	
-				this.nearElements.push(<div style={{ paddingRight: null }} className={ '' } title={ title}>
-					<Icon iconName='Up' onClick={ this.jumpToParentSite.bind(this) } style={ this.props.bannerCommandStyles }></Icon>
-				</div>);
-	
-			}
-			
-			this.nearElements.push(...this.props.nearElements );
+			this.updateNearElements( keySiteProps );
 
 			this.state = {
 				keySiteProps: keySiteProps,
@@ -189,15 +193,16 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 		}
 
 		// Tried this to get it to update when prop pane was changed but it does
-		// public componentDidUpdate(prevProps){
+		public componentDidUpdate(prevProps){
 			
-			// let rebuild = false;
-			// if ( this.props.enableExpandoramic !== prevProps.enableExpandoramic ) { rebuild = true ; }
-			// if ( this.props.expandoDefault !== prevProps.expandoDefault ) { rebuild = true ; }
-			// if ( this.props.expandoStyle !== prevProps.expandoStyle ) { rebuild = true ; }
+			let rebuildNearElements = false;
+			if ( JSON.stringify(this.props.bannerCmdReactCSS) !== JSON.stringify(prevProps.bannerCmdReactCSS) ) { 
+				this.updateNearElements( this.state.keySiteProps );
+				rebuildNearElements = true ;
+			}
 
-			// this.setState({});
-		// }
+			this.setState({});
+		}
 
 		public render(): React.ReactElement<IWebpartBannerProps> {
 		const { showBanner, showTricks, showRepoLinks } = this.props;
@@ -207,7 +212,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			return (null);
 		} else {
 
-				
+
 			//  Estimated width pixels used by banner.  Used to determine max size of the title component.
 			let usedWidth = 40; //20px padding on outside of all elements
 			usedWidth += this.nearElements.length * 43 + this.props.farElements.length * 43;  //Add 45px per icon button
@@ -227,7 +232,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			let bannerStyle: React.CSSProperties = {};
 			if ( this.props.bannerReactCSS ) { bannerStyle = this.props.bannerReactCSS ; } 
 			else if ( this.props.styleString ) { bannerStyle = createStyleFromString( this.props.styleString, { background: 'green' }, 'bannerStyle in banner/component.tsx ~ 81' ); }
-			
+
 			if ( !bannerStyle.height ) { bannerStyle.height = '35px' ; }
 			if ( !bannerStyle.paddingLeft ) { bannerStyle.paddingLeft = '20px' ; }
 			if ( !bannerStyle.paddingRight ) { bannerStyle.paddingRight = '20px' ; }

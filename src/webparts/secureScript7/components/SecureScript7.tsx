@@ -433,13 +433,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
    // let farBannerElementsArray = [];
     let farBannerElementsArray = [...this.farBannerElements,
-      this.props.showCodeIcon !== true ? null : <div title={'Show Code Details'}><Icon iconName={ 'Code' } onClick={ this.toggleOriginal.bind(this) } style={ defaultBannerCommandStyles }></Icon></div>,
+      this.props.showCodeIcon !== true ? null : <div title={'Show Code Details'}><Icon iconName={ 'Code' } onClick={ this.toggleOriginal.bind(this) } style={ bannerProps.bannerCmdReactCSS }></Icon></div>,
     ];
 
 
     if ( this.props.displayMode === DisplayMode.Edit ) {
       farBannerElementsArray.push( 
-        <Icon iconName='OpenEnrollment' onClick={ this.togglePropsHelp.bind(this) } style={ defaultBannerCommandStyles }></Icon>
+        <Icon iconName='OpenEnrollment' onClick={ this.togglePropsHelp.bind(this) } style={ bannerProps.bannerCmdReactCSS }></Icon>
       );
     }
 
@@ -737,7 +737,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       title ={ bannerTitle }
       panelTitle = { bannerProps.panelTitle }
       bannerReactCSS={ bannerProps.bannerReactCSS }
-      bannerCommandStyles={ defaultBannerCommandStyles }
+      bannerCmdReactCSS={ bannerProps.bannerCmdReactCSS }
       showTricks={ bannerProps.showTricks }
       showGoToParent={ bannerProps.showGoToParent }
       showGoToHome={ bannerProps.showGoToHome }
