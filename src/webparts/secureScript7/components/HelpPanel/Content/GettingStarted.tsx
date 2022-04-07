@@ -14,6 +14,8 @@ import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../ba
 
 export function gettingStartedContent( repoLinks: IRepoLinks ) {
 
+    return null;
+    
     let html1 = <div>
         {/* Set to light yellow */}
         <div style={{ background: '#FEF9E7', padding: '10px' }}> 

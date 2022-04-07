@@ -37,6 +37,8 @@
       "expandoStyle": "",
       "expandoPadding": 20,
       "bannerTitle": "",
+      "bannerStyleChoice": "defaultBannerCommandStyles",
+      "bannerCmdStyle": "",
       "bannerStyle": "",
       "showBanner": true,
       "showGoToHome": true,

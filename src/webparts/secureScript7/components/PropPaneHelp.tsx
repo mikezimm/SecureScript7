@@ -204,10 +204,18 @@ export const WebPartHelpElement = <div>
           <div className={ styles.topic}>Show 'Go to Parent Site' <Icon iconName='Up'></Icon> Icon</div>
           <div>Displays the <Icon iconName='Up'></Icon> when you are not on the site's home page.</div>
 
-          <div className={ styles.topic}>Go to Home, Parent audience</div>
+          <div className={ styles.topic}>Gear, Go to Home, Parent audience</div>
           <div>Minimum permissions requied to see the Home and Parent site icons.</div>
           <div>Use this to hide buttons from visitors if your Secure Script Web part is more of a single page app and you want to hide the site from a typical visitor.</div>
           <div>NOTE:  Site Admins will always see the icons.</div>
+          <ul>
+            <li>Site Owners: have manageWeb permissions</li>
+            <li>Page Editors: have addAndCustomizePages permissions</li>
+            <li>Item Editors: have addListItems permissions</li>
+          </ul>
+          
+          
+          
 
           <div className={ styles.topic}>Style options</div>
           <div><mark><b>NOTE:</b></mark> May be required depending on our policy for this web part</div>
@@ -263,9 +271,9 @@ export const WebPartHelpElement = <div>
           <div className={ styles.topic}><b></b>Expandoramic Audience</div>
           <div><b>NOTE:</b> Site Admins will always see all icons regardless of the Toggles or the audience.</div>
           <ul>
-            <li>Site Owners:  must have manageWeb permissions</li>
-            <li>Page Editors: must have has addAndCustomizePages permissions</li>
-            <li>Item Editors: must have has addListItems permissions</li>
+            <li>Site Owners: have manageWeb permissions</li>
+            <li>Page Editors: have addAndCustomizePages permissions</li>
+            <li>Item Editors: have addListItems permissions</li>
           </ul>
 
           <div className={ styles.topic}><b>Style options and Hover Effect</b> are for SharePoint IT use only.</div>

@@ -5,7 +5,7 @@ import { IWebpartBannerProps, } from '@mikezimm/npmfunctions/dist/HelpPanel/onNp
 
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
 
-import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
+import { IWebpartHistory, IWebpartHistoryItem2, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 
 import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, } from './Security20/interface';
 

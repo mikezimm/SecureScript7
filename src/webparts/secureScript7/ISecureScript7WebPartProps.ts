@@ -3,7 +3,7 @@
 
 import { IExpandAudiences } from "@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando";
 
-import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
+import { IWebpartHistory, IWebpartHistoryItem2, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
 
 import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker";
@@ -20,7 +20,7 @@ export const changeExpando = [
 
 export const changeVisitor = [ 'panelMessageDescription1', 'panelMessageSupport', 'panelMessageDocumentation', 'documentationLinkDesc', 'documentationLinkUrl', 'documentationIsValid', 'supportContacts' ];
 
-export const changeBanner = [ 'bannerTitle', 'bannerStyle', 'showBanner', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerHoverEffect', 'showRepoLinks', 'showExport' ];
+export const changeBanner = [ 'showBanner', 'bannerTitle', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerStyleChoice', 'bannerStyle', 'bannerCmdStyle', 'bannerHoverEffect', 'showRepoLinks', 'showExport' ];
 
 export const changefpsOptions1 = [  'searchShow', 'quickLaunchHide', 'pageHeaderHide', 'allSectionMaxWidthEnable', 'allSectionMaxWidth', 'allSectionMarginEnable', 'allSectionMargin', 'toolBarHide', ];
 
@@ -43,6 +43,9 @@ export const importBlockProps = [
  //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
 //  export type IExpandAudiences = 'Site Admins' | 'Site Owners' | 'Page Editors' | 'WWWone';
 
+
+
+
 export interface ISecureScript7WebPartProps {
     description: string;
   
@@ -63,13 +66,22 @@ export interface ISecureScript7WebPartProps {
     // Section 15
     //General settings for Banner Options group
     // export interface IWebpartBannerProps {
-      bannerTitle: string;
-      bannerStyle: string;
+
+    //[ 'showBanner', 'bannerTitle', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerStyleChoice', 'bannerStyle', 'bannerCmdStyle', 'bannerHoverEffect', 'showRepoLinks', 'showExport' ];
       showBanner: boolean;
-  
+      bannerTitle: string;
+
       showGoToHome: boolean;  //defaults to true
       showGoToParent: boolean;  //defaults to true
       homeParentGearAudience: IExpandAudiences;
+
+      bannerStyleChoice: string;
+      bannerStyle: string;
+      bannerCmdStyle: string;
+
+      bannerHoverEffect: boolean;
+      showRepoLinks: boolean;
+      showExport: boolean;
 
       fullPanelAudience : IExpandAudiences;
       replacePanelHTML : any;  //This is the jsx sent to panel for User controled information (aka what reader will see when clicking 'info' button)
@@ -86,11 +98,9 @@ export interface ISecureScript7WebPartProps {
       //ADDED FOR WEBPART HISTORY:  
       webpartHistory: IWebpartHistory;
 
-      bannerHoverEffect: boolean;
+
       showTricks: boolean;
 
-      showRepoLinks: boolean;
-      showExport: boolean;
     // }
   
     //Section 16 - FPS Options group
@@ -123,5 +133,4 @@ export interface ISecureScript7WebPartProps {
 
     fpsImportProps: string;
 
-  
   }
