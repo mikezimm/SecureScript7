@@ -768,6 +768,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       expandAlert = { bannerProps.expandAlert }
       expandConsole = { bannerProps.expandConsole }
       expandoPadding = { bannerProps.expandoPadding }
+      beAUser = { bannerProps.beAUser }
+      showBeAUserIcon = { bannerProps.showBeAUserIcon }
+       beAUserFunction={ bannerProps.beAUserFunction }
 
     ></WebpartBanner>;
 

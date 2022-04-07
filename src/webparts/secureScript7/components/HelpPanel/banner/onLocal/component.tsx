@@ -121,6 +121,12 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 	private updateNearElements( keySiteProps: IKeySiteProps ) {
 		this.nearElements = [];
 
+		if ( this.props.showBeAUserIcon === true && this.props.beAUserFunction ) {
+			this.nearElements.push( <Icon iconName='Glasses' onClick={ this.props.beAUserFunction } style={ this.props.bannerCmdReactCSS } title="Simulate a typical visitor experience"></Icon> );
+			this.hasNear = true;
+			this.hasNearOrFar = true;
+		}
+
 		if ( this.props.showBannerGear === true ) {
 			this.nearElements.push( <Icon iconName='PlayerSettings' onClick={ this.showSettings.bind(this) } style={ this.props.bannerCmdReactCSS } title="Show Settings quick links and info"></Icon> );
 			this.hasNear = true;
@@ -219,6 +225,13 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 			if ( this.props.webpartHistory.thisInstance && ( JSON.stringify( this.props.webpartHistory.thisInstance.changes ) !==
 				JSON.stringify(prevProps.webpartHistory.thisInstance.changes ) ) ) { rebuildNearElements = true; }
+
+			if ( this.props.beAUser != prevProps.beAUser ) { rebuildNearElements = true; }
+
+			if ( this.props.hoverEffect != prevProps.hoverEffect ) { 
+				rebuildNearElements = true;
+				this.hoverEffect = this.props.hoverEffect === false ? false : true;
+			 }
 
 			if ( rebuildNearElements ) { 
 				this.updateNearElements( this.state.keySiteProps );
