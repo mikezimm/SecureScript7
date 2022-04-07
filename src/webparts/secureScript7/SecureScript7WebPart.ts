@@ -376,13 +376,13 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     }
     } );
 
-  this.properties.showBannerGear = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.homeParentGearAudience, null);
+  this.properties.showBannerGear = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.homeParentGearAudience, null, this.beAReader );
   let bannerSetup = buildBannerProps( this.properties , this.FPSUser, buildBannerSettings, showTricks );
   errMessage = bannerSetup.errMessage;
   let bannerProps = bannerSetup.bannerProps;
   let expandoErrorObj = bannerSetup.errorObjArray;
 
-  let showCodeIcon = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.showCodeAudience , null );
+  let showCodeIcon = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.showCodeAudience , null, this.beAReader );
 
   // let legacyPageContext = this.context.pageContext.legacyPageContext;
 
@@ -1233,7 +1233,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   
               ]}, // this group
 
-              FPSBanner3Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
+              FPSBanner3Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true, this.properties.lockStyles ),
               FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
               FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),
   
