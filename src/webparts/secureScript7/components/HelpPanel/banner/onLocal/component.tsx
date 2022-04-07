@@ -11,6 +11,7 @@ import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 
 import { getHelpfullErrorV2 } from "@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler";
 import { createStyleFromString, getReactCSSFromString } from "@mikezimm/npmfunctions/dist/Services/PropPane/StringToReactCSS";
+import { IWebpartHistoryItem2, IWebpartHistory } from "@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface";
 
 import { bannerSettingsContent } from './bannerGearFunctions';
 
@@ -19,6 +20,7 @@ import { goToParentSite, goToHomePage } from "@mikezimm/npmfunctions/dist/Servic
 
 import { devTable } from '@mikezimm/npmfunctions/dist/Links/Developer';
 import { setExpandoRamicMode } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSExpandoramic';
+import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
 
 import { QuichHelpVCard, AssetCard } from '../Cards/AssetCard';
 
@@ -61,6 +63,7 @@ const pivotHeading6 = 'Errors';  //Templates
 const pivotHeading7 = 'Tricks';  //Templates
 const pivotHeading8 = 'About';  //Templates
 const pivotHeading9 = 'Export';  //Templates
+const pivotHeadingA = 'History';  //Templates
 
 export default class WebpartBanner extends React.Component<IWebpartBannerProps, IWebpartBannerState > {
 
@@ -91,6 +94,20 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 	private isSiteAdmin = this.props.pageContext.legacyPageContext.isSiteAdmin;
 	private isSiteOwner = this.isSiteAdmin === true ? true : this.props.pageContext.legacyPageContext.isSiteOwner;
 
+	private createHistoryItem( item: IWebpartHistoryItem2 ) {
+
+		if ( item.changes.length === 0 ) { return  null ; }
+		const changes = item.changes.map( ( change, idx ) => {
+			return <tr><td>{change.prop} : </td> <td>{ change.value ? change.value : 'Empty' }</td></tr>;
+		});
+
+		return <div className={ styles.historyItem }>
+			<div>{ item.user } : { new Date ( item.time ).toLocaleString() }</div>
+			<table>{ changes }</table>
+		</div>;
+
+	}
+
 	private jumpToParentSite(  ) {
 		let e: any = event;
 		goToParentSite( e, this.props.pageContext );		
@@ -102,11 +119,13 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 	}
 
 	private updateNearElements( keySiteProps: IKeySiteProps ) {
+		this.nearElements = [];
+
 		if ( this.props.showBannerGear === true ) {
 			this.nearElements.push( <Icon iconName='PlayerSettings' onClick={ this.showSettings.bind(this) } style={ this.props.bannerCmdReactCSS } title="Show Settings quick links and info"></Icon> );
 			this.hasNear = true;
 			this.hasNearOrFar = true;
-			let bannerContent = bannerSettingsContent( this.props.showTricks, this.props.pageContext, keySiteProps, this.props.bannerCmdReactCSS, this.props.bannerWidth );
+			let bannerContent = bannerSettingsContent( this.props.showTricks, this.props.pageContext, keySiteProps, defaultBannerCommandStyles, this.props.bannerWidth );
 			this.settingsContent = bannerContent.content;
 			this.showSettingsAsPivot = bannerContent.showSettingsAsPivot;
 
@@ -189,24 +208,31 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				panelType: PanelType.medium,
 				showSettings: false,
 				expandoramicMode: this.props.enableExpandoramic === true && this.props.expandoDefault === true ? true : false ,
+				renderCount: 0,
 			};
 		}
 
 		// Tried this to get it to update when prop pane was changed but it does
 		public componentDidUpdate(prevProps){
 			
-			let rebuildNearElements = false;
-			if ( JSON.stringify(this.props.bannerCmdReactCSS) !== JSON.stringify(prevProps.bannerCmdReactCSS) ) { 
+			let rebuildNearElements = JSON.stringify(this.props.bannerCmdReactCSS) !== JSON.stringify(prevProps.bannerCmdReactCSS) ? true : false;
+
+			if ( this.props.webpartHistory.thisInstance && ( JSON.stringify( this.props.webpartHistory.thisInstance.changes ) !==
+				JSON.stringify(prevProps.webpartHistory.thisInstance.changes ) ) ) { rebuildNearElements = true; }
+
+			if ( rebuildNearElements ) { 
 				this.updateNearElements( this.state.keySiteProps );
 				rebuildNearElements = true ;
+				let renderCount= this.state.renderCount +1;
+				this.setState({ renderCount: renderCount });
 			}
 
-			this.setState({});
+
 		}
 
 		public render(): React.ReactElement<IWebpartBannerProps> {
 		const { showBanner, showTricks, showRepoLinks } = this.props;
-		const { showPanel } = this.state;
+		let showPanel = this.state.showPanel;
 
 		if ( showBanner !== true ) {
 			return (null);
@@ -328,12 +354,37 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				} else if ( this.state.selectedKey === pivotHeading9 ) {  //2022-01-31: Added Pivot Tiles
 						content= <div id="CommandsJSONPanel" style={{paddingTop: '20px'}}>
 							<h3>Summary of Exportable Properties</h3>
-							<ReactJson src={ this.props.webpartHistory } name={ 'Webpart History' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
 							<ReactJson src={ this.props.exportProps } name={ 'Export Properties' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+							<ReactJson src={ this.props.webpartHistory } name={ 'Webpart History' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
 						</div>;
+				} else if ( this.state.selectedKey === pivotHeadingA ) {  //2022-01-31: Added Pivot Tiles
+					let thisInstance = this.createHistoryItem( this.props.webpartHistory.thisInstance  );
+					let thisInstanceChanges = this.props.webpartHistory.thisInstance.changes.length === 0 ? null : <div>
+						<div style={{fontSize: 'large', textDecoration: 'underline' }}>This edit session</div>
+						{ thisInstance }
+					</div>;
+
+					let priorHistoryChanges = null;
+					if ( this.props.webpartHistory.history && this.props.webpartHistory.history.length > 0 ) {
+						let priorHistory = [];
+						this.props.webpartHistory.history.map( ( item ) => {
+							if ( this.props.webpartHistory.thisInstance.time !== item.time ) {
+								priorHistory.push ( this.createHistoryItem( item ) );
+							}
+						});
+						priorHistoryChanges = <div>
+							<div style={{fontSize: 'large', textDecoration: 'underline' }}>Previous edit sessions</div>
+							{ priorHistory }
+						</div>;
+					}
+
+					content= <div id="HistoryPanel" style={{paddingTop: '20px'}}>
+						{ thisInstanceChanges }
+						{ priorHistoryChanges }
+					</div>;
 				}
 
-				if ( this.state.selectedKey === pivotHeading9 || this.state.selectedKey === pivotHeadingX ) {
+				if ( this.state.selectedKey === pivotHeading9 || this.state.selectedKey === pivotHeadingA || this.state.selectedKey === pivotHeadingX ) {
 					thisPage = content;
 
 				} else {
@@ -371,6 +422,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 
 				let showExport = this.props.showExport === true && this.props.exportProps !== null ? true : false;
+				let showHistory = this.props.webpartHistory ? true : false;
 
 				panelContent = <div style={{ paddingBottom: '50px' } }>
 					{ earlyAccess }
@@ -407,6 +459,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 						{ showTricks !== true || this.tricks === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={pivotHeading7} itemIcon={ 'AutoEnhanceOn' }/> }
 						{ this.about 				 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'Info' }/> }
 						{ showExport !== true ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={pivotHeading9} itemIcon={ 'Export' }/> }
+						{ showHistory !== true ? null : <PivotItem headerText={ null } ariaLabel={pivotHeadingA} title={pivotHeadingA} itemKey={pivotHeadingA} itemIcon={ 'FullHistory' }/> }
 					</Pivot>
 					{ thisPage }
 				</div>;

@@ -69,8 +69,8 @@ import { executeScript } from './components/Security20/EvalScripts20';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 
-import { IWebpartHistory, IWebpartHistoryItem, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
-import { createWebpartHistory, ITrimThis, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
+import { IWebpartHistory, IWebpartHistoryItem2 } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
+import { createWebpartHistory, ITrimThis, updateWebpartHistory, upgradeV1History } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
 
 
 import { bannerThemes, bannerThemeKeys, makeCSSPropPaneString, createBannerStyleStr, createBannerStyleObj } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults';
@@ -160,7 +160,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private approvedWebs = [];
 
   //ADDED FOR WEBPART HISTORY:  
-  private thisHistoryInstance: IWebpartHistoryItem = null;
+  private thisHistoryInstance: IWebpartHistoryItem2 = null;
 
   private snippet: string = '';
   private fetchInfo: IFetchInfo = null;
@@ -257,7 +257,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       // }
       //ADDED FOR WEBPART HISTORY:  This sets the webpartHistory
       this.thisHistoryInstance = createWebpartHistory( 'onInit' , 'new', this.context.pageContext.user.displayName );
-      let priorHistory : IWebpartHistoryItem[] = this.properties.webpartHistory ? this.properties.webpartHistory.history : [];
+      let priorHistory : IWebpartHistoryItem2[] = this.properties.webpartHistory ? upgradeV1History( this.properties.webpartHistory ).history : [];
       this.properties.webpartHistory = {
         thisInstance: this.thisHistoryInstance,
         history: priorHistory,
