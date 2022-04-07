@@ -175,6 +175,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private performance : ILoadPerformance = null;
 
+  private beAReader: boolean = false; //2022-04-07:  Intent of this is a one-time per instance to 'become a reader' level user.  aka, hide banner buttons that reader won't see
+
   /***
  *     .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
  *    .8P  Y8. 888o  88   `88'   888o  88   `88'   `~~88~~' 
@@ -232,6 +234,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true && this.displayMode === DisplayMode.Read ? true : false;
       if ( this.urlParameters.Mode === 'Edit' ) { this.expandoDefault = false; }
       let expandoStyle: any = {};
+
+      //2022-04-07:  Could use the function for parsing JSON for this... check npmFunctions
       try {
         expandoStyle = JSON.parse( this.properties.expandoStyle );
 
@@ -262,6 +266,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         thisInstance: this.thisHistoryInstance,
         history: priorHistory,
       };
+
+      //This updates unlocks styles only when bannerStyleChoice === custom.  Rest are locked in the ui.
+      if ( this.properties.bannerStyleChoice === 'custom' ) { this.properties.lockStyles = false } else { this.properties.lockStyles = true; }
 
       if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
         if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
@@ -963,8 +970,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     } else if (propertyPath === 'bannerStyleChoice')  {
       // bannerThemes, bannerThemeKeys, makeCSSPropPaneString
 
-      this.properties.bannerStyle = createBannerStyleStr( newValue, 'banner' );
-      this.properties.bannerCmdStyle = createBannerStyleStr( newValue, 'cmd' );
+      if ( newValue === 'custom' ) {
+        this.properties.lockStyles = false;
+
+      } else if ( newValue === 'lock') {
+        this.properties.lockStyles = true;
+
+      } else {
+        this.properties.lockStyles = true;
+        this.properties.bannerStyle = createBannerStyleStr( newValue, 'banner' );
+        this.properties.bannerCmdStyle = createBannerStyleStr( newValue, 'cmd' );
+
+      }
+
       this.context.propertyPane.refresh();
 
     } else if ((propertyPath === 'webPicker') && (newValue) ) {

@@ -20,7 +20,7 @@ export const changeExpando = [
 
 export const changeVisitor = [ 'panelMessageDescription1', 'panelMessageSupport', 'panelMessageDocumentation', 'documentationLinkDesc', 'documentationLinkUrl', 'documentationIsValid', 'supportContacts' ];
 
-export const changeBanner = [ 'showBanner', 'bannerTitle', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerStyleChoice', 'bannerStyle', 'bannerCmdStyle', 'bannerHoverEffect', 'showRepoLinks', 'showExport' ];
+export const changeBanner = [ 'showBanner', 'bannerTitle', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerStyleChoice', 'bannerStyle', 'bannerCmdStyle', 'bannerHoverEffect', 'showRepoLinks', 'showExport', 'lockStyles' ];
 
 export const changefpsOptions1 = [  'searchShow', 'quickLaunchHide', 'pageHeaderHide', 'allSectionMaxWidthEnable', 'allSectionMaxWidth', 'allSectionMarginEnable', 'allSectionMargin', 'toolBarHide', ];
 
@@ -78,6 +78,7 @@ export interface ISecureScript7WebPartProps {
       bannerStyleChoice: string;
       bannerStyle: string;
       bannerCmdStyle: string;
+      lockStyles: boolean;
 
       bannerHoverEffect: boolean;
       showRepoLinks: boolean;
