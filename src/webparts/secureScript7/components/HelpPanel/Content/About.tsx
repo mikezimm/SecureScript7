@@ -33,7 +33,7 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      */
 
 
-    table.rows.push( createAboutRow('2022-04-08',"1.0.1.18","#88 - Be a visitor mode", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('2022-04-08',"1.0.1.18","#79, #80, #88 - Be a visitor mode", showRepoLinks === true ? repoLinks : null ) );
 
     table.rows.push( createAboutRow('2022-04-05',"1.0.1.17","#82 - why, #66, #84, #85, #86 Banner Styles and History", showRepoLinks === true ? repoLinks : null ) );
 

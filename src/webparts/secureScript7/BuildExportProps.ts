@@ -56,7 +56,7 @@
 //    } from './IPivottiles7WebPartProps';
 
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
-import { changeScript, changeVisitor, exportIgnoreProps, changeExpando, changeBanner, changefpsOptions1, changefpsOptions2,  } from './ISecureScript7WebPartProps';
+import { changeScript, changeVisitor, exportIgnoreProps, changeExpando, changeBanner, changefpsOptions1, changefpsOptions2, changeAdvanced } from './ISecureScript7WebPartProps';
 import { ILoadPerformance, IPerformanceOp } from './components/Performance/IPerformance';
 
 
@@ -110,10 +110,15 @@ import { ILoadPerformance, IPerformanceOp } from './components/Performance/IPerf
 
     exportStructure.Visitor = changeVisitor;
 
-    exportStructure.Expando = changeExpando;
+    exportStructure.Advanced = changeAdvanced;
+
+
     exportStructure.Banner = changeBanner;
 
     exportStructure.fpsOptions1 = changefpsOptions1;
+    
+    exportStructure.Expando = changeExpando;
+
     exportStructure.fpsOptions2 = changefpsOptions2;
 
     let exportObject = createExportObject( exportStructure, wpProps, exportIgnoreProps, false );

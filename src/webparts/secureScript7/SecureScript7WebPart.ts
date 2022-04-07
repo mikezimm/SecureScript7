@@ -545,7 +545,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
       this.executedScript = true;
     } else {
-      console.log('Already loaded and rendered the script.  Only can do once.')
+      console.log('Already loaded and rendered the script.  Only can do once.');
     }
 
   }
