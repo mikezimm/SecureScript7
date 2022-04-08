@@ -121,6 +121,12 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 	private updateNearElements( keySiteProps: IKeySiteProps ) {
 		this.nearElements = [];
 
+		if ( this.props.showBeAUserIcon === true && this.props.beAUserFunction ) {
+			this.nearElements.push( <Icon iconName='Glasses' onClick={ this.props.beAUserFunction } style={ this.props.bannerCmdReactCSS } title="Simulate a typical visitor experience"></Icon> );
+			this.hasNear = true;
+			this.hasNearOrFar = true;
+		}
+
 		if ( this.props.showBannerGear === true ) {
 			this.nearElements.push( <Icon iconName='PlayerSettings' onClick={ this.showSettings.bind(this) } style={ this.props.bannerCmdReactCSS } title="Show Settings quick links and info"></Icon> );
 			this.hasNear = true;
@@ -220,14 +226,20 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			if ( this.props.webpartHistory.thisInstance && ( JSON.stringify( this.props.webpartHistory.thisInstance.changes ) !==
 				JSON.stringify(prevProps.webpartHistory.thisInstance.changes ) ) ) { rebuildNearElements = true; }
 
+			if ( this.props.beAUser != prevProps.beAUser ) { rebuildNearElements = true; }
+			if ( this.props.infoElement != prevProps.infoElement ) { rebuildNearElements = true; }
+
+			if ( this.props.hoverEffect != prevProps.hoverEffect ) { 
+				rebuildNearElements = true;
+				this.hoverEffect = this.props.hoverEffect === false ? false : true;
+			 }
+
 			if ( rebuildNearElements ) { 
 				this.updateNearElements( this.state.keySiteProps );
 				rebuildNearElements = true ;
 				let renderCount= this.state.renderCount +1;
 				this.setState({ renderCount: renderCount });
 			}
-
-
 		}
 
 		public render(): React.ReactElement<IWebpartBannerProps> {
@@ -238,20 +250,26 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			return (null);
 		} else {
 
-
 			//  Estimated width pixels used by banner.  Used to determine max size of the title component.
 			let usedWidth = 40; //20px padding on outside of all elements
 			usedWidth += this.nearElements.length * 43 + this.props.farElements.length * 43;  //Add 45px per icon button
 			// usedWidth += 40; //Padding between near/far elements and the text part of heading
 			let remainingWidth = this.props.bannerWidth - usedWidth - 40;
 
-			let moreInfoText = this.props.bannerWidth > 700 ? 'More Information' : 'Info';
+			let moreInfoText: string = this.props.infoElement ? this.props.infoElement : 'More Information';
+
+			
 			let bannerTitleText = this.props.title && this.props.title.length > 0 ? this.props.title : 'FPS Webpart';
 			let textWidth = ( moreInfoText.length + bannerTitleText.length ) * 19 + 40; //characters * 19px + 40 padding
 
 			//  If space between < estimated space needed, apply ratio, else just leave large on both sides so the math works.
 			let moreInfoRatio = textWidth > remainingWidth ? moreInfoText.length / ( moreInfoText.length + bannerTitleText.length ) : .7;
 			let titleRatio = textWidth > remainingWidth ? 1 - moreInfoRatio : .7;
+
+			if ( this.props.bannerWidth < 700 && moreInfoText.length > 5 ) {
+				moreInfoText = moreInfoText === 'More Information' ? 'Info' : moreInfoText.substring(0,5) + '...';
+
+			}
 
 			// usedWidth += 18 * bannerTitleText.length; //Est 18px per character of title
 
@@ -277,6 +295,15 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			let styleLeftTitle : React.CSSProperties = { padding: '10px', cursor: titleInfoCursor, maxWidth: titleRatio * remainingWidth, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }; 
 			let styleRightTitle : React.CSSProperties = { padding: '10px', cursor: titleInfoCursor, maxWidth: moreInfoRatio * remainingWidth, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }; 
 
+			const isMoreInfoButton = typeof this.props.infoElement === 'string' && this.props.infoElement.toLowerCase().indexOf('iconname=') === 0 ? true : false;
+			let infoElement = [];
+			if ( isMoreInfoButton === true ) {
+				let iconName = this.props.infoElement.split('=')[1];
+				infoElement = [<Icon iconName={ iconName } onClick={ titleInfoOnClick } style={ this.props.bannerCmdReactCSS } title="More Information on webpart"></Icon>];
+			} else {
+				infoElement = [<div style={ styleRightTitle } onClick = { titleInfoOnClick }  title={ 'More Information on webpart' }>{moreInfoText}</div>];
+			}
+
 			let bannerLeft = this.nearElements.length === 0 ? <div style={ styleFlexElements } onClick = { titleInfoOnClick } > { bannerTitleText } </div> :
 				<div className={ styles.flexLeftNoWrapStart }>
 					{ this.nearElements }
@@ -285,8 +312,8 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 			let bannerRight = this.props.farElements.length === 0 ? <div style={ styleFlexElements } onClick = { titleInfoOnClick } >{moreInfoText}</div> :
 				<div className={ styles.flexLeftNoWrapStart }>
-					<div style={ styleRightTitle } onClick = { titleInfoOnClick }  title={ 'More Information on webpart' }>{moreInfoText}</div>
-					{ this.props.farElements }
+					
+					{ [ ...infoElement, ...this.props.farElements] }
 				</div>;
 
 			let showSettingStyle = this.showSettingsAsPivot === true ? styles.showSettingsPivot : styles.showSettingsFlex;

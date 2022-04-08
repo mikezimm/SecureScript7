@@ -16,11 +16,13 @@ export const changeExpando = [
   'enableExpandoramic','expandoDefault','expandoStyle', 'expandoPadding', 'expandoAudience',
   ];
 
- export const changeScript = [ 'sitePicker', 'webPicker', 'libraryPicker', 'libraryItemPicker', 'showCodeAudience' ];
+ export const changeScript = [ 'sitePicker', 'webPicker', 'libraryPicker', 'libraryItemPicker', 'showCodeAudience', 'forceReloadScripts' ];
 
 export const changeVisitor = [ 'panelMessageDescription1', 'panelMessageSupport', 'panelMessageDocumentation', 'documentationLinkDesc', 'documentationLinkUrl', 'documentationIsValid', 'supportContacts' ];
 
-export const changeBanner = [ 'showBanner', 'bannerTitle', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerStyleChoice', 'bannerStyle', 'bannerCmdStyle', 'bannerHoverEffect', 'showRepoLinks', 'showExport' ];
+export const changeAdvanced = [ 'spPageContextInfoClassic', 'spPageContextInfoModern', ];
+
+export const changeBanner = [ 'showBanner', 'bannerTitle', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerStyleChoice', 'bannerStyle', 'bannerCmdStyle', 'bannerHoverEffect', 'showRepoLinks', 'showExport', 'lockStyles' ];
 
 export const changefpsOptions1 = [  'searchShow', 'quickLaunchHide', 'pageHeaderHide', 'allSectionMaxWidthEnable', 'allSectionMaxWidth', 'allSectionMarginEnable', 'allSectionMargin', 'toolBarHide', ];
 
@@ -37,10 +39,10 @@ export const exportIgnoreProps = [
 //These props will not be imported even if they are in one of the change arrays above (fail-safe)
 //This was done so user could not manually insert specific props to over-right fail-safes built in to the webpart
 export const importBlockProps = [
-  'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks', 'showRepoLinks', 'showExport', 'fpsImportProps', 'fullPanelAudience', 'documentationIsValid', 'currentWeb'
+  'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks', 'showRepoLinks', 'showExport', 'fpsImportProps', 'fullPanelAudience', 'documentationIsValid', 'currentWeb', 'loadPerformance', 'webpartHistory', 
 ];
 
- //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
+//This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
 //  export type IExpandAudiences = 'Site Admins' | 'Site Owners' | 'Page Editors' | 'WWWone';
 
 
@@ -71,6 +73,9 @@ export interface ISecureScript7WebPartProps {
       showBanner: boolean;
       bannerTitle: string;
 
+      infoElementChoice: string;
+      infoElementText: string;
+      
       showGoToHome: boolean;  //defaults to true
       showGoToParent: boolean;  //defaults to true
       homeParentGearAudience: IExpandAudiences;
@@ -78,6 +83,7 @@ export interface ISecureScript7WebPartProps {
       bannerStyleChoice: string;
       bannerStyle: string;
       bannerCmdStyle: string;
+      lockStyles: boolean;
 
       bannerHoverEffect: boolean;
       showRepoLinks: boolean;

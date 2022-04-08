@@ -38,6 +38,7 @@
       "expandoPadding": 20,
       "bannerTitle": "",
       "bannerStyleChoice": "defaultBannerCommandStyles",
+      "lockStyles": true,
       "bannerCmdStyle": "",
       "bannerStyle": "",
       "showBanner": true,

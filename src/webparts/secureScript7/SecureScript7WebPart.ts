@@ -23,6 +23,8 @@ import { createFPSWindowProps, initializeFPSSection, initializeFPSPage, webpartI
 
 // import { FPSOptionsGroupBasic, FPSBanner2Group, FPSOptionsGroupAdvanced } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup2';
 import { FPSOptionsGroupBasic, FPSBanner3Group, FPSOptionsGroupAdvanced } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup3';
+import { FPSBanner3BasicGroup,FPSBanner3NavGroup, FPSBanner3ThemeGroup } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup3';
+
 import { FPSOptionsExpando, expandAudienceChoicesAll } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsExpando'; //expandAudienceChoicesAll
 
 import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
@@ -175,6 +177,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private performance : ILoadPerformance = null;
 
+  private beAReader: boolean = false; //2022-04-07:  Intent of this is a one-time per instance to 'become a reader' level user.  aka, hide banner buttons that reader won't see
+
+  private executedScript = false;
+
   /***
  *     .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
  *    .8P  Y8. 888o  88   `88'   888o  88   `88'   `~~88~~' 
@@ -232,6 +238,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true && this.displayMode === DisplayMode.Read ? true : false;
       if ( this.urlParameters.Mode === 'Edit' ) { this.expandoDefault = false; }
       let expandoStyle: any = {};
+
+      //2022-04-07:  Could use the function for parsing JSON for this... check npmFunctions
       try {
         expandoStyle = JSON.parse( this.properties.expandoStyle );
 
@@ -263,6 +271,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         history: priorHistory,
       };
 
+      //This updates unlocks styles only when bannerStyleChoice === custom.  Rest are locked in the ui.
+      if ( this.properties.bannerStyleChoice === 'custom' ) { this.properties.lockStyles = false ; } else { this.properties.lockStyles = true; }
+
       if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
         if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
         if ( !this.properties.bannerCmdStyle ) { this.properties.bannerCmdStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
@@ -286,6 +297,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   // public render(): void {
   public async render() {
+
+    let renderAsReader = this.displayMode === DisplayMode.Read && this.beAReader === true ? true : false;
 
     // CLASSIC CONTEXT LOAD
     //https://github.com/mikezimm/SecureScript7/issues/71
@@ -359,6 +372,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       errorObjArray: errorObjArray, //In the case of Pivot Tiles, this is manualLinks[],
       expandoErrorObj: this.expandoErrorObj,
 
+      beAUser: renderAsReader,
+      showBeAUserIcon: null,
+
   };
 
   let showTricks: any = false;
@@ -369,14 +385,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     }
     } );
 
-  this.properties.showBannerGear = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.homeParentGearAudience, null);
-  let bannerSetup = buildBannerProps( this.properties , this.FPSUser, buildBannerSettings, showTricks );
+  this.properties.showBannerGear = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.homeParentGearAudience, null, renderAsReader );
+  let bannerSetup = buildBannerProps( this.properties , this.FPSUser, buildBannerSettings, showTricks, renderAsReader );
   errMessage = bannerSetup.errMessage;
   let bannerProps = bannerSetup.bannerProps;
   let expandoErrorObj = bannerSetup.errorObjArray;
 
-  let showCodeIcon = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.showCodeAudience , null );
+  let showCodeIcon = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.showCodeAudience , null, renderAsReader );
+  if ( this.properties.showCodeAudience && this.properties.showCodeAudience  !== 'Everyone' ) { 
+    bannerProps.showBeAUserIcon = true;
+  }
 
+  if ( bannerProps.showBeAUserIcon === true ) { bannerProps.beAUserFunction = this.beAUserFunction.bind(this); }
   // let legacyPageContext = this.context.pageContext.legacyPageContext;
 
   // if ( this.properties.showCodeAudience === 'WWWone' || showTricks === true ) {
@@ -401,6 +421,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
  *                                                                                   
  *                                                                                   
  */
+
 
   approvedSites.map( site => {
     if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { this.cdnValid = true; }
@@ -484,37 +505,49 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     ReactDom.render(element, this.bannerElement);
 
-    let renderHTML = this.fetchInfo.snippet;
-    //Close #31 - This was added to injext sandbox into any iframes so they don't auto-execute in edit mode
-    if ( this.displayMode !== DisplayMode.Read ) {
-      renderHTML = this.fetchInfo.snippet.replace(/<\s*\S*iframe/ig, '<iframe sandbox ');
-    }
+    if ( this.executedScript === false ) {
 
-    this.scriptElement.innerHTML = renderHTML;
+      let renderHTML = this.fetchInfo.snippet;
 
-    if ( renderHTML === '' ) {
-      //Do nothing since script is empty
-    } else if ( this.fetchInfo.selectedKey === 'Block' ) {
-      this.saveLoadAnalytics( 'Blocked Script', 'Blocked', this.fetchInfo, 'Blocks' );
+      //Remove any leading and trailing spaces up front
+      if ( renderHTML && renderHTML.length > 0 ) { renderHTML = renderHTML.trim(); }
 
-    } else if ( this.fetchInfo.selectedKey === 'Warn' ) {
-      if ( this.displayMode === DisplayMode.Read ) {
-
-        this.fetchInfo.performance.jsEval = startPerformOp( 'jsEval' , this.displayMode );
-        executeScript(this.scriptElement, this._unqiueId, document, this.properties.forceReloadScripts );
-        this.fetchInfo.performance.jsEval = updatePerformanceEnd( this.fetchInfo.performance.jsEval, true );
-
-        this.saveLoadAnalytics( 'Execute Script', 'Warned', this.fetchInfo, 'Warns' );
+      //Close #31 - This was added to injext sandbox into any iframes so they don't auto-execute in edit mode
+      if ( this.displayMode !== DisplayMode.Read ) {
+        renderHTML = this.fetchInfo.snippet.replace(/<\s*\S*iframe/ig, '<iframe sandbox ');
       }
+
+      this.scriptElement.innerHTML = renderHTML;
+
+      if ( renderHTML === '' ) {
+        //Do nothing since script is empty
+      } else if ( this.fetchInfo.selectedKey === 'Block' ) {
+        this.saveLoadAnalytics( 'Blocked Script', 'Blocked', this.fetchInfo, 'Blocks' );
+
+      } else if ( this.fetchInfo.selectedKey === 'Warn' ) {
+        if ( this.displayMode === DisplayMode.Read ) {
+
+            this.fetchInfo.performance.jsEval = startPerformOp( 'jsEval' , this.displayMode );
+            executeScript(this.scriptElement, this._unqiueId, document, this.properties.forceReloadScripts );
+            this.fetchInfo.performance.jsEval = updatePerformanceEnd( this.fetchInfo.performance.jsEval, true );
+
+          this.saveLoadAnalytics( 'Execute Script', 'Warned', this.fetchInfo, 'Warns' );
+        }
+      } else {
+        if ( this.displayMode === DisplayMode.Read ) {
+
+            this.fetchInfo.performance.jsEval = startPerformOp( 'jsEval' , this.displayMode );
+            executeScript(this.scriptElement, this._unqiueId, document, this.properties.forceReloadScripts );
+            this.fetchInfo.performance.jsEval = updatePerformanceEnd( this.fetchInfo.performance.jsEval, true );
+
+
+          this.saveLoadAnalytics( 'Execute Script', this.fetchInfo.selectedKey, this.fetchInfo, 'Views' );
+        }
+      }
+
+      this.executedScript = true;
     } else {
-      if ( this.displayMode === DisplayMode.Read ) {
-
-        this.fetchInfo.performance.jsEval = startPerformOp( 'jsEval' , this.displayMode );
-        executeScript(this.scriptElement, this._unqiueId, document, this.properties.forceReloadScripts );
-        this.fetchInfo.performance.jsEval = updatePerformanceEnd( this.fetchInfo.performance.jsEval, true );
-
-        this.saveLoadAnalytics( 'Execute Script', this.fetchInfo.selectedKey, this.fetchInfo, 'Views' );
-      }
+      console.log('Already loaded and rendered the script.  Only can do once.');
     }
 
   }
@@ -682,6 +715,16 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     return Version.parse('1.0');
   }
 
+  private beAUserFunction() {
+    if ( this.displayMode === DisplayMode.Edit ) {
+      alert("'Be a regular user' mode is only available while viewing the page.  \n\nOnce you are out of Edit mode, please refresh the page (CTRL-F5) to reload the web part.");
+
+    } else {
+      this.beAReader = this.beAReader === true ? false : true;
+      this.render();
+    }
+
+  }
 
   /***
  *     d888b  d88888b d888888b      db      d888888b d8888b. d8888b.  .d8b.  d8888b. d888888b d88888b .d8888. 
@@ -963,8 +1006,19 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     } else if (propertyPath === 'bannerStyleChoice')  {
       // bannerThemes, bannerThemeKeys, makeCSSPropPaneString
 
-      this.properties.bannerStyle = createBannerStyleStr( newValue, 'banner' );
-      this.properties.bannerCmdStyle = createBannerStyleStr( newValue, 'cmd' );
+      if ( newValue === 'custom' ) {
+        this.properties.lockStyles = false;
+
+      } else if ( newValue === 'lock') {
+        this.properties.lockStyles = true;
+
+      } else {
+        this.properties.lockStyles = true;
+        this.properties.bannerStyle = createBannerStyleStr( newValue, 'banner' );
+        this.properties.bannerCmdStyle = createBannerStyleStr( newValue, 'cmd' );
+
+      }
+
       this.context.propertyPane.refresh();
 
     } else if ((propertyPath === 'webPicker') && (newValue) ) {
@@ -1215,7 +1269,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   
               ]}, // this group
 
-              FPSBanner3Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
+              // FPSBanner3Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true, this.properties.lockStyles, this.properties.infoElementChoice === 'Text' ? true : false ),
+
+              FPSBanner3BasicGroup( this.forceBanner , this.modifyBannerTitle, this.properties.showBanner, this.properties.infoElementChoice === 'Text' ? true : false ),
+              FPSBanner3NavGroup(), 
+              FPSBanner3ThemeGroup( this.modifyBannerStyle, this.properties.showBanner, this.properties.lockStyles, ),
+
               FPSOptionsGroupBasic( false, true, true, true, this.properties.allSectionMaxWidthEnable, true, this.properties.allSectionMarginEnable, true ), // this group
               FPSOptionsExpando( this.properties.enableExpandoramic, this.properties.enableExpandoramic,null, null ),
   
