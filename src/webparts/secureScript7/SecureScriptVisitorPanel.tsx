@@ -3,6 +3,7 @@ import * as React from 'react';
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
 import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { ILoadPerformance, IPerformanceOp } from './components/Performance/IPerformance';
 
 // import { LivePersona, Persona } from "@pnp/spfx-controls-react/lib/LivePersona";
 
@@ -51,7 +52,44 @@ export interface IMinWPVisitorPanelInfo {
  *                                                                                                                                                       
  */
 
-export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo,  ) {
+
+export function performanceTable( performance: ILoadPerformance ) {
+
+    const { fetch, jsEval, analyze } = performance;
+
+    const loadRows = [
+      <tr>
+        <th>Process</th>
+        <th>Mode</th>
+        <th>Time</th>
+        <th>ms</th>
+      </tr>
+    ];
+    [ 'fetch', 'analyze', 'jsEval' ].map( part => {
+      const thisPart : IPerformanceOp = performance[part];
+      if ( thisPart ) {
+        let time = thisPart.startStr;
+        loadRows.push( <tr>
+          <td>{ thisPart.label }</td>
+          <td>{ thisPart.mode === 1 ? 'View' : 'Edit' }</td>
+          <td>{ time }</td>
+          <td>{ thisPart.ms }</td>
+        </tr>);
+      }
+    });
+
+    //  const loadSummary = <div className={ styles.secProfile } style={{ paddingLeft: '15px'}}>
+     const loadSummary = <div style={{ paddingLeft: '15px'}}>
+       <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify( performance.forceReloadScripts )}</div>
+       <table>
+          { loadRows }
+       </table>
+     </div>;
+
+     return loadSummary;
+}
+
+export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo, performance:  ILoadPerformance ) {
     const {
         bannerTitle,
         documentationLinkDesc,

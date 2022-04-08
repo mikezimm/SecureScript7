@@ -420,10 +420,10 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 					if ( showMedical === true ) {
 						let medicalElements : any = [];
 						if ( thisWindow.FPSUser ) {
-							medicalElements.push( <ReactJson src={ thisWindow.FPSUser } name={ 'FPSUser' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> )
+							medicalElements.push( <ReactJson src={ thisWindow.FPSUser } name={ 'FPSUser' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> );
 						}
 						if ( thisWindow.FPSUser ) {
-							medicalElements.push( <ReactJson src={ thisWindow.FPSOptions } name={ 'FPSOptions' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> )
+							medicalElements.push( <ReactJson src={ thisWindow.FPSOptions } name={ 'FPSOptions' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> );
 						}
 						content= <div id="MedicalPanel" style={{paddingTop: '20px'}}>
 							{ medicalElements }

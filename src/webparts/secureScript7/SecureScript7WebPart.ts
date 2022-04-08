@@ -320,7 +320,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     this._unqiueId = this.context.instanceId;
 
-    this.properties.replacePanelHTML = visitorPanelInfo( this.properties );
+    // this.properties.replacePanelHTML = visitorPanelInfo( this.properties, this.fetchInfo ? this.fetchInfo.performance : null );
 
     let errMessage = '';
     this.validDocsContacts = '';
@@ -438,6 +438,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
   // bannerProps.exportProps.performance = this.fetchInfo.performance;
 
+  this.properties.replacePanelHTML = visitorPanelInfo( this.properties, this.fetchInfo ? this.fetchInfo.performance : null );
+  bannerProps.replacePanelHTML = this.properties.replacePanelHTML;
   /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
  *    d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~'      88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 
