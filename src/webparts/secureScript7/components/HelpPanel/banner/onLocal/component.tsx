@@ -256,13 +256,20 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			// usedWidth += 40; //Padding between near/far elements and the text part of heading
 			let remainingWidth = this.props.bannerWidth - usedWidth - 40;
 
-			let moreInfoText = this.props.bannerWidth > 700 ? 'More Information' : 'Info';
+			let moreInfoText: string = this.props.infoElement ? this.props.infoElement : 'More Information';
+
+			
 			let bannerTitleText = this.props.title && this.props.title.length > 0 ? this.props.title : 'FPS Webpart';
 			let textWidth = ( moreInfoText.length + bannerTitleText.length ) * 19 + 40; //characters * 19px + 40 padding
 
 			//  If space between < estimated space needed, apply ratio, else just leave large on both sides so the math works.
 			let moreInfoRatio = textWidth > remainingWidth ? moreInfoText.length / ( moreInfoText.length + bannerTitleText.length ) : .7;
 			let titleRatio = textWidth > remainingWidth ? 1 - moreInfoRatio : .7;
+
+			if ( this.props.bannerWidth < 700 && moreInfoText.length > 5 ) {
+				moreInfoText = moreInfoText === 'More Information' ? 'Info' : moreInfoText.substring(0,5) + '...';
+
+			}
 
 			// usedWidth += 18 * bannerTitleText.length; //Est 18px per character of title
 
