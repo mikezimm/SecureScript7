@@ -635,6 +635,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
          const loadSummary = <div className={ styles.secProfile } style={{ paddingLeft: '15px'}}>
            <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify(fetchInfo.performance.forceReloadScripts )}</div>
            <table>
+              {/* { buildPerformanceTableRows( fetchInfo.performance ) } */}
               { loadRows }
            </table>
          </div>;
