@@ -1,40 +1,11 @@
 import * as React from 'react';
 
-import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './IPerformance';
-
-//import { startPerformInit, startPerformOp, } from '../Performance/functions';
-
-// export function buildPerformanceTableRows( performance: ILoadPerformance ) {
-//     const { fetch, jsEval, analyze } = performance;
-
-//     const loadRows = [
-//       <tr>
-//         <th>Process</th>
-//         <th>Mode</th>
-//         <th>Time</th>
-//         <th>ms</th>
-//       </tr>
-//     ];
-//     [ 'fetch', 'analyze', 'jsEval' ].map( part => {
-//       const thisPart : IPerformanceOp = performance[part];
-//       if ( thisPart ) {
-//         let time = thisPart.startStr;
-//         loadRows.push( <tr>
-//           <td>{ thisPart.label }</td>
-//           <td>{ thisPart.mode === 1 ? 'View' : 'Edit' }</td>
-//           <td>{ time }</td>
-//           <td>{ thisPart.ms }</td>
-//         </tr>);
-//       }
-//     });
-
-//     return loadRows;
-// }
+import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from './IPerformance';
 
 
-export function startPerformInit( classic, modern, reload, editMode, history ){
+export function startPerformInit( classic, modern, reload, editMode, monitor ){
 
-    let result: ILoadPerformance = {
+    let result: ILoadPerformanceSS7 = {
         spPageContextInfoClassic: classic,
         spPageContextInfoModern: modern,
         forceReloadScripts: reload,
@@ -46,7 +17,9 @@ export function startPerformInit( classic, modern, reload, editMode, history ){
         analyze:  null, // startPerformOp('analyze', editMode ),
         jsEval:  null, // startPerformOp('eval', editMode ),
 
-        history: history, // set to true to save session performance (for people who can see it)
+        monitor: monitor,
+
+        history: [], // set to true to save session performance (for people who can see it)
     };
 
     return result;

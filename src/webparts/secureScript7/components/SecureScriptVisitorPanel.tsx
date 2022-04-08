@@ -3,7 +3,8 @@ import * as React from 'react';
 import { ISecureScript7WebPartProps } from '../ISecureScript7WebPartProps';
 import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
-import { ILoadPerformance } from './Performance/IPerformance';
+import { ILoadPerformanceSS7 } from './Performance/IPerformance';
+import { createPerformanceTableVisitor } from './Performance/tables';
 
 // import { LivePersona, Persona } from "@pnp/spfx-controls-react/lib/LivePersona";
 
@@ -52,7 +53,7 @@ export interface IMinWPVisitorPanelInfo {
  *                                                                                                                                                       
  */
 
-export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo, performance: ILoadPerformance ) {
+export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo, performance: ILoadPerformanceSS7 ) {
     const {
         bannerTitle,
         documentationLinkDesc,
@@ -138,6 +139,7 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo, performance: 
          >{ documentationLinkDesc }</span><span>{validLink}</span>
     </div>;
 
+const loadSummary = createPerformanceTableVisitor( performance );
 
 /***
  *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -169,6 +171,7 @@ export function visitorPanelInfo( wpProps: IMinWPVisitorPanelInfo, performance: 
         <div style={ subHeadingStyles }> - please contact the owner of this webpart before submitting an incident.</div>
         <div style={ headingStyles }>Contact(s) for primary support or issues</div>
         <div>{ ContactInfo }</div>  
+        <div>{ loadSummary }</div>  
     </div>;
 }
 

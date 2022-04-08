@@ -10,7 +10,7 @@ import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/Pro
 
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 
-import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './components/Performance/IPerformance';
+import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from './components/Performance/IPerformance';
 
 export const changeExpando = [ 
   'enableExpandoramic','expandoDefault','expandoStyle', 'expandoPadding', 'expandoAudience',
@@ -135,7 +135,7 @@ export interface ISecureScript7WebPartProps {
 
     forceReloadScripts: boolean;  // 2022-04-04:  Added this to try and resolve https://github.com/mikezimm/SecureScript7/issues/72
 
-    loadPerformance: ILoadPerformance;
+    loadPerformance: ILoadPerformanceSS7;
 
     fpsImportProps: string;
 

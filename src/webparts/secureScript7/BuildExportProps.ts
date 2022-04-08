@@ -57,7 +57,7 @@
 
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
 import { changeScript, changeVisitor, exportIgnoreProps, changeExpando, changeBanner, changefpsOptions1, changefpsOptions2, changeAdvanced } from './ISecureScript7WebPartProps';
-import { ILoadPerformance, IPerformanceOp } from './components/Performance/IPerformance';
+import { ILoadPerformanceSS7, IPerformanceOp } from './components/Performance/IPerformance';
 
 
 

@@ -16,7 +16,7 @@ import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileTyp
 import { buildSourceRankArray, standardizeLocalLink } from './functions';
 
 import { startPerformInit, startPerformOp, updatePerformanceEnd } from '../Performance/functions';
-import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from '../Performance/IPerformance';
+import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from '../Performance/IPerformance';
 import { DisplayMode } from '@microsoft/sp-core-library';
 
 /***
@@ -95,7 +95,7 @@ export const linkOpenCloseRegex = /<a.*?href=.*?>/gi;
  */
 
 
-export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformance) {
+export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7) {
     let base: IFetchInfo = {
         snippet: '',
         selectedKey: 'raw',
@@ -147,7 +147,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
 
 
 
-export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformance, displayMode:DisplayMode  ) {
+export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode  ) {
 
         performance.fetch = startPerformOp( 'fetch', displayMode );
 
@@ -189,7 +189,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
     }
 
-    export async function analyzeShippet( htmlFragment: string , preFetchTime: any, postFetchTime: any, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformance, displayMode:DisplayMode  ) {
+    export async function analyzeShippet( htmlFragment: string , preFetchTime: any, postFetchTime: any, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode  ) {
     /***
      *              d888888b  .d8b.   d888b       d888888b d8888b. d88888b d8b   db d888888b d888888b d88888b db    db 
      *              `~~88~~' d8' `8b 88' Y8b        `88'   88  `8D 88'     888o  88 `~~88~~'   `88'   88'     `8b  d8' 

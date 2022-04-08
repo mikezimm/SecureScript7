@@ -46,8 +46,9 @@ import { SourceNothing,
 import { buildSourceRankArray,  } from './Security20/functions';
 import { tdProperties } from 'office-ui-fabric-react';
 
-import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './Performance/IPerformance';
+import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from './Performance/IPerformance';
 import { startPerformInit, startPerformOp, updatePerformanceEnd,  } from './Performance/functions';
+import { createPerformanceTableSmall,  } from './Performance/tables';
 
 
 
@@ -347,9 +348,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let times = new Date();
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();  //This is required to reset all the counts
 
-    const propsPerformance: ILoadPerformance = this.props.fetchInfo.performance;
+    const propsPerformance: ILoadPerformanceSS7 = this.props.fetchInfo.performance;
  
-    let performance: ILoadPerformance = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
+    let performance: ILoadPerformanceSS7 = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
 
 
     const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode  );
@@ -369,9 +370,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let securityProfile: IAdvancedSecurityProfile = createAdvSecProfile();
     // this.setState( { scope: 'Current Webpart' } );
 
-    const propsPerformance: ILoadPerformance = this.props.fetchInfo.performance;
+    const propsPerformance: ILoadPerformanceSS7 = this.props.fetchInfo.performance;
  
-    let performance: ILoadPerformance = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
+    let performance: ILoadPerformanceSS7 = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
 
     const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode   );
     performance.fetch = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.fetch ));
@@ -609,36 +610,38 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
             />
           </div>;
 
-        const { fetch, jsEval, analyze } = fetchInfo.performance;
+        // const { fetch, jsEval, analyze } = fetchInfo.performance;
 
-        const loadRows = [
-          <tr>
-            <th>Process</th>
-            <th>Mode</th>
-            <th>Time</th>
-            <th>ms</th>
-          </tr>
-        ];
-        [ 'fetch', 'analyze', 'jsEval' ].map( part => {
-          const thisPart : IPerformanceOp = fetchInfo.performance[part];
-          if ( thisPart ) {
-            let time = thisPart.startStr;
-            loadRows.push( <tr>
-              <td>{ thisPart.label }</td>
-              <td>{ thisPart.mode === 1 ? 'View' : 'Edit' }</td>
-              <td>{ time }</td>
-              <td>{ thisPart.ms }</td>
-            </tr>);
-          }
-        });
+        // const loadRows = [
+        //   <tr>
+        //     <th>Process</th>
+        //     <th>Mode</th>
+        //     <th>Time</th>
+        //     <th>ms</th>
+        //   </tr>
+        // ];
+        // [ 'fetch', 'analyze', 'jsEval' ].map( part => {
+        //   const thisPart : IPerformanceOp = fetchInfo.performance[part];
+        //   if ( thisPart ) {
+        //     let time = thisPart.startStr;
+        //     loadRows.push( <tr>
+        //       <td>{ thisPart.label }</td>
+        //       <td>{ thisPart.mode === 1 ? 'View' : 'Edit' }</td>
+        //       <td>{ time }</td>
+        //       <td>{ thisPart.ms }</td>
+        //     </tr>);
+        //   }
+        // });
 
-         const loadSummary = <div className={ styles.secProfile } style={{ paddingLeft: '15px'}}>
-           <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify(fetchInfo.performance.forceReloadScripts )}</div>
-           <table>
-              {/* { buildPerformanceTableRows( fetchInfo.performance ) } */}
-              { loadRows }
-           </table>
-         </div>;
+        //  const loadSummary = <div className={ styles.secProfile } style={{ paddingLeft: '15px'}}>
+        //    <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify(fetchInfo.performance.forceReloadScripts )}</div>
+        //    <table>
+        //       {/* { buildPerformanceTableRows( fetchInfo.performance ) } */}
+        //       { loadRows }
+        //    </table>
+        //  </div>;
+
+         const loadSummary = createPerformanceTableSmall( fetchInfo.performance );
 
 
 /***

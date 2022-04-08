@@ -3,7 +3,7 @@ import {
     IPropertyPaneDropdownOption,
   } from '@microsoft/sp-property-pane';
 
-import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from '../Performance/IPerformance';
+import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from '../Performance/IPerformance';
 
 
 export const FetchLibString = 'FetchLibraries';
@@ -125,7 +125,7 @@ export interface ITagInfo {
         policyFlags: IPolicyFlags;
         securityProfile: IAdvancedSecurityProfile;
         summary: IFetchSummaryStats;
-        performance: ILoadPerformance;
+        performance: ILoadPerformanceSS7;
   }
 
   export interface IFetchSummaryStats {
