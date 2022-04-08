@@ -73,6 +73,9 @@ export interface ISecureScript7WebPartProps {
       showBanner: boolean;
       bannerTitle: string;
 
+      infoElementChoice: string;
+      infoElementText: string;
+      
       showGoToHome: boolean;  //defaults to true
       showGoToParent: boolean;  //defaults to true
       homeParentGearAudience: IExpandAudiences;
