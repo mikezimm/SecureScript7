@@ -69,6 +69,7 @@ import { fetchSnippetMike } from './components/Security20/FetchCode';
 // import { executeScript } from './components/Security20/EvalScripts';
 import { executeScript } from './components/Security20/EvalScripts20';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
+// import { visitorPanelInfo } from './components/SecureScriptVisitorPanel';
 import { visitorPanelInfo } from './SecureScriptVisitorPanel';
 
 import { IWebpartHistory, IWebpartHistoryItem2 } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
@@ -320,8 +321,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     this._unqiueId = this.context.instanceId;
 
-    this.properties.replacePanelHTML = visitorPanelInfo( this.properties );
-
     let errMessage = '';
     this.validDocsContacts = '';
 
@@ -437,6 +436,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   }
   this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
   // bannerProps.exportProps.performance = this.fetchInfo.performance;
+
+  this.properties.replacePanelHTML = visitorPanelInfo( this.properties, );
 
   /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 

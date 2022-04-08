@@ -1,6 +1,36 @@
+import * as React from 'react';
+
 import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './IPerformance';
 
 //import { startPerformInit, startPerformOp, } from '../Performance/functions';
+
+// export function buildPerformanceTableRows( performance: ILoadPerformance ) {
+//     const { fetch, jsEval, analyze } = performance;
+
+//     const loadRows = [
+//       <tr>
+//         <th>Process</th>
+//         <th>Mode</th>
+//         <th>Time</th>
+//         <th>ms</th>
+//       </tr>
+//     ];
+//     [ 'fetch', 'analyze', 'jsEval' ].map( part => {
+//       const thisPart : IPerformanceOp = performance[part];
+//       if ( thisPart ) {
+//         let time = thisPart.startStr;
+//         loadRows.push( <tr>
+//           <td>{ thisPart.label }</td>
+//           <td>{ thisPart.mode === 1 ? 'View' : 'Edit' }</td>
+//           <td>{ time }</td>
+//           <td>{ thisPart.ms }</td>
+//         </tr>);
+//       }
+//     });
+
+//     return loadRows;
+// }
+
 
 export function startPerformInit( classic, modern, reload, editMode, history ){
 

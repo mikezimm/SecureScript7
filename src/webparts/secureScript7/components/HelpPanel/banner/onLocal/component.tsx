@@ -357,7 +357,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				const thisWindow : any = window;
 				let content = null;
 				// let showMedical = this.isShowTricks && ( thisWindow.FPSUser || thisWindow.FPSOptions )  ? true : false;
-				let showMedical = ( thisWindow.FPSUser || thisWindow.FPSOptions )  ? true : false;
+				let showMedical = this.isShowTricks === true && ( thisWindow.FPSUser || thisWindow.FPSOptions )  ? true : false;
 
 				if ( this.state.selectedKey === pivotHeadingX ) {
 					console.log('Banner component -build content');
@@ -420,10 +420,10 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 					if ( showMedical === true ) {
 						let medicalElements : any = [];
 						if ( thisWindow.FPSUser ) {
-							medicalElements.push( <ReactJson src={ thisWindow.FPSUser } name={ 'FPSUser' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> )
+							medicalElements.push( <ReactJson src={ thisWindow.FPSUser } name={ 'FPSUser' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> );
 						}
 						if ( thisWindow.FPSUser ) {
-							medicalElements.push( <ReactJson src={ thisWindow.FPSOptions } name={ 'FPSOptions' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> )
+							medicalElements.push( <ReactJson src={ thisWindow.FPSOptions } name={ 'FPSOptions' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> );
 						}
 						content= <div id="MedicalPanel" style={{paddingTop: '20px'}}>
 							{ medicalElements }
@@ -431,7 +431,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 					}
 				}
 
-				if ( this.state.selectedKey === pivotHeading9 || this.state.selectedKey === pivotHeadingA || this.state.selectedKey === pivotHeadingX ) {
+				if ( this.state.selectedKey === pivotHeading9 || this.state.selectedKey === pivotHeadingA || this.state.selectedKey === pivotHeadingB || this.state.selectedKey === pivotHeadingX ) {
 					thisPage = content;
 
 				} else {
