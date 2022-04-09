@@ -139,4 +139,14 @@ export interface ISecureScript7WebPartProps {
 
     fpsImportProps: string;
 
+    //Create in web part cache
+    enableHTMLCache: boolean;
+    libraryItemPickerCache: string;
+
+    htmlVersion: any;
+    htmlDate: Date;
+    htmlAuthor: string;
+
+    htmlCache: string;
+
   }

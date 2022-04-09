@@ -189,6 +189,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private executedScript = false;
 
+  private testBlob: string = '';
+
 
   /***
  *     .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
@@ -233,9 +235,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
         } 
 
-      // sp.setup({
-      //   spfxContext: this.context
-      // });
+      //Create in web part cache
+      if ( this.properties.enableHTMLCache === undefined ) { this.properties.enableHTMLCache = false; }
+      if ( this.properties.htmlCache === undefined ) { this.properties.htmlCache = ''; }
+      if ( this.properties.htmlAuthor === undefined ) { this.properties.htmlAuthor = ''; }
+      if ( this.properties.libraryItemPickerCache === undefined ) { this.properties.libraryItemPickerCache = ''; }
 
       this.performance = startPerformInit( this.properties.spPageContextInfoClassic, this.properties.spPageContextInfoModern, this.properties.forceReloadScripts, this.displayMode, false );
 
@@ -427,8 +431,24 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       if ( this.cdnValid !== true ) {
         this.snippet = '<mark>Web URL is not valid.</mark>';
       } else {
+
+        //Logic to test if using htmlCache or loading
+        let htmlCache = '';
+        let usedCache = false;
+        if ( this.properties.enableHTMLCache === true && this.properties.htmlCache ) {
+          htmlCache = this.properties.htmlCache;
+          usedCache = true;
+          console.log(`Used Cache in ${this.wpInstanceID}` );
+        }
         // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
-        this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode );
+        this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache );
+
+        //Update htmlCache on web part properties if that is what is wanted
+        if ( usedCache === false && this.properties.enableHTMLCache === true && this.fetchInfo.snippet && this.fetchInfo.snippet.length > 0 ) {
+          this.properties.htmlCache = this.fetchInfo.snippet.trim();
+          console.log(`Saved Cache in ${this.wpInstanceID}` );
+        }
+
         //Reset fetchInstance which triggers some updates in react component
         this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
       }
@@ -1191,6 +1211,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
                 PropertyPaneToggle("forceReloadScripts", {
                   label: "Force reload scripts every page refresh",
+                  onText: "Enabled",
+                  offText: "Disabled"
+                }),
+
+                PropertyPaneToggle("enableHTMLCache", {
+                  label: "Cache initial file in web part",
                   onText: "Enabled",
                   offText: "Disabled"
                 }),

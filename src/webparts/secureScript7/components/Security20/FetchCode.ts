@@ -147,7 +147,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
 
 
 
-export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode  ) {
+export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode, htmlCache: string | false  ) {
 
         performance.fetch = startPerformOp( 'fetch', displayMode );
 
@@ -173,9 +173,22 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         console.log('fetchSnippetMike: fileURL', fileURL );
 
         let preFetchTime = new Date();
+        let htmlFragment = '';
 
-        const htmlFragment = await context.spHttpClient.get(snippetURLQuery, SPHttpClient.configurations.v1)
-        .then((response: SPHttpClientResponse) => response.text());
+        let wasCached = false;
+
+        if ( htmlCache && htmlCache.length > 5 ) {
+            //This is loading cached file....
+            htmlFragment = htmlCache;
+            wasCached = true;
+
+        } else {
+
+            htmlFragment = await context.spHttpClient.get(snippetURLQuery, SPHttpClient.configurations.v1)
+            .then((response: SPHttpClientResponse) => response.text());
+
+        }
+
 
         // console.log('fetchSnippetMike: htmlFragment', htmlFragment );
 
@@ -185,6 +198,10 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
         let result :  IFetchInfo= await analyzeShippet (htmlFragment, preFetchTime, postFetchTime, securityProfile, performance, displayMode );
 
+        //This is new load with caching enabled... go get cache details from file
+        if ( wasCached === false && htmlCache !== false ) {
+
+        }
         return result;
 
     }
