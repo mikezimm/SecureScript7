@@ -5,6 +5,10 @@ import {SPHttpClient, SPHttpClientResponse} from '@microsoft/sp-http';
 
 import { Icon, ITag, mergeOverflows } from 'office-ui-fabric-react';
 
+import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, IPrincipalInfo, PrincipalType, PrincipalSource } from "@pnp/sp/presets/all";
+
+import "@pnp/sp/files";
+
 //encodeDecodeString(this.props.libraryPicker, 'decode')
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
@@ -200,7 +204,10 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
         //This is new load with caching enabled... go get cache details from file
         if ( wasCached === false && htmlCache !== false ) {
-
+            let thisWebInstance = Web(`${window.location.origin}${webUrl}`);
+            const item = await thisWebInstance.getFileByServerRelativePath(libraryItemPicker).getItem();
+            const item2 = await item.fieldValuesAsText();
+            console.log('item:', item );
         }
         return result;
 

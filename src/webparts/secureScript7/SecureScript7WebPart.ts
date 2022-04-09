@@ -433,12 +433,15 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       } else {
 
         //Logic to test if using htmlCache or loading
-        let htmlCache = '';
+        let htmlCache = this.properties.enableHTMLCache !== true ? false : '';
         let usedCache = false;
         if ( this.properties.enableHTMLCache === true && this.properties.htmlCache ) {
           htmlCache = this.properties.htmlCache;
           usedCache = true;
           console.log(`Used Cache in ${this.wpInstanceID}` );
+        } else if ( this.properties.enableHTMLCache !== true ) { 
+          this.properties.htmlCache = '' ;
+          console.log(`Cleared Cache in ${this.wpInstanceID}` );
         }
         // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
         this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache );

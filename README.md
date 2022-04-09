@@ -7,11 +7,18 @@ Short summary on functionality and used technologies.
 [picture of the solution in action, if possible]
 
 ## Non-Standard npm packages:
-npm install @mikezimm/npmfunctions@1.0.167 (or whatever is the latest version)
+npm install @mikezimm/npmfunctions@1.0.224 (or whatever is the latest version)
 npm install react-json-view
 npm install @pnp/spfx-property-controls --save --save-exact
 npm install @pnp/spfx-controls-react --save --save-exact  //For the persona card
 npm i dompurify - for danerously setting inner html
+
+totally messed up project tyring to install this
+npm install @pnp/sp --save
+
+Deleted all node folder
+Then installed @mikezimm
+Then npm install @pnp/sp@2.11.0 --save
 
 
 ## Used SharePoint Framework Version
