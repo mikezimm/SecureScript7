@@ -206,7 +206,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         if ( wasCached === false && htmlCache !== false ) {
             let thisWebInstance = Web(`${window.location.origin}${webUrl}`);
             const item = await thisWebInstance.getFileByServerRelativePath(libraryItemPicker).getItem();
-            const item2 = await item.fieldValuesAsText();
+            const item2 = await item.fieldValuesAsText(); //OData__x005f_UIVersionString, 'SMTotalFileStreamSize'
             console.log('item:', item );
         }
         return result;
