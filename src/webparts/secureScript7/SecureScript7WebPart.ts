@@ -235,19 +235,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
         } 
 
-      //Create in web part cache
-      if ( this.properties.enableHTMLCache === undefined ) { this.properties.enableHTMLCache = false; }
-      if ( this.properties.htmlCache === undefined ) { this.properties.htmlCache = ''; }
-      if ( this.properties.htmlAuthor === undefined ) { this.properties.htmlAuthor = ''; }
-      if ( this.properties.libraryItemPickerCache === undefined ) { this.properties.libraryItemPickerCache = ''; }
-
-      this.performance = startPerformInit( this.properties.spPageContextInfoClassic, this.properties.spPageContextInfoModern, this.properties.forceReloadScripts, this.displayMode, false );
-
       this.urlParameters = getUrlVars();
 
+      // DEFAULTS SECTION:  Performance   <<< ================================================================
+      this.performance = startPerformInit( this.properties.spPageContextInfoClassic, this.properties.spPageContextInfoModern, this.properties.forceReloadScripts, this.displayMode, false );
+
+      // DEFAULTS SECTION:  FPSUser
       this.FPSUser = getFPSUser( this.context, links.trickyEmails, this.trickyApp ) ;
       console.log( 'FPSUser: ', this.FPSUser );
 
+
+      // DEFAULTS SECTION:  Expandoramic   <<< ================================================================
       this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true && this.displayMode === DisplayMode.Read ? true : false;
       if ( this.urlParameters.Mode === 'Edit' ) { this.expandoDefault = false; }
       let expandoStyle: any = {};
@@ -265,13 +263,27 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.properties.showRepoLinks = false;
       this.properties.showExport = false;
 
+      // DEFAULTS SECTION:  Banner   <<< ================================================================
+      //This updates unlocks styles only when bannerStyleChoice === custom.  Rest are locked in the ui.
+      if ( this.properties.bannerStyleChoice === 'custom' ) { this.properties.lockStyles = false ; } else { this.properties.lockStyles = true; }
+
+      if ( this.properties.bannerHoverEffect === undefined ) { this.properties.bannerHoverEffect = true; }
+
+      if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
+        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
+        if ( !this.properties.bannerCmdStyle ) { this.properties.bannerCmdStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
+      }
+
+      // DEFAULTS SECTION:  Panel   <<< ================================================================
       if ( !this.properties.fullPanelAudience || this.properties.fullPanelAudience.length === 0 ) {
         this.properties.fullPanelAudience = 'Everyone';
       }
       if ( !this.properties.documentationLinkDesc || this.properties.documentationLinkDesc.length === 0 ) {
         this.properties.documentationLinkDesc = 'Documentation';
       }
-      
+
+
+      // DEFAULTS SECTION:  webPartHistory   <<< ================================================================
       //Preset this on existing installations
       // if ( this.properties.forceReloadScripts === undefined || this.properties.forceReloadScripts === null ) {
       //   this.properties.forceReloadScripts = false;
@@ -284,13 +296,15 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         history: priorHistory,
       };
 
-      //This updates unlocks styles only when bannerStyleChoice === custom.  Rest are locked in the ui.
-      if ( this.properties.bannerStyleChoice === 'custom' ) { this.properties.lockStyles = false ; } else { this.properties.lockStyles = true; }
+      
+      // DEFAULTS SECTION:  SecureScript   <<< ================================================================
+            //Create in web part cache
 
-      if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
-        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
-        if ( !this.properties.bannerCmdStyle ) { this.properties.bannerCmdStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
-      }
+      if ( this.properties.enableHTMLCache === undefined ) { this.properties.enableHTMLCache = false; }
+      if ( this.properties.htmlCache === undefined ) { this.properties.htmlCache = ''; }
+      if ( this.properties.htmlAuthor === undefined ) { this.properties.htmlAuthor = ''; }
+      if ( this.properties.libraryItemPickerCache === undefined ) { this.properties.libraryItemPickerCache = ''; }
+
 
     });
   }
@@ -311,6 +325,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   // public render(): void {
   public async render() {
 
+    this._unqiueId = this.context.instanceId;
+
+    // quickRefresh is used for SecureScript for when caching html file.  <<< ================================================================
     console.log(`SecureScript.ts Render:  quickRefresh, executedScript - ${this.wpInstanceID}`, this.quickRefresh, this.executedScript );
     let renderAsReader = this.displayMode === DisplayMode.Read && this.beAReader === true ? true : false;
 
@@ -333,8 +350,6 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         //This needs to be outside of the previous loop because that seems to get triggered during inital 'view' render before going into edit mode
         if ( this.displayMode === DisplayMode.Edit && this.consoledModernContext === false && this.properties.spPageContextInfoModern  ) { 
           console.log('spPageContextInfoModern:', this.context.pageContext ); this.consoledModernContext = true; }
-
-        this._unqiueId = this.context.instanceId;
 
         let errMessage = '';
         this.validDocsContacts = '';
@@ -454,6 +469,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
         //Reset fetchInstance which triggers some updates in react component
         this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
+        
       }
       this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
       // bannerProps.exportProps.performance = this.fetchInfo.performance;

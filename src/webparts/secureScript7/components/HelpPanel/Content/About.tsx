@@ -33,7 +33,8 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      */
 
 
-    table.rows.push( createAboutRow('2022-04-08',"1.0.1.19","#92, #93 - Info Panel", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('2022-04-08',"1.0.1.19","#92, #93 - Info Panel, #96 - Single Page App styling", showRepoLinks === true ? repoLinks : null ) );
+    table.rows.push( createAboutRow('2022-04-08',"","#97, ", showRepoLinks === true ? repoLinks : null ) );
 
     table.rows.push( createAboutRow('2022-04-08',"1.0.1.18","#79, #80, #88 - Be a visitor mode, #89 - More Info button", showRepoLinks === true ? repoLinks : null ) );
 
