@@ -99,33 +99,84 @@ export interface ITagInfo {
  *                                                                                     
  */
 
+  export interface ICacheInfo {
+    enableHTMLCache: boolean;
+    wasCached: boolean;
+    UIVersion: any;  //OData__x005f_UIVersionString or ContentVersion
+    IsCurrentVersion: string;  // OData__x005f_IsCurrentVersion Yes/NoThis tells if the htmlVersion is the latest releast one.  Will be false if this is a draft.
+    ModerationStatus: string;   //OData__x005f_ModerationStatus
+    ModerationComments: string;  //OData__x005f_ModerationComments
+    ID: string;
+    Created: Date;
+    Author: string;
+    Modified: Date;
+    Editor: string;
+    EditorName: string;  //Modified_x005f_x0020_x005f_By
+    ExpirationDate: string; // OData__x005f_ExpirationDate
+    NoExecute: string;  //NoExecute
+    Comment: string;  //OData__x005f_CheckinComment
+    size: number;  //File_x005f_x0020_x005f_Size
+    FileRef: string;  //FileRef
+    FileLeafRef: string;  //FileLeafRef
+    Type: string;  //File_x005f_x0020_x005f_Type
+  }
+
+  export function setCache() {
+
+    let emptyCache : ICacheInfo = {
+      enableHTMLCache: false,
+      wasCached: false,  
+      UIVersion: '',   //OData__x005f_UIVersionString
+      IsCurrentVersion: '',  //OData__x005f_IsCurrentVersion
+      ModerationStatus: '',   //OData__x005f_ModerationStatus
+      ModerationComments: '',  //OData__x005f_ModerationComments
+      ID: '',
+      Created: null,
+      Author: '',
+      Modified: null,
+      Editor: '',
+      EditorName: '',  //Modified_x005f_x0020_x005f_By
+      ExpirationDate: '', // OData__x005f_ExpirationDate
+      NoExecute: '',  //NoExecute
+      Comment: '',  //OData__x005f_CheckinComment
+      size: 0,  //File_x005f_x0020_x005f_Size
+      FileRef: '',  //FileRef
+      FileLeafRef: '',  //FileLeafRef
+      Type: '',  //File_x005f_x0020_x005f_Type
+    };
+    return emptyCache;
+
+  }
+
   export interface IFetchInfo {
-        snippet: string;
-        selectedKey: ICDNCheck | IApprovedFileType | 'raw';
-        errorHTML: string;
-        js: ITagInfo[];
-        css: ITagInfo[];
-        img:ITagInfo[];
-        link:ITagInfo[];
-        html:ITagInfo[];
-        preFetchTime: number;
-        postFetchTime: number;
-        postRegexTime: number;
-        fetchTime: number;
-        regexTime: number;
-        Nothing:ITagInfo[];
-        Secure:ITagInfo[];
-        Local:ITagInfo[];
-        Tenant:ITagInfo[];
-        Approved:ITagInfo[];
-        Warn:ITagInfo[];
-        Block:ITagInfo[];
-        Verify:ITagInfo[];
-        www:ITagInfo[];
-        policyFlags: IPolicyFlags;
-        securityProfile: IAdvancedSecurityProfile;
-        summary: IFetchSummaryStats;
-        performance: ILoadPerformanceSS7;
+    cache: ICacheInfo;
+    snippet: string;
+
+    selectedKey: ICDNCheck | IApprovedFileType | 'raw';
+    errorHTML: string;
+    js: ITagInfo[];
+    css: ITagInfo[];
+    img:ITagInfo[];
+    link:ITagInfo[];
+    html:ITagInfo[];
+    preFetchTime: number;
+    postFetchTime: number;
+    postRegexTime: number;
+    fetchTime: number;
+    regexTime: number;
+    Nothing:ITagInfo[];
+    Secure:ITagInfo[];
+    Local:ITagInfo[];
+    Tenant:ITagInfo[];
+    Approved:ITagInfo[];
+    Warn:ITagInfo[];
+    Block:ITagInfo[];
+    Verify:ITagInfo[];
+    www:ITagInfo[];
+    policyFlags: IPolicyFlags;
+    securityProfile: IAdvancedSecurityProfile;
+    summary: IFetchSummaryStats;
+    performance: ILoadPerformanceSS7;
   }
 
   export interface IFetchSummaryStats {

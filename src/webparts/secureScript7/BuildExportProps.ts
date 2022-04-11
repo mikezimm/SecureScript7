@@ -56,7 +56,7 @@
 //    } from './IPivottiles7WebPartProps';
 
 import { ISecureScript7WebPartProps } from './ISecureScript7WebPartProps';
-import { changeScript, changeVisitor, exportIgnoreProps, changeExpando, changeBanner, changefpsOptions1, changefpsOptions2, changeAdvanced } from './ISecureScript7WebPartProps';
+import { changeScript, changeVisitor, exportIgnoreProps, changeExpando, changeBanner, changefpsOptions1, changefpsOptions2, changeAdvanced, changeCache } from './ISecureScript7WebPartProps';
 import { ILoadPerformanceSS7, IPerformanceOp } from './components/Performance/IPerformance';
 
 
@@ -107,6 +107,8 @@ import { ILoadPerformanceSS7, IPerformanceOp } from './components/Performance/IP
 
 
     exportStructure.Script = changeScript;
+
+    exportStructure.Cache = changeCache;
 
     exportStructure.Visitor = changeVisitor;
 

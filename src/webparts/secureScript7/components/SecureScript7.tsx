@@ -48,7 +48,8 @@ import { tdProperties } from 'office-ui-fabric-react';
 
 import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from './Performance/IPerformance';
 import { startPerformInit, startPerformOp, updatePerformanceEnd,  } from './Performance/functions';
-import { createPerformanceTableSmall,  } from './Performance/tables';
+import stylesPerform from './Performance/performance.module.scss';
+import { createCacheTableSmall, createPerformanceTableSmall,  } from './Performance/tables';
 
 
 
@@ -282,6 +283,8 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
       //Prop Panel Help
       showPropsHelp: false,
+
+      showCacheInfo: false,
 
     };
 
@@ -641,8 +644,15 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         //    </table>
         //  </div>;
 
-         const loadSummary = createPerformanceTableSmall( fetchInfo.performance );
+        const isCachedText = fetchInfo.cache.wasCached === true === true ? 'Yep!' : 'Nope';
+        const toggleCache = fetchInfo.cache.wasCached === false ? null :  <Icon iconName='OfflineStorage' onClick={ this.showCacheInfo.bind(this) } style={ { cursor: 'pointer', fontSize: '16px', } } title="Show Cache Info"></Icon>;
 
+        const loadTable = this.state.showCacheInfo === false ?  createPerformanceTableSmall( fetchInfo.performance, fetchInfo.cache ) :  createCacheTableSmall( fetchInfo.cache, fetchInfo.cache ) ;
+
+         const loadSummary = <div className={ stylesPerform.performance } style={{ paddingLeft: '15px', minWidth: '400px' }}>
+         <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify( fetchInfo.performance.forceReloadScripts )}, &nbsp;&nbsp;&nbsp;&nbsp;cache:  { isCachedText } { toggleCache } </div>
+          { loadTable }
+       </div>;
 
 /***
  *    db      d888888b d8888b. d8888b.  .d8b.  d8888b. db    db      db      d888888b d8b   db db   dD .d8888. 
@@ -789,13 +799,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let spPageContextInfoContent : any[] = [] ; //this.props.displayMode === DisplayMode.Edit && spPageContextInfoClassic === true ? [this.spPageContextInfoClassic ]: [];
 
-    
+
     //https://github.com/mikezimm/SecureScript7/issues/71
     if ( this.props.displayMode === DisplayMode.Edit ) {
       const classicCollapse: React.CSSProperties = { height: this.state.contextWarnClassic , overflow: 'hidden'  };
       const modernCollapse: React.CSSProperties = { height: this.state.contextWarnModern , overflow: 'hidden' };
 
-      
+
       const classicContextBlock = <div className={ styles.classicContext } onClick={ this.toggleClassicWarnHeight.bind(this) } style={ classicCollapse }>
         {/* <h2>Classic <b>spPageContextInfo</b> is enabled { this.hideClassicIcon } </h2> */}
         <h2>Classic <b>spPageContextInfo</b> is enabled</h2>
@@ -1177,6 +1187,12 @@ private getProfilePage() {
  */
 
   
+   private showCacheInfo( ) : void {
+    let newSetting = this.state.showCacheInfo === true ? false : true;
+    this.setState( { showCacheInfo: newSetting } );
+  }
+
+  
    private toggleClassicWarnHeight( ) : void {
     let newSetting = this.state.contextWarnClassic === null ? '12px' : null;
     this.setState( { contextWarnClassic: newSetting } );
@@ -1197,7 +1213,6 @@ private getProfilePage() {
   private hideModernWarn( ) : void {
     this.setState( { contextWarnModern: '0px' } );
   }
-
 
   private togglePropsHelp(){
       let newState = this.state.showPropsHelp === true ? false : true;

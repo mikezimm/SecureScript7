@@ -59,7 +59,7 @@ import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import { approvedSites, throttleAnalytics} from './components/Security20/ApprovedLibraries';
 import { approvedLibraries, } from './components/Security20/ApprovedPropPane';
 
-import { IApprovedCDNs, IFetchInfo, approvedFileTypes, approvedFilePickerTypes } from './components/Security20/interface';
+import { IApprovedCDNs, IFetchInfo, approvedFileTypes, approvedFilePickerTypes, setCache } from './components/Security20/interface';
 
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 import { createAdvSecProfile } from './components/Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
@@ -450,34 +450,41 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         //Logic to test if using htmlCache or loading
         let htmlCache = this.properties.enableHTMLCache !== true ? false : '';
         let usedCache = false;
+        let cahceInfo = null;
+
         if ( this.properties.enableHTMLCache === true && this.properties.htmlCache ) {
           htmlCache = this.properties.htmlCache;
           usedCache = true;
+          cahceInfo = this.properties.cache;
           console.log(`Used Cache in ${this.wpInstanceID}` );
         } else if ( this.properties.enableHTMLCache !== true ) { 
           this.properties.htmlCache = '' ;
+          this.properties.cache = setCache(); //reset cache info
           console.log(`Cleared Cache in ${this.wpInstanceID}` );
         }
         // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
-        this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache );
+        this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache, cahceInfo );
 
         //Update htmlCache on web part properties if that is what is wanted
         if ( usedCache === false && this.properties.enableHTMLCache === true && this.fetchInfo.snippet && this.fetchInfo.snippet.length > 0 ) {
           this.properties.htmlCache = this.fetchInfo.snippet.trim();
+          this.properties.cache = this.fetchInfo.cache;
           console.log(`Saved Cache in ${this.wpInstanceID}` );
         }
 
         //Reset fetchInstance which triggers some updates in react component
         this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
-        
+
       }
       this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
       // bannerProps.exportProps.performance = this.fetchInfo.performance;
 
+    } else {
       
     }
 
     this.properties.replacePanelHTML = visitorPanelInfo( this.properties, this.fetchInfo.performance ? this.fetchInfo.performance : null );
+
     this.bannerProps.replacePanelHTML = this.properties.replacePanelHTML;
 
   /***

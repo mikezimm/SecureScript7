@@ -15,7 +15,7 @@ import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/String
 
 import { approvedSites, } from './ApprovedLibraries';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel, PolicyFlagStyles } from './interface';
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel, PolicyFlagStyles, ICacheInfo, setCache } from './interface';
 
 import { buildSourceRankArray, standardizeLocalLink } from './functions';
 
@@ -101,6 +101,7 @@ export const linkOpenCloseRegex = /<a.*?href=.*?>/gi;
 
 export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7) {
     let base: IFetchInfo = {
+        cache: setCache(),
         snippet: '',
         selectedKey: 'raw',
         errorHTML: warning,
@@ -151,7 +152,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
 
 
 
-export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode, htmlCache: string | false  ) {
+export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode, htmlCache: string | false, oldCacheInfo: ICacheInfo  ) {
 
         performance.fetch = startPerformOp( 'fetch', displayMode );
 
@@ -207,8 +208,44 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
             let thisWebInstance = Web(`${window.location.origin}${webUrl}`);
             const item = await thisWebInstance.getFileByServerRelativePath(libraryItemPicker).getItem();
             const item2 = await item.fieldValuesAsText(); //OData__x005f_UIVersionString, 'SMTotalFileStreamSize'
-            console.log('item:', item );
+            console.log('snippetFileInfo: ~ 218:', item2 );
+            let newCacheInfo: ICacheInfo = {
+                
+                wasCached: true,
+                enableHTMLCache: true,
+                UIVersion: item2.OData__x005f_UIVersionString,
+                IsCurrentVersion: item2.IsCurrentVersion,
+                ModerationStatus: item2.ModerationStatus,
+                ModerationComments: item2.ModerationComments,
+                ID: item2.ID,
+
+                Modified: item2.Modified,
+                Editor: item2.Editor,
+                Created: item2.Created,
+                Author: item2.Author,
+                EditorName: item2.Modified_x005f_x0020_x005f_By,  //Modified_x005f_x0020_x005f_By
+                ExpirationDate: item2.ExpirationDate, // OData__x005f_ExpirationDate
+
+                NoExecute: item2.NoExecute,  //NoExecute
+                Comment: item2.OData__x005f_CheckinComment,  //OData__x005f_CheckinComment
+
+                FileRef: item2.FileRef,  //FileRef
+                FileLeafRef: item2.FileLeafRef,  //FileRef
+                Type: item2.File_x005f_x0020_x005f_Type,  //File_x005f_x0020_x005f_Type
+
+                size: parseInt( item2.File_x005f_x0020_x005f_Size),
+            };
+
+            result.cache = newCacheInfo;
+
+        } else if ( oldCacheInfo &&  wasCached === true ) {
+            //Update fetchInfo with previously stored cache info
+            result.cache = oldCacheInfo;
+
         }
+
+        console.log('htmlCacheInfo ~ 227:', result.cache );
+
         return result;
 
     }
@@ -345,6 +382,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
  */
 
     let result :  IFetchInfo= {
+        cache: setCache(),
         selectedKey: 'raw',
         snippet: htmlFragment,
         errorHTML: '',
