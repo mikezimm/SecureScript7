@@ -194,18 +194,27 @@
 
 		tr {
 			padding: 3px;
-			td { 
+
+			td {
 				font-weight: 600;
+				padding-right: 10px;
+				text-align: left;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				
+			}
+			td:first-child { 
+				max-width: 175px;
+				
 			}
 
 			td:nth-child(2) { 
 				color: 'darkblue';
+				max-width: 330px;
 			}
 
-			td {
-				padding-right: 10px;
-				text-align: left
-			}
+
 		}
 	}
 

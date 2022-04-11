@@ -8,9 +8,9 @@ import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctio
 
 import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker";
 
-import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
+import { IAdvancedSecurityProfile, ICacheInfo } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 
-import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './components/Performance/IPerformance';
+import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from './components/Performance/IPerformance';
 
 export const changeExpando = [ 
   'enableExpandoramic','expandoDefault','expandoStyle', 'expandoPadding', 'expandoAudience',
@@ -22,25 +22,42 @@ export const changeVisitor = [ 'panelMessageDescription1', 'panelMessageSupport'
 
 export const changeAdvanced = [ 'spPageContextInfoClassic', 'spPageContextInfoModern', ];
 
-export const changeBanner = [ 'showBanner', 'bannerTitle', 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', 'bannerStyleChoice', 'bannerStyle', 'bannerCmdStyle', 'bannerHoverEffect', 'showRepoLinks', 'showExport', 'lockStyles' ];
+export const changeBannerBasics = [ 'showBanner', 'bannerTitle', ];
+export const changeBannerNav = [ 'showGoToHome', 'showGoToParent', 'homeParentGearAudience', ];
+export const changeBannerTheme = [ 'bannerStyleChoice', 'bannerStyle', 'bannerCmdStyle', 'bannerHoverEffect',  ];
+export const changeBannerOther = [ 'showRepoLinks', 'showExport', 'lockStyles',   ];
+
+export const changeBanner = [ ...changeBannerBasics, ...changeBannerNav, ...changeBannerTheme, ...changeBannerOther  ];
 
 export const changefpsOptions1 = [  'searchShow', 'quickLaunchHide', 'pageHeaderHide', 'allSectionMaxWidthEnable', 'allSectionMaxWidth', 'allSectionMarginEnable', 'allSectionMargin', 'toolBarHide', ];
 
  export const changefpsOptions2 = [  'fpsPageStyle', 'fpsContainerMaxWidth' ];
 
+ export const changeCache = [ 'cache' ];
+
 
 //, exportIgnoreProps, importBlockProps, importBlockPropsDev
 //These props will not be exported even if they are in one of the change arrays above (fail-safe)
 //This was done to always insure these values are not exported to the user
-export const exportIgnoreProps = [
-  'analyticsList', 'analyticsWeb', 
-];
+
+//Common props to Ignore export
+export const exportIgnorePropsFPS = [ 'analyticsList', 'analyticsWeb',  ];
+
+//Specific for this web part
+export const exportIgnorePropsThis = [ ];
+
+export const exportIgnoreProps = [ ...exportIgnorePropsFPS, ...exportIgnorePropsThis  ];
 
 //These props will not be imported even if they are in one of the change arrays above (fail-safe)
 //This was done so user could not manually insert specific props to over-right fail-safes built in to the webpart
-export const importBlockProps = [
-  'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks', 'showRepoLinks', 'showExport', 'fpsImportProps', 'fullPanelAudience', 'documentationIsValid', 'currentWeb', 'loadPerformance', 'webpartHistory', 
-];
+
+//Common props to block import
+export const importBlockPropsFPS = [ 'scenario', 'analyticsList', 'analyticsWeb', 'lastPropDetailChange', 'showBanner' , 'showTricks', 'showRepoLinks', 'showExport', 'fpsImportProps', 'fullPanelAudience', 'documentationIsValid', 'currentWeb', 'loadPerformance', 'webpartHistory', ];
+
+//Specific for this web part
+export const importBlockPropsThis = [ 'cache', ];
+
+export const importBlockProps = [ ...importBlockPropsFPS, ...importBlockPropsThis ];
 
 //This will be in npmFunctions > Services/PropPane/FPSOptionsExpando in next release.
 //  export type IExpandAudiences = 'Site Admins' | 'Site Owners' | 'Page Editors' | 'WWWone';
@@ -135,8 +152,19 @@ export interface ISecureScript7WebPartProps {
 
     forceReloadScripts: boolean;  // 2022-04-04:  Added this to try and resolve https://github.com/mikezimm/SecureScript7/issues/72
 
-    loadPerformance: ILoadPerformance;
+    loadPerformance: ILoadPerformanceSS7;
 
     fpsImportProps: string;
+
+    //Create in web part cache
+    enableHTMLCache: boolean;
+    cache: ICacheInfo;
+    libraryItemPickerCache: string;
+
+    htmlVersion: any;
+    htmlDate: Date;
+    htmlAuthor: string;
+
+    htmlCache: string;
 
   }

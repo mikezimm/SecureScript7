@@ -13,20 +13,35 @@ export interface IPerformanceOp {
     details?: IPerformanceOp[]; //Could be used to trace individual file loads
 }
 
-//For logging load times - for analytics
+/**
+ * ILoadPerformance is Baseline common performance informance detail
+ * For logging load times - for analytics
+ */
 export interface ILoadPerformance {
-    spPageContextInfoClassic: boolean;
-    spPageContextInfoModern: boolean;
-    forceReloadScripts: boolean;
 
     onInit:  Date ;
     constructor:  Date ;
 
-    fetch:  IPerformanceOp  ;
+    fetch?:  IPerformanceOp  ;
+    monitor: boolean; // set to true to save session performance (for people who can see it)
+    history?: IHistoryPerformance[]; 
+}
+
+
+/**
+ * ILoadPerformanceSS7 has specific indicators relavant to SecureScript7
+ * For logging load times - for analytics
+ */
+
+export interface ILoadPerformanceSS7 extends ILoadPerformance {
+
+    spPageContextInfoClassic: boolean;
+    spPageContextInfoModern: boolean;
+    forceReloadScripts: boolean;
+
     analyze:  IPerformanceOp  ;
     jsEval:  IPerformanceOp  ;
 
-    history: boolean; // set to true to save session performance (for people who can see it)
 }
 
 //For logging events while running the web part

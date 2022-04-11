@@ -1,10 +1,11 @@
-import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './IPerformance';
+import * as React from 'react';
 
-//import { startPerformInit, startPerformOp, } from '../Performance/functions';
+import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from './IPerformance';
 
-export function startPerformInit( classic, modern, reload, editMode, history ){
 
-    let result: ILoadPerformance = {
+export function startPerformInit( classic, modern, reload, editMode, monitor ){
+
+    let result: ILoadPerformanceSS7 = {
         spPageContextInfoClassic: classic,
         spPageContextInfoModern: modern,
         forceReloadScripts: reload,
@@ -16,7 +17,9 @@ export function startPerformInit( classic, modern, reload, editMode, history ){
         analyze:  null, // startPerformOp('analyze', editMode ),
         jsEval:  null, // startPerformOp('eval', editMode ),
 
-        history: history, // set to true to save session performance (for people who can see it)
+        monitor: monitor,
+
+        history: [], // set to true to save session performance (for people who can see it)
     };
 
     return result;

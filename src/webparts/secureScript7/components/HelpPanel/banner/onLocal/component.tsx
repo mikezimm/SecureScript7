@@ -64,16 +64,17 @@ const pivotHeading7 = 'Tricks';  //Templates
 const pivotHeading8 = 'About';  //Templates
 const pivotHeading9 = 'Export';  //Templates
 const pivotHeadingA = 'History';  //Templates
+const pivotHeadingB = 'Health';  //Templates
 
 export default class WebpartBanner extends React.Component<IWebpartBannerProps, IWebpartBannerState > {
 
 	private hoverEffect = this.props.hoverEffect === false ? false : true;
 
-    private gettingStarted= gettingStartedContent( this.props.gitHubRepo );
-    private basics= basicsContent( this.props.gitHubRepo );
-    private advanced= advancedContent( this.props.gitHubRepo );
-    private futurePlans= futureContent( this.props.gitHubRepo );
-    private dev= devTable( );
+	private gettingStarted= gettingStartedContent( this.props.gitHubRepo );
+	private basics= basicsContent( this.props.gitHubRepo );
+	private advanced= advancedContent( this.props.gitHubRepo );
+	private futurePlans= futureContent( this.props.gitHubRepo );
+	private dev= devTable( );
 	private errors= errorsContent( this.props.gitHubRepo );
 	private tricks= tricksTable( this.props.gitHubRepo );
 	private about= aboutTable( this.props.gitHubRepo, this.props.showRepoLinks );
@@ -98,7 +99,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 		if ( item.changes.length === 0 ) { return  null ; }
 		const changes = item.changes.map( ( change, idx ) => {
-			return <tr><td>{change.prop} : </td> <td>{ change.value ? change.value : 'Empty' }</td></tr>;
+			return <tr><td>{change.prop} : </td><td title={change.value}>{ change.value ? change.value : 'Empty' }</td></tr>;
 		});
 
 		return <div className={ styles.historyItem }>
@@ -353,7 +354,11 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 				></WebPartLinks>;
 
+				const thisWindow : any = window;
 				let content = null;
+				// let showMedical = this.isShowTricks && ( thisWindow.FPSUser || thisWindow.FPSOptions )  ? true : false;
+				let showMedical = this.isShowTricks === true && ( thisWindow.FPSUser || thisWindow.FPSOptions )  ? true : false;
+
 				if ( this.state.selectedKey === pivotHeadingX ) {
 					console.log('Banner component -build content');
 					content = <div>
@@ -409,9 +414,24 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 						{ thisInstanceChanges }
 						{ priorHistoryChanges }
 					</div>;
+
+				} else if ( this.state.selectedKey === pivotHeadingB ) {  //2022-01-31: Added Pivot Tiles
+	
+					if ( showMedical === true ) {
+						let medicalElements : any = [];
+						if ( thisWindow.FPSUser ) {
+							medicalElements.push( <ReactJson src={ thisWindow.FPSUser } name={ 'FPSUser' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> );
+						}
+						if ( thisWindow.FPSUser ) {
+							medicalElements.push( <ReactJson src={ thisWindow.FPSOptions } name={ 'FPSOptions' } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ false } style={{ padding: '10px 0px' }}/> );
+						}
+						content= <div id="MedicalPanel" style={{paddingTop: '20px'}}>
+							{ medicalElements }
+						</div>;
+					}
 				}
 
-				if ( this.state.selectedKey === pivotHeading9 || this.state.selectedKey === pivotHeadingA || this.state.selectedKey === pivotHeadingX ) {
+				if ( this.state.selectedKey === pivotHeading9 || this.state.selectedKey === pivotHeadingA || this.state.selectedKey === pivotHeadingB || this.state.selectedKey === pivotHeadingX ) {
 					thisPage = content;
 
 				} else {
@@ -487,6 +507,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 						{ this.about 				 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'Info' }/> }
 						{ showExport !== true ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={pivotHeading9} itemIcon={ 'Export' }/> }
 						{ showHistory !== true ? null : <PivotItem headerText={ null } ariaLabel={pivotHeadingA} title={pivotHeadingA} itemKey={pivotHeadingA} itemIcon={ 'FullHistory' }/> }
+						{ showMedical !== true ? null : <PivotItem headerText={ null } ariaLabel={pivotHeadingB} title={pivotHeadingB} itemKey={pivotHeadingB} itemIcon={ 'Medical' }/> }
 					</Pivot>
 					{ thisPage }
 				</div>;

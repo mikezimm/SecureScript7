@@ -143,6 +143,18 @@ export const WebPartHelpElement = <div>
           <div className={ styles.topic}>Show Code Audience</div>
           <div>This lets you target which users see the { ShowCodeIcon } icon which lets them see your code.</div>
           <div><mark><b>NOTE:</b></mark> Site Admins and Site Owners will always see this button.</div>
+
+          <div className={ styles.topic}>Force reload scripts</div>
+          <div>Feature is still under development.  Do NOT use.</div>
+          <div><mark><b>NOTE:</b></mark> Site Admins and Site Owners will always see this button.</div>  
+
+          <div className={ styles.topic}>Cache initial web part file</div>
+          <div>If enabled, your html file in the web part properties.</div>
+          <div>In the end, this should save the load time of requesting the html file after the web part is loaded. The 'fetch' row of the Performance table in code pane shows how long it takes to do extra call.</div>
+          <div>Security checks are still done on every page refresh even with this enabled.</div>
+          <div><b><mark>When this is enabled:</mark> Updates to your html file are only reflected</b> in the web part if you Edit the Page and Web Part props.</div>
+
+
         </div>
       </PivotItem>
     
@@ -191,6 +203,7 @@ export const WebPartHelpElement = <div>
 
       <PivotItem headerText={ 'Banner' } > 
         <div className={ styles.helpContent}>
+          <div className={ styles.topic} style={{ textDecoration: 'underline' }}>FPS Banner - Basics</div>
           <div className={ styles.topic}>Show Banner</div>
           <div>May allow you to hide the banner.  If toggle disabled, it is required.</div>
 
@@ -198,6 +211,10 @@ export const WebPartHelpElement = <div>
           <div>Add Title text to the web part banner.</div>
           <div>Depending on the web part, this may not be editable.</div>
 
+          <div className={ styles.topic}>More Info text-button</div>
+          <div>Customize the More Information text/Icon in the right of the banner.</div>
+
+          <div className={ styles.topic} style={{ textDecoration: 'underline' }}>FPS Banner - Navigation</div>
           <div className={ styles.topic}>Show 'Go to Home Page' <Icon iconName='Home'></Icon> Icon</div>
           <div>Displays the <Icon iconName='Home'></Icon> when you are not on the site's home page.</div>
 
@@ -217,10 +234,9 @@ export const WebPartHelpElement = <div>
           
           
 
-          <div className={ styles.topic}>Style options</div>
+          <div className={ styles.topic} style={{ textDecoration: 'underline' }}>Theme options</div>
           <div><mark><b>NOTE:</b></mark> May be required depending on our policy for this web part</div>
-          <div><b>Black on White:</b> "fontSize":"large","color":"black","background":"white","fontWeight":"600","height":"45px"</div>
-          <div><b>Corporate Dark Theme:</b> "fontSize":"large","color":"white","background":"#005495","fontWeight":"600","height":"45px"</div> 
+          <div>Use dropdown to change your theme for the banner (color, buttons, text)</div>
 
           <div className={ styles.topic}>Banner Hover Effect</div>
           <div>Turns on or off the Mouse Hover effect.  If Toggle is off, the banner does not 'Fade In'.  Turn off if you want a solid color banner all the time.</div>
@@ -294,7 +310,12 @@ export const WebPartHelpElement = <div>
           <div>
             Be sure to follow these steps to improve performance and minimize any styling issues and delays:
             <ol>
-              <li>Start with a <b>Communication Site</b></li>
+              <li>Create a page from 'Apps' Template when you first create a page</li>
+              <ul>
+                <li>This will remove all navigation from the page, make the web part full page and load faster.</li>
+              </ul>
+
+              <li>IF NOT, then Start with a <b>Communication Site</b></li>
               <ul>
                 <li>This is the only site that allows true 'Full Width webparts'</li>
               </ul>

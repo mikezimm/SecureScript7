@@ -59,7 +59,7 @@ import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import { approvedSites, throttleAnalytics} from './components/Security20/ApprovedLibraries';
 import { approvedLibraries, } from './components/Security20/ApprovedPropPane';
 
-import { IApprovedCDNs, IFetchInfo, approvedFileTypes, approvedFilePickerTypes } from './components/Security20/interface';
+import { IApprovedCDNs, IFetchInfo, approvedFileTypes, approvedFilePickerTypes, setCache } from './components/Security20/interface';
 
 import { IAdvancedSecurityProfile } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 import { createAdvSecProfile } from './components/Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
@@ -69,7 +69,7 @@ import { fetchSnippetMike } from './components/Security20/FetchCode';
 // import { executeScript } from './components/Security20/EvalScripts';
 import { executeScript } from './components/Security20/EvalScripts20';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
-import { visitorPanelInfo } from './SecureScriptVisitorPanel';
+import { visitorPanelInfo } from './components/SecureScriptVisitorPanel';
 
 import { IWebpartHistory, IWebpartHistoryItem2 } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 import { createWebpartHistory, ITrimThis, updateWebpartHistory, upgradeV1History } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
@@ -84,7 +84,8 @@ import { IFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterf
 import { getFPSUser } from '@mikezimm/npmfunctions/dist/Services/Users/FPSUser';
 
 import { startPerformInit, startPerformOp, updatePerformanceEnd } from './components/Performance/functions';
-import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from './components/Performance/IPerformance';
+import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from './components/Performance/IPerformance';
+import { IWebpartBannerProps } from '@mikezimm/npmfunctions/dist/HelpPanel/onNpm/bannerProps';
 
 require('../../services/propPane/GrayPropPaneAccordions.css');
 
@@ -167,6 +168,11 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private snippet: string = '';
   private fetchInfo: IFetchInfo = null;
 
+  private libraryPicker = '';
+  private webPicker = '';
+  private libraryItemPicker = '';
+  private showCodeIcon: boolean = null;
+
   private importErrorMessage = '';
 
   private bannerElement : HTMLDivElement;
@@ -175,11 +181,16 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   private consoledClassicContext = false;
   private consoledModernContext = false;
 
-  private performance : ILoadPerformance = null;
+  private performance : ILoadPerformanceSS7 = null;
+  private bannerProps: IWebpartBannerProps = null;
+  private quickRefresh: boolean = false;
 
   private beAReader: boolean = false; //2022-04-07:  Intent of this is a one-time per instance to 'become a reader' level user.  aka, hide banner buttons that reader won't see
 
   private executedScript = false;
+
+  private testBlob: string = '';
+
 
   /***
  *     .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
@@ -224,17 +235,17 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
         } 
 
-      // sp.setup({
-      //   spfxContext: this.context
-      // });
-
-      this.performance = startPerformInit( this.properties.spPageContextInfoClassic, this.properties.spPageContextInfoModern, this.properties.forceReloadScripts, this.displayMode, false );
-
       this.urlParameters = getUrlVars();
 
+      // DEFAULTS SECTION:  Performance   <<< ================================================================
+      this.performance = startPerformInit( this.properties.spPageContextInfoClassic, this.properties.spPageContextInfoModern, this.properties.forceReloadScripts, this.displayMode, false );
+
+      // DEFAULTS SECTION:  FPSUser
       this.FPSUser = getFPSUser( this.context, links.trickyEmails, this.trickyApp ) ;
       console.log( 'FPSUser: ', this.FPSUser );
 
+
+      // DEFAULTS SECTION:  Expandoramic   <<< ================================================================
       this.expandoDefault = this.properties.expandoDefault === true && this.properties.enableExpandoramic === true && this.displayMode === DisplayMode.Read ? true : false;
       if ( this.urlParameters.Mode === 'Edit' ) { this.expandoDefault = false; }
       let expandoStyle: any = {};
@@ -252,13 +263,27 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.properties.showRepoLinks = false;
       this.properties.showExport = false;
 
+      // DEFAULTS SECTION:  Banner   <<< ================================================================
+      //This updates unlocks styles only when bannerStyleChoice === custom.  Rest are locked in the ui.
+      if ( this.properties.bannerStyleChoice === 'custom' ) { this.properties.lockStyles = false ; } else { this.properties.lockStyles = true; }
+
+      if ( this.properties.bannerHoverEffect === undefined ) { this.properties.bannerHoverEffect = true; }
+
+      if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
+        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
+        if ( !this.properties.bannerCmdStyle ) { this.properties.bannerCmdStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
+      }
+
+      // DEFAULTS SECTION:  Panel   <<< ================================================================
       if ( !this.properties.fullPanelAudience || this.properties.fullPanelAudience.length === 0 ) {
         this.properties.fullPanelAudience = 'Everyone';
       }
       if ( !this.properties.documentationLinkDesc || this.properties.documentationLinkDesc.length === 0 ) {
         this.properties.documentationLinkDesc = 'Documentation';
       }
-      
+
+
+      // DEFAULTS SECTION:  webPartHistory   <<< ================================================================
       //Preset this on existing installations
       // if ( this.properties.forceReloadScripts === undefined || this.properties.forceReloadScripts === null ) {
       //   this.properties.forceReloadScripts = false;
@@ -271,13 +296,15 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         history: priorHistory,
       };
 
-      //This updates unlocks styles only when bannerStyleChoice === custom.  Rest are locked in the ui.
-      if ( this.properties.bannerStyleChoice === 'custom' ) { this.properties.lockStyles = false ; } else { this.properties.lockStyles = true; }
+      
+      // DEFAULTS SECTION:  SecureScript   <<< ================================================================
+            //Create in web part cache
 
-      if ( this.context.pageContext.site.serverRelativeUrl.toLowerCase().indexOf( '/sites/lifenet') === 0 ) {
-        if ( !this.properties.bannerStyle ) { this.properties.bannerStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
-        if ( !this.properties.bannerCmdStyle ) { this.properties.bannerCmdStyle = createBannerStyleStr( 'corpDark1', 'banner') ; }
-      }
+      if ( this.properties.enableHTMLCache === undefined ) { this.properties.enableHTMLCache = false; }
+      if ( this.properties.htmlCache === undefined ) { this.properties.htmlCache = ''; }
+      if ( this.properties.htmlAuthor === undefined ) { this.properties.htmlAuthor = ''; }
+      if ( this.properties.libraryItemPickerCache === undefined ) { this.properties.libraryItemPickerCache = ''; }
+
 
     });
   }
@@ -298,145 +325,167 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
   // public render(): void {
   public async render() {
 
-    let renderAsReader = this.displayMode === DisplayMode.Read && this.beAReader === true ? true : false;
-
-    // CLASSIC CONTEXT LOAD
-    //https://github.com/mikezimm/SecureScript7/issues/71
-    if (this.properties.spPageContextInfoClassic && !window["_spPageContextInfo"]) {
-      window["_spPageContextInfo"] = this.context.pageContext.legacyPageContext;
-    }
-    //This needs to be outside of the previous loop because that seems to get triggered during inital 'view' render before going into edit mode
-    if ( this.displayMode === DisplayMode.Edit && this.consoledClassicContext === false && this.properties.spPageContextInfoClassic  ) { 
-      console.log('spPageContextInfoClassic:', this.context.pageContext.legacyPageContext ); this.consoledClassicContext = true;  }
-
-    // MODERN CONTEXT LOAD
-    //https://github.com/mikezimm/SecureScript7/issues/71
-    if (this.properties.spPageContextInfoModern && !window["_pageContext"]) {
-      window["_pageContextInfo"] = this.context.pageContext;
-    }
-    //This needs to be outside of the previous loop because that seems to get triggered during inital 'view' render before going into edit mode
-    if ( this.displayMode === DisplayMode.Edit && this.consoledModernContext === false && this.properties.spPageContextInfoModern  ) { 
-      console.log('spPageContextInfoModern:', this.context.pageContext ); this.consoledModernContext = true; }
-
     this._unqiueId = this.context.instanceId;
 
-    this.properties.replacePanelHTML = visitorPanelInfo( this.properties );
+    // quickRefresh is used for SecureScript for when caching html file.  <<< ================================================================
+    console.log(`SecureScript.ts Render:  quickRefresh, executedScript - ${this.wpInstanceID}`, this.quickRefresh, this.executedScript );
+    let renderAsReader = this.displayMode === DisplayMode.Read && this.beAReader === true ? true : false;
 
-    let errMessage = '';
-    this.validDocsContacts = '';
+    if ( this.quickRefresh !== true ) {
 
-    if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + ( this.properties.documentationLinkUrl ? this.properties.documentationLinkUrl : 'Empty.  ' ) ; this.validDocsContacts += 'DocLink,'; }
-    if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; this.validDocsContacts += 'Contacts,'; }
+        // CLASSIC CONTEXT LOAD
+        //https://github.com/mikezimm/SecureScript7/issues/71
+        if (this.properties.spPageContextInfoClassic && !window["_spPageContextInfo"]) {
+          window["_spPageContextInfo"] = this.context.pageContext.legacyPageContext;
+        }
+        //This needs to be outside of the previous loop because that seems to get triggered during inital 'view' render before going into edit mode
+        if ( this.displayMode === DisplayMode.Edit && this.consoledClassicContext === false && this.properties.spPageContextInfoClassic  ) { 
+          console.log('spPageContextInfoClassic:', this.context.pageContext.legacyPageContext ); this.consoledClassicContext = true;  }
 
-    let errorObjArray :  any[] =[];
+        // MODERN CONTEXT LOAD
+        //https://github.com/mikezimm/SecureScript7/issues/71
+        if (this.properties.spPageContextInfoModern && !window["_pageContext"]) {
+          window["_pageContextInfo"] = this.context.pageContext;
+        }
+        //This needs to be outside of the previous loop because that seems to get triggered during inital 'view' render before going into edit mode
+        if ( this.displayMode === DisplayMode.Edit && this.consoledModernContext === false && this.properties.spPageContextInfoModern  ) { 
+          console.log('spPageContextInfoModern:', this.context.pageContext ); this.consoledModernContext = true; }
 
-    let libraryPicker = encodeDecodeString(this.properties.libraryPicker, 'decode');
-    let webPicker = encodeDecodeString(this.properties.webPicker, 'decode');
-    let libraryItemPicker = this.properties.libraryItemPicker;
+        let errMessage = '';
+        this.validDocsContacts = '';
 
-    /***
-      *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
-      *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D 
-      *    88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY' 
-      *    88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b   
-      *    88   8D 88   88 88  V888 88  V888 88.     88 `88. 
-      *    Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD 
-      *                                                      
-      *                                                      
-      */
+        if ( this.properties.documentationIsValid !== true ) { errMessage += ' Invalid Support Doc Link: ' + ( this.properties.documentationLinkUrl ? this.properties.documentationLinkUrl : 'Empty.  ' ) ; this.validDocsContacts += 'DocLink,'; }
+        if ( !this.properties.supportContacts || this.properties.supportContacts.length < 1 ) { errMessage += ' Need valid Support Contacts' ; this.validDocsContacts += 'Contacts,'; }
 
-    let replacePanelWarning = `Anyone with lower permissions than '${this.properties.fullPanelAudience}' will ONLY see this content in panel`;
-    let buildBannerSettings : IBuildBannerSettings = {
+        let errorObjArray :  any[] =[];
 
-      FPSUser: this.FPSUser,
-      //this. related info
-      context: this.context ,
-      clientWidth: ( this.domElement.clientWidth - ( this.displayMode === DisplayMode.Edit ? 250 : 0) ),
-      exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl, ),
+        this.libraryPicker = encodeDecodeString(this.properties.libraryPicker, 'decode');
+        this.webPicker = encodeDecodeString(this.properties.webPicker, 'decode');
+        this.libraryItemPicker = this.properties.libraryItemPicker;
 
-      //Webpart related info
-      panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
-      modifyBannerTitle: this.modifyBannerTitle,
-      repoLinks: repoLink,
+        /***
+          *    d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
+          *    88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D 
+          *    88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY' 
+          *    88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b   
+          *    88   8D 88   88 88  V888 88  V888 88.     88 `88. 
+          *    Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD 
+          *                                                      
+          *                                                      
+          */
 
-      //Hard-coded Banner settings on webpart itself
-      forceBanner: this.forceBanner,
-      earyAccess: false,
-      wideToggle: true,
-      expandAlert: false,
-      expandConsole: true,
+        let replacePanelWarning = `Anyone with lower permissions than '${this.properties.fullPanelAudience}' will ONLY see this content in panel`;
+        let buildBannerSettings : IBuildBannerSettings = {
 
-      replacePanelWarning: replacePanelWarning,
-      //Error info
-      errMessage: errMessage,
-      errorObjArray: errorObjArray, //In the case of Pivot Tiles, this is manualLinks[],
-      expandoErrorObj: this.expandoErrorObj,
+          FPSUser: this.FPSUser,
+          //this. related info
+          context: this.context ,
+          clientWidth: ( this.domElement.clientWidth - ( this.displayMode === DisplayMode.Edit ? 250 : 0) ),
+          exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl, ),
 
-      beAUser: renderAsReader,
-      showBeAUserIcon: null,
+          //Webpart related info
+          panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
+          modifyBannerTitle: this.modifyBannerTitle,
+          repoLinks: repoLink,
 
-  };
+          //Hard-coded Banner settings on webpart itself
+          forceBanner: this.forceBanner,
+          earyAccess: false,
+          wideToggle: true,
+          expandAlert: false,
+          expandConsole: true,
 
-  let showTricks: any = false;
-  links.trickyEmails.map( getsTricks => {
-    if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { 
-      showTricks = true ;
-      this.properties.showRepoLinks = true; //Always show these users repo links
+          replacePanelWarning: replacePanelWarning,
+          //Error info
+          errMessage: errMessage,
+          errorObjArray: errorObjArray, //In the case of Pivot Tiles, this is manualLinks[],
+          expandoErrorObj: this.expandoErrorObj,
+
+          beAUser: renderAsReader,
+          showBeAUserIcon: null,
+
+      };
+
+      let showTricks: any = false;
+      links.trickyEmails.map( getsTricks => {
+        if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { 
+          showTricks = true ;
+          this.properties.showRepoLinks = true; //Always show these users repo links
+        }
+        } );
+
+      this.properties.showBannerGear = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.homeParentGearAudience, null, renderAsReader );
+      let bannerSetup = buildBannerProps( this.properties , this.FPSUser, buildBannerSettings, showTricks, renderAsReader );
+      errMessage = bannerSetup.errMessage;
+      this.bannerProps = bannerSetup.bannerProps;
+      let expandoErrorObj = bannerSetup.errorObjArray;
+
+      this.showCodeIcon = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.showCodeAudience , null, renderAsReader );
+      if ( this.properties.showCodeAudience && this.properties.showCodeAudience  !== 'Everyone' ) { 
+        this.bannerProps.showBeAUserIcon = true;
+      }
+
+      if ( this.bannerProps.showBeAUserIcon === true ) { this.bannerProps.beAUserFunction = this.beAUserFunction.bind(this); }
+
+      /***
+     *    d88888b d88888b d888888b  .o88b. db   db      d88888b d888888b db      d88888b 
+     *    88'     88'     `~~88~~' d8P  Y8 88   88      88'       `88'   88      88'     
+     *    88ooo   88ooooo    88    8P      88ooo88      88ooo      88    88      88ooooo 
+     *    88~~~   88~~~~~    88    8b      88~~~88      88~~~      88    88      88~~~~~ 
+     *    88      88.        88    Y8b  d8 88   88      88        .88.   88booo. 88.     
+     *    YP      Y88888P    YP     `Y88P' YP   YP      YP      Y888888P Y88888P Y88888P 
+     *                                                                                   
+     *                                                                                   
+     */
+
+
+      approvedSites.map( site => {
+        if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { this.cdnValid = true; }
+      });
+
+      if ( this.cdnValid !== true ) {
+        this.snippet = '<mark>Web URL is not valid.</mark>';
+      } else {
+
+        //Logic to test if using htmlCache or loading
+        let htmlCache = this.properties.enableHTMLCache !== true ? false : '';
+        let usedCache = false;
+        let cahceInfo = null;
+
+        if ( this.properties.enableHTMLCache === true && this.properties.htmlCache ) {
+          htmlCache = this.properties.htmlCache;
+          usedCache = true;
+          cahceInfo = this.properties.cache;
+          console.log(`Used Cache in ${this.wpInstanceID}` );
+        } else if ( this.properties.enableHTMLCache !== true ) { 
+          this.properties.htmlCache = '' ;
+          this.properties.cache = setCache(); //reset cache info
+          console.log(`Cleared Cache in ${this.wpInstanceID}` );
+        }
+        // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
+        this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache, cahceInfo );
+
+        //Update htmlCache on web part properties if that is what is wanted
+        if ( usedCache === false && this.properties.enableHTMLCache === true && this.fetchInfo.snippet && this.fetchInfo.snippet.length > 0 ) {
+          this.properties.htmlCache = this.fetchInfo.snippet.trim();
+          this.properties.cache = this.fetchInfo.cache;
+          console.log(`Saved Cache in ${this.wpInstanceID}` );
+        }
+
+        //Reset fetchInstance which triggers some updates in react component
+        this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
+
+      }
+      this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
+      // bannerProps.exportProps.performance = this.fetchInfo.performance;
+
+    } else {
+      
     }
-    } );
 
-  this.properties.showBannerGear = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.homeParentGearAudience, null, renderAsReader );
-  let bannerSetup = buildBannerProps( this.properties , this.FPSUser, buildBannerSettings, showTricks, renderAsReader );
-  errMessage = bannerSetup.errMessage;
-  let bannerProps = bannerSetup.bannerProps;
-  let expandoErrorObj = bannerSetup.errorObjArray;
+    this.properties.replacePanelHTML = visitorPanelInfo( this.properties, this.fetchInfo.performance ? this.fetchInfo.performance : null );
 
-  let showCodeIcon = verifyAudienceVsUser( this.FPSUser , showTricks, this.properties.showCodeAudience , null, renderAsReader );
-  if ( this.properties.showCodeAudience && this.properties.showCodeAudience  !== 'Everyone' ) { 
-    bannerProps.showBeAUserIcon = true;
-  }
-
-  if ( bannerProps.showBeAUserIcon === true ) { bannerProps.beAUserFunction = this.beAUserFunction.bind(this); }
-  // let legacyPageContext = this.context.pageContext.legacyPageContext;
-
-  // if ( this.properties.showCodeAudience === 'WWWone' || showTricks === true ) {
-  //   showCodeIcon = true;
-  // } else if ( legacyPageContext.isSiteAdmin === true ) {
-  //   showCodeIcon = true;
-  // } else if ( ( legacyPageContext.hasManageWebPermissions === true || legacyPageContext.isSiteOwner === true ) && ( 
-  //   this.properties.showCodeAudience === 'Site Owners' ) ) {
-  //   showCodeIcon = true;
-  //   //At some point, add for page editors but will require more thought to not slow down load.
-  // } else if ( legacyPageContext.isSiteAdmin === true ) {
-  //   showCodeIcon = true;
-  // }
-
-  /***
- *    d88888b d88888b d888888b  .o88b. db   db      d88888b d888888b db      d88888b 
- *    88'     88'     `~~88~~' d8P  Y8 88   88      88'       `88'   88      88'     
- *    88ooo   88ooooo    88    8P      88ooo88      88ooo      88    88      88ooooo 
- *    88~~~   88~~~~~    88    8b      88~~~88      88~~~      88    88      88~~~~~ 
- *    88      88.        88    Y8b  d8 88   88      88        .88.   88booo. 88.     
- *    YP      Y88888P    YP     `Y88P' YP   YP      YP      Y888888P Y88888P Y88888P 
- *                                                                                   
- *                                                                                   
- */
-
-
-  approvedSites.map( site => {
-    if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { this.cdnValid = true; }
-  });
-
-  if ( this.cdnValid !== true ) {
-    this.snippet = '<mark>Web URL is not valid.</mark>';
-  } else {
-    // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
-    this.fetchInfo = await fetchSnippetMike( this.context, webPicker, libraryPicker, libraryItemPicker , this.securityProfile, this.performance, this.displayMode );
-    //Reset fetchInstance which triggers some updates in react component
-    this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
-  }
-  this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
-  // bannerProps.exportProps.performance = this.fetchInfo.performance;
+    this.bannerProps.replacePanelHTML = this.properties.replacePanelHTML;
 
   /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
@@ -467,7 +516,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
         //Banner related props
         errMessage: 'any',
-        bannerProps: bannerProps,
+        bannerProps: this.bannerProps,
         webpartHistory: this.properties.webpartHistory,
 
         //SecureScript props
@@ -475,15 +524,15 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         displayMode: this.displayMode,
         cdnMode: this.cdnMode,
         cdnValid: this.cdnValid, 
-        webPicker: webPicker,
-        libraryPicker: libraryPicker,
+        webPicker: this.webPicker,
+        libraryPicker: this.libraryPicker,
         libraryItemPicker: `${this.properties.libraryItemPicker}`, //Fix downstream mutation
         fileRelativeUrl: `${this.properties.libraryItemPicker}`,
         approvedLibraries: this.approvedLibraries,
         domElement: this.domElement,
         fetchInfo: this.fetchInfo,
         fetchInstance: this.fetchInstance,
-        showCodeIcon: showCodeIcon,
+        showCodeIcon: this.showCodeIcon,
 
         spPageContextInfoClassic: this.properties.spPageContextInfoClassic,
         spPageContextInfoModern: this.properties.spPageContextInfoModern,
@@ -505,7 +554,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
     ReactDom.render(element, this.bannerElement);
 
-    if ( this.executedScript === false ) {
+    if ( this.executedScript === false && this.quickRefresh === false ) {
 
       let renderHTML = this.fetchInfo.snippet;
 
@@ -545,10 +594,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         }
       }
 
+      //Render one more time to push down the updated performance stats
+      this.quickRefresh = true;
       this.executedScript = true;
+      this.render();
+
     } else {
       console.log('Already loaded and rendered the script.  Only can do once.');
     }
+
+    
+    // reset quickRefresh if render is run again
+    this.quickRefresh = false;
 
   }
 
@@ -1180,6 +1237,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
                 PropertyPaneToggle("forceReloadScripts", {
                   label: "Force reload scripts every page refresh",
+                  onText: "Enabled",
+                  offText: "Disabled"
+                }),
+
+                PropertyPaneToggle("enableHTMLCache", {
+                  label: "Cache initial file in web part",
                   onText: "Enabled",
                   offText: "Disabled"
                 }),

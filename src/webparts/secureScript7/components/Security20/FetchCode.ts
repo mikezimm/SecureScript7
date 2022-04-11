@@ -5,18 +5,22 @@ import {SPHttpClient, SPHttpClientResponse} from '@microsoft/sp-http';
 
 import { Icon, ITag, mergeOverflows } from 'office-ui-fabric-react';
 
+import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, IPrincipalInfo, PrincipalType, PrincipalSource } from "@pnp/sp/presets/all";
+
+import "@pnp/sp/files";
+
 //encodeDecodeString(this.props.libraryPicker, 'decode')
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
 
 import { approvedSites, } from './ApprovedLibraries';
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel, PolicyFlagStyles } from './interface';
+import { IApprovedCDNs, IFetchInfo, ITagInfo, ISecurityProfile, IApprovedFileType, ICDNCheck , approvedFileTypes, IAdvancedSecurityProfile, IFileTypeSecurity, IPolicyFlag, IPolicyFlags, SourceInfo, IPolicyFlagLevel, PolicyFlagStyles, ICacheInfo, setCache } from './interface';
 
 import { buildSourceRankArray, standardizeLocalLink } from './functions';
 
 import { startPerformInit, startPerformOp, updatePerformanceEnd } from '../Performance/functions';
-import { IPerformanceOp, ILoadPerformance, IHistoryPerformance } from '../Performance/IPerformance';
+import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from '../Performance/IPerformance';
 import { DisplayMode } from '@microsoft/sp-core-library';
 
 /***
@@ -95,8 +99,9 @@ export const linkOpenCloseRegex = /<a.*?href=.*?>/gi;
  */
 
 
-export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformance) {
+export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7) {
     let base: IFetchInfo = {
+        cache: setCache(),
         snippet: '',
         selectedKey: 'raw',
         errorHTML: warning,
@@ -147,7 +152,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
 
 
 
-export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformance, displayMode:DisplayMode  ) {
+export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode, htmlCache: string | false, oldCacheInfo: ICacheInfo  ) {
 
         performance.fetch = startPerformOp( 'fetch', displayMode );
 
@@ -173,9 +178,22 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         console.log('fetchSnippetMike: fileURL', fileURL );
 
         let preFetchTime = new Date();
+        let htmlFragment = '';
 
-        const htmlFragment = await context.spHttpClient.get(snippetURLQuery, SPHttpClient.configurations.v1)
-        .then((response: SPHttpClientResponse) => response.text());
+        let wasCached = false;
+
+        if ( htmlCache && htmlCache.length > 5 ) {
+            //This is loading cached file....
+            htmlFragment = htmlCache;
+            wasCached = true;
+
+        } else {
+
+            htmlFragment = await context.spHttpClient.get(snippetURLQuery, SPHttpClient.configurations.v1)
+            .then((response: SPHttpClientResponse) => response.text());
+
+        }
+
 
         // console.log('fetchSnippetMike: htmlFragment', htmlFragment );
 
@@ -185,11 +203,54 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
         let result :  IFetchInfo= await analyzeShippet (htmlFragment, preFetchTime, postFetchTime, securityProfile, performance, displayMode );
 
+        //This is new load with caching enabled... go get cache details from file
+        if ( wasCached === false && htmlCache !== false ) {
+            let thisWebInstance = Web(`${window.location.origin}${webUrl}`);
+            const item = await thisWebInstance.getFileByServerRelativePath(libraryItemPicker).getItem();
+            const item2 = await item.fieldValuesAsText(); //OData__x005f_UIVersionString, 'SMTotalFileStreamSize'
+            console.log('snippetFileInfo: ~ 218:', item2 );
+            let newCacheInfo: ICacheInfo = {
+                
+                wasCached: true,
+                enableHTMLCache: true,
+                UIVersion: item2.OData__x005f_UIVersionString,
+                IsCurrentVersion: item2.IsCurrentVersion,
+                ModerationStatus: item2.ModerationStatus,
+                ModerationComments: item2.ModerationComments,
+                ID: item2.ID,
+
+                Modified: item2.Modified,
+                Editor: item2.Editor,
+                Created: item2.Created,
+                Author: item2.Author,
+                EditorName: item2.Modified_x005f_x0020_x005f_By,  //Modified_x005f_x0020_x005f_By
+                ExpirationDate: item2.ExpirationDate, // OData__x005f_ExpirationDate
+
+                NoExecute: item2.NoExecute,  //NoExecute
+                Comment: item2.OData__x005f_CheckinComment,  //OData__x005f_CheckinComment
+
+                FileRef: item2.FileRef,  //FileRef
+                FileLeafRef: item2.FileLeafRef,  //FileRef
+                Type: item2.File_x005f_x0020_x005f_Type,  //File_x005f_x0020_x005f_Type
+
+                size: parseInt( item2.File_x005f_x0020_x005f_Size),
+            };
+
+            result.cache = newCacheInfo;
+
+        } else if ( oldCacheInfo &&  wasCached === true ) {
+            //Update fetchInfo with previously stored cache info
+            result.cache = oldCacheInfo;
+
+        }
+
+        console.log('htmlCacheInfo ~ 227:', result.cache );
+
         return result;
 
     }
 
-    export async function analyzeShippet( htmlFragment: string , preFetchTime: any, postFetchTime: any, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformance, displayMode:DisplayMode  ) {
+    export async function analyzeShippet( htmlFragment: string , preFetchTime: any, postFetchTime: any, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode  ) {
     /***
      *              d888888b  .d8b.   d888b       d888888b d8888b. d88888b d8b   db d888888b d888888b d88888b db    db 
      *              `~~88~~' d8' `8b 88' Y8b        `88'   88  `8D 88'     888o  88 `~~88~~'   `88'   88'     `8b  d8' 
@@ -321,6 +382,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
  */
 
     let result :  IFetchInfo= {
+        cache: setCache(),
         selectedKey: 'raw',
         snippet: htmlFragment,
         errorHTML: '',
