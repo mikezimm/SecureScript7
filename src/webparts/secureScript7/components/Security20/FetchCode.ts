@@ -133,7 +133,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
         securityProfile: securityProfile,
         summary: null,
         performance: performance,
-        runSandbox: true,
+        runSandbox: false,
     };
 
     return base;

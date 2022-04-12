@@ -65,7 +65,7 @@ import { IAdvancedSecurityProfile } from './components/Security20/interface';  /
 import { createAdvSecProfile } from './components/Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
 
 // import { fetchSnippet } from './loadDangerous';
-import { fetchSnippetMike } from './components/Security20/FetchCode';
+import { baseFetchInfo, fetchSnippetMike } from './components/Security20/FetchCode';
 // import { executeScript } from './components/Security20/EvalScripts';
 import { executeScript } from './components/Security20/EvalScripts20';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
@@ -443,8 +443,13 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { this.cdnValid = true; }
       });
 
-      if ( this.cdnValid !== true ) {
+      if ( this.cdnValid !== true && this.runSandbox !== true ) {
+
+        this.fetchInfo = baseFetchInfo( '<div style="height: 50, width: \'100%\'">Web URL is not valid.</div>', this.securityProfile, this.performance ) ;
         this.snippet = '<mark>Web URL is not valid.</mark>';
+        this.fetchInfo.snippet = this.snippet;
+        this.fetchInfo.selectedKey = 'Block';
+
       } else {
 
         //Logic to test if using htmlCache or loading
@@ -457,10 +462,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           usedCache = true;
           cahceInfo = this.properties.cache;
           console.log(`Used Cache in ${this.wpInstanceID}` );
+
         } else if ( this.properties.enableHTMLCache !== true ) { 
           this.properties.htmlCache = '' ;
           this.properties.cache = setCache(); //reset cache info
           console.log(`Cleared Cache in ${this.wpInstanceID}` );
+
         }
         // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
         this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache, cahceInfo, this.runSandbox );
@@ -476,11 +483,12 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
 
       }
+
       this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
       // bannerProps.exportProps.performance = this.fetchInfo.performance;
 
     } else {
-      
+      console.log('quickRefresh was true in main render')
     }
 
     this.properties.replacePanelHTML = visitorPanelInfo( this.properties, this.fetchInfo.performance ? this.fetchInfo.performance : null );

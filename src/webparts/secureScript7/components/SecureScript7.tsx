@@ -718,7 +718,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
        }
        buttons.push( <span style={{ padding: '0 20px' }}>{this.state.scope}</span> );
 
-       if ( fetchInfo.selectedKey === 'Block' ) { //Only add Sandbox if the code has block material
+       if ( fetchInfo.selectedKey === 'Block' || this.props.cdnValid !== true ) { //Only add Sandbox if the code has block material
         buttons.push( fetchInfo.runSandbox === true ? this.toggleStopSandbox : this.toggleRunSandbox );
        }
 
