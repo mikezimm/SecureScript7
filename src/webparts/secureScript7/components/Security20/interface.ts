@@ -177,6 +177,8 @@ export interface ITagInfo {
     securityProfile: IAdvancedSecurityProfile;
     summary: IFetchSummaryStats;
     performance: ILoadPerformanceSS7;
+
+    runSandbox: boolean;
   }
 
   export interface IFetchSummaryStats {

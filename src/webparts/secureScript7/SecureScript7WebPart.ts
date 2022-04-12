@@ -189,7 +189,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private executedScript = false;
 
-  private testBlob: string = '';
+  private runSandbox = false;
 
 
   /***
@@ -463,7 +463,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           console.log(`Cleared Cache in ${this.wpInstanceID}` );
         }
         // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
-        this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache, cahceInfo );
+        this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache, cahceInfo, this.runSandbox );
 
         //Update htmlCache on web part properties if that is what is wanted
         if ( usedCache === false && this.properties.enableHTMLCache === true && this.fetchInfo.snippet && this.fetchInfo.snippet.length > 0 ) {
@@ -523,7 +523,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         securityProfile: this.securityProfile,
         displayMode: this.displayMode,
         cdnMode: this.cdnMode,
-        cdnValid: this.cdnValid, 
+        cdnValid: this.cdnValid,
         webPicker: this.webPicker,
         libraryPicker: this.libraryPicker,
         libraryItemPicker: `${this.properties.libraryItemPicker}`, //Fix downstream mutation
@@ -536,6 +536,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
         spPageContextInfoClassic: this.properties.spPageContextInfoClassic,
         spPageContextInfoModern: this.properties.spPageContextInfoModern,
+
+        turnSandboxOn: this.turnSandboxOn.bind( this ),
+        turnSandboxOff: this.turnSandboxOff.bind( this ),
 
       }
     );
@@ -566,10 +569,27 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         renderHTML = this.fetchInfo.snippet.replace(/<\s*\S*iframe/ig, '<iframe sandbox ');
       }
 
-      this.scriptElement.innerHTML = renderHTML;
+      if ( this.scriptElement && renderHTML) {
+        this.scriptElement.innerHTML = renderHTML;
+        
+      } else {
+        console.log('Render error:  this.scriptElement = ', this.scriptElement );
+        console.log('Render error:  renderHTMLt = ', renderHTML );
+      }
+
 
       if ( renderHTML === '' ) {
         //Do nothing since script is empty
+      } else if ( this.runSandbox === true ) {
+
+        this.fetchInfo.performance.jsEval = startPerformOp( 'jsEval' , this.displayMode );
+        executeScript(this.scriptElement, this._unqiueId, document, this.properties.forceReloadScripts );
+        this.fetchInfo.performance.jsEval = updatePerformanceEnd( this.fetchInfo.performance.jsEval, true );
+      
+        this.runSandbox = false;
+
+        this.saveLoadAnalytics( 'Blocked Script', 'Blocked', this.fetchInfo, 'Blocks' );
+
       } else if ( this.fetchInfo.selectedKey === 'Block' ) {
         this.saveLoadAnalytics( 'Blocked Script', 'Blocked', this.fetchInfo, 'Blocks' );
 
@@ -597,6 +617,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       //Render one more time to push down the updated performance stats
       this.quickRefresh = true;
       this.executedScript = true;
+
       this.render();
 
     } else {
@@ -772,6 +793,18 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
     return Version.parse('1.0');
   }
 
+  private turnSandboxOn() {
+    this.runSandbox = true;
+    this.render();
+
+  }
+
+  private turnSandboxOff() {
+    this.runSandbox = false;
+    this.render();
+
+  }
+  
   private beAUserFunction() {
     if ( this.displayMode === DisplayMode.Edit ) {
       alert("'Be a regular user' mode is only available while viewing the page.  \n\nOnce you are out of Edit mode, please refresh the page (CTRL-F5) to reload the web part.");

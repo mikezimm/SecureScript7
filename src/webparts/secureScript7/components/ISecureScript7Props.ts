@@ -68,6 +68,9 @@ export interface ISecureScript7Props {
   fetchInstance: string;
   showCodeIcon: boolean;
 
+  turnSandboxOn: any; //Call back to web part to reload and execute Blocked scripts
+  turnSandboxOff: any; //Call back to web part to reload and execute Blocked scripts
+
 
   //ADDED FOR WEBPART HISTORY:  
   webpartHistory: IWebpartHistory;
@@ -119,5 +122,8 @@ export interface ISecureScript7State {
   searchValue: string;
 
   showCacheInfo: boolean;
+
+  isDialogVisible: boolean;
+  currentlySandbox: boolean;
   
 }

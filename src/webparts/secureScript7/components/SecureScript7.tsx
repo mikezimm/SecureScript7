@@ -9,6 +9,9 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
 import { Panel, IPanelProps, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
+import { Dialog, DialogFooter, DialogType, DialogContent } from 'office-ui-fabric-react/lib/Dialog';
+import { DefaultButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
+
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 // import { ISearchQuery, SearchResults, ISearchResult } from "@pnp/sp/search";
 
@@ -17,6 +20,8 @@ import ReactJson from "react-json-view";
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
 import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
+
+import { IMyDialogProps, buildConfirmDialog } from "./ConfirmSandBox";
 
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { approvedSites, SecureProfile, } from './Security20/ApprovedLibraries';
@@ -83,13 +88,21 @@ const fileButtonStyles = {
   fontWeight: 'normal',
 };
 
-
-
 export default class SecureScript7 extends React.Component<ISecureScript7Props, ISecureScript7State> {
 
-  private reStuleButtons() {
+  private reStyleButtons( ) {
     const buttonStyles = defaultBannerCommandStyles;
     buttonStyles.margin = '0px 10px';
+    return buttonStyles;
+  }
+
+  private reStyleButtons2( background: string = null, color: string = null ) {
+    let buttonStyles = JSON.parse(JSON.stringify( defaultBannerCommandStyles )) ;
+    buttonStyles.margin = '0px 10px';
+
+    if ( background ) { buttonStyles.background = background; }
+    if ( color ) { buttonStyles.color = color; }
+
     return buttonStyles;
   }
 
@@ -108,16 +121,18 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
    *                                                                                                                                
    */
 
-  private hideClassicIcon = <div style={{ float: 'right', display: 'inline-block'}}><Icon iconName={ 'ChromeClose' } onClick={ this.hideClassicWarn.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon></div>;
-  private hideModernIcon = <div style={{ float: 'right'}}><Icon iconName={ 'ChromeClose' } onClick={ this.hideModernWarn.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon></div>;
+  private hideClassicIcon = <div style={{ float: 'right', display: 'inline-block'}}><Icon iconName={ 'ChromeClose' } onClick={ this.hideClassicWarn.bind(this) } style={ this.reStyleButtons() } title='Show Raw HTML here'></Icon></div>;
+  private hideModernIcon = <div style={{ float: 'right'}}><Icon iconName={ 'ChromeClose' } onClick={ this.hideModernWarn.bind(this) } style={ this.reStyleButtons() } title='Show Raw HTML here'></Icon></div>;
   
-  private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
+  private toggleRawIcon = <Icon iconName={ 'FileCode' } onClick={ this.toggleRaw.bind(this) } style={ this.reStyleButtons() } title='Show Raw HTML here'></Icon>;
 
-  private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
-  private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ this.reStuleButtons() } title='Show Raw HTML here'></Icon>;
-  private toggleLiveWP = <Icon iconName={ 'Refresh' } onClick={ this.getLiveWebpart.bind(this) } style={ this.reStuleButtons() } title='Analyize live webpart'></Icon>;
-  private toggleFullPg = <Icon iconName={ 'DownloadDocument'} onClick={ this.getEntirePage.bind(this) } style={ this.reStuleButtons() } title='Analyize FULL Page'></Icon>;
+  private toggleTagFile = <Icon iconName={ 'TextField' } onClick={ this.toggleTag.bind(this) } style={ this.reStyleButtons() } title='Show Raw HTML here'></Icon>;
+  private toggleTagTag = <Icon iconName={ 'Tag' } onClick={ this.toggleTag.bind(this) } style={ this.reStyleButtons() } title='Show Raw HTML here'></Icon>;
+  private toggleLiveWP = <Icon iconName={ 'Refresh' } onClick={ this.getLiveWebpart.bind(this) } style={ this.reStyleButtons2( 'white', 'black' ) } title='Analyize live webpart'></Icon>;
+  private toggleFullPg = <Icon iconName={ 'DownloadDocument'} onClick={ this.getEntirePage.bind(this) } style={ this.reStyleButtons() } title='Analyize FULL Page'></Icon>;
 
+  private toggleRunSandbox = <Icon iconName={ 'ConstructionCone'} onClick={ this.toggleSandbox.bind(this) } style={ this.reStyleButtons2( 'white', 'black' ) } title='Execute all scripts in Sandbox Mode'></Icon>;
+  private toggleStopSandbox = <Icon iconName={ 'ConstructionConeSolid'} onClick={ this.toggleSandbox.bind(this) } style={ this.reStyleButtons2( 'yellow', 'red' ) } title='Stop Sandbox Mode'></Icon>;
 
   private tagPageNoteBlocks = 'Files BLOCKED due to a specific policy.';
   private tagPageNoteWarns = 'Files in High Risk locations (due to a policy) but still work.';
@@ -286,6 +301,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
       showCacheInfo: false,
 
+      isDialogVisible: false,
+      currentlySandbox: false,
+
     };
 
   }
@@ -356,7 +374,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
     let performance: ILoadPerformanceSS7 = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
 
 
-    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode  );
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode, false,  );
     performance.fetch = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.fetch ));
     performance.jsEval = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.jsEval ));
 
@@ -377,7 +395,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  
     let performance: ILoadPerformanceSS7 = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
 
-    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode   );
+    const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode, false   );
     performance.fetch = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.fetch ));
     performance.jsEval = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.jsEval ));
 
@@ -500,7 +518,16 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  */
 
     let blockHTML = null;
-    if ( fetchInfo.selectedKey === 'Block' ) {
+    if ( fetchInfo.runSandbox === true ) {
+      let blockHeight = this.state.fullBlockedHeight === true ? '38px' : null;
+      blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden', cursor: 'pointer' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
+        <h2>You are running in Sandbox Mode</h2>
+        <ul>
+        <li><b>All JS files should execute now</b></li>
+          <li>Press the construction code Icon again to exit sandbox mode.</li>
+        </ul>
+      </div>;
+    } else if ( fetchInfo.selectedKey === 'Block' ) {
       let blockHeight = this.state.fullBlockedHeight === true ? null : '50px';
       blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden', cursor: 'pointer' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
         <h2>Some content could not be loaded because it was blocked for security reasons</h2>
@@ -690,6 +717,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( bannerProps.showTricks === true ) { buttons.push( this.toggleFullPg ); }
        }
        buttons.push( <span style={{ padding: '0 20px' }}>{this.state.scope}</span> );
+       buttons.push( fetchInfo.runSandbox === true ? this.toggleStopSandbox : this.toggleRunSandbox );
 
        let contextInfo = null;
        if( this.props.spPageContextInfoClassic || this.props.spPageContextInfoModern ) { 
@@ -890,11 +918,47 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         >
         { panelContent }
       </Panel></div>;
-
-
       }
 
+      // const dialogContentProps = {
+      //   type: DialogType.normal,
+      //   title: 'dialogContentProps - Title.',
+      // };
 
+      // const dialogModalProps = {
+      //   isBlocking: true,
+      //   styles: { main: { maxWidth: 450 } },
+      // };
+
+      // const SandboxDialog = this.state.isDialogVisible !== true ? null : <Dialog
+      //   hidden={ !this.state.isDialogVisible }
+      //   onDismiss={ this.cancelSandBoxMode.bind(this) }
+      //   dialogContentProps={ dialogContentProps }
+      //   modalProps={ dialogModalProps }
+      //   >
+      //   <DialogFooter>
+      //     <DefaultButton onClick={ this.cancelSandBoxMode.bind(this)} text={ 'Do NOT load scripts'} />
+      //     <PrimaryButton onClick={ this.confirmSandBoxMode.bind(this)} text={'Load Scripts'} />
+      //   </DialogFooter>
+      // </Dialog>;
+
+      const dialogElement = <div>
+        <div style={{fontSize: 'large', lineHeight: 1.5, color: 'red', fontWeight: 600, paddingTop: '15px' }}>This will execute script that may be UNSAFE.</div>
+        <div style={{fontSize: 'large', color: 'red', fontWeight: 600, paddingBottom: '30px' }}>Use only if you know what you are doing :)</div>
+        <div style={{fontSize: 'normal', color: 'black', fontWeight: 600, paddingBottom: '20px'  }}>If you do not know what this means, press Cancel :)</div>
+      </div>;
+
+      const ThisDialogProps : IMyDialogProps = {
+        title: 'Do you REALLY WANT to run in Sandbox?  ',
+        // dialogMessage: 'If you do not know what this means, press Cancel :)',
+        dialogElement: dialogElement,
+        showDialog: this.state.isDialogVisible,
+        confirmButton: 'I konw what I\'m doing - Execute Code',
+        _confirmDialog: this.confirmSandBoxMode.bind( this ),
+        _closeDialog: this.cancelSandBoxMode.bind( this ),
+      };
+
+      const SandboxDialog = this.state.isDialogVisible !== true ? null : buildConfirmDialog( ThisDialogProps ) ;
 
 /***
  *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -918,6 +982,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         { termsOfUse }
         { actualElement }
         { bannerPanel }
+        { SandboxDialog }
       </section>
     );
   }
@@ -1174,6 +1239,31 @@ private getProfilePage() {
     
     });
 	}
+
+  private cancelSandBoxMode() {
+    console.log('cancelSandBoxMode');
+    this.props.turnSandboxOff();
+    this.updateSandboxStatus( false );
+  }
+
+  private confirmSandBoxMode() {
+    console.log('confirmSandBoxMode');
+    this.props.turnSandboxOn();
+    this.updateSandboxStatus( true );
+
+  }
+
+  private updateSandboxStatus( newStatus : boolean ) {
+    this.setState( { currentlySandbox: newStatus, isDialogVisible: false } );
+
+  }
+
+  private toggleSandbox() {
+    let newSetting = this.state.isDialogVisible === true ? false : true;
+    this.setState( { isDialogVisible: newSetting } );
+  }
+
+
 
   /***
  *    d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
