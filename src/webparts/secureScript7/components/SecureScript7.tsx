@@ -519,7 +519,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
     let blockHTML = null;
     if ( fetchInfo.runSandbox === true ) {
-      let blockHeight = this.state.fullBlockedHeight === true ? '38px' : null;
+      let blockHeight = this.state.fullBlockedHeight === true ? '42px' : null;
       blockHTML = <div style={{ padding: '0 10px 10px 10px', background: 'yellow', height: blockHeight, overflow: 'hidden', cursor: 'pointer' }} onClick={ this.toggleBlockWarnHeight.bind(this)}>
         <h2>You are running in Sandbox Mode</h2>
         <ul>
@@ -717,7 +717,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( bannerProps.showTricks === true ) { buttons.push( this.toggleFullPg ); }
        }
        buttons.push( <span style={{ padding: '0 20px' }}>{this.state.scope}</span> );
-       buttons.push( fetchInfo.runSandbox === true ? this.toggleStopSandbox : this.toggleRunSandbox );
+
+       if ( fetchInfo.selectedKey === 'Block' ) { //Only add Sandbox if the code has block material
+        buttons.push( fetchInfo.runSandbox === true ? this.toggleStopSandbox : this.toggleRunSandbox );
+       }
+
 
        let contextInfo = null;
        if( this.props.spPageContextInfoClassic || this.props.spPageContextInfoModern ) { 

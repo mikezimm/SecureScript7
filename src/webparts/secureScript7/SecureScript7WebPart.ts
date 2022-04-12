@@ -795,12 +795,16 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
   private turnSandboxOn() {
     this.runSandbox = true;
+    this.quickRefresh = false;
+    this.executedScript = false;
     this.render();
 
   }
 
   private turnSandboxOff() {
     this.runSandbox = false;
+    // this.quickRefresh = false;
+    // this.executedScript = false;
     this.render();
 
   }
