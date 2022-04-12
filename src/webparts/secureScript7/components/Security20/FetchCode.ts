@@ -133,6 +133,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
         securityProfile: securityProfile,
         summary: null,
         performance: performance,
+        runSandbox: true,
     };
 
     return base;
@@ -152,7 +153,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
 
 
 
-export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode, htmlCache: string | false, oldCacheInfo: ICacheInfo  ) {
+export async function fetchSnippetMike( context: any, webUrl: string, libraryPicker: string , libraryItemPicker: string , securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode, htmlCache: string | false, oldCacheInfo: ICacheInfo, runSandbox: boolean  ) {
 
         performance.fetch = startPerformOp( 'fetch', displayMode );
 
@@ -201,7 +202,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
         performance.fetch = updatePerformanceEnd( performance.fetch, true );
 
-        let result :  IFetchInfo= await analyzeShippet (htmlFragment, preFetchTime, postFetchTime, securityProfile, performance, displayMode );
+        let result :  IFetchInfo= await analyzeShippet (htmlFragment, preFetchTime, postFetchTime, securityProfile, performance, displayMode, runSandbox );
 
         //This is new load with caching enabled... go get cache details from file
         if ( wasCached === false && htmlCache !== false ) {
@@ -250,7 +251,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
     }
 
-    export async function analyzeShippet( htmlFragment: string , preFetchTime: any, postFetchTime: any, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode  ) {
+    export async function analyzeShippet( htmlFragment: string , preFetchTime: any, postFetchTime: any, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7, displayMode:DisplayMode, runSandbox: boolean  ) {
     /***
      *              d888888b  .d8b.   d888b       d888888b d8888b. d88888b d8b   db d888888b d888888b d88888b db    db 
      *              `~~88~~' d8' `8b 88' Y8b        `88'   88  `8D 88'     888o  88 `~~88~~'   `88'   88'     `8b  d8' 
@@ -381,6 +382,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
  *                                                                                                                                              
  */
 
+//This could be trimmed down to use the function to build, then just add new info to the object.
     let result :  IFetchInfo= {
         cache: setCache(),
         selectedKey: 'raw',
@@ -409,6 +411,7 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
         securityProfile: securityProfile,
         summary: null,
         performance: null,
+        runSandbox: runSandbox,
     };
 
     let allTags = [ ...scripts, ...css, ...img, ...link ];
