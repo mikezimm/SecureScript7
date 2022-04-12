@@ -11,6 +11,7 @@ import { Panel, IPanelProps, PanelType } from 'office-ui-fabric-react/lib/Panel'
 
 import { Dialog, DialogFooter, DialogType, DialogContent } from 'office-ui-fabric-react/lib/Dialog';
 import { DefaultButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
+import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
 
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 // import { ISearchQuery, SearchResults, ISearchResult } from "@pnp/sp/search";
@@ -76,6 +77,9 @@ const pivotHeading10 : IApprovedFileType = 'img';  //Templates
 const pivotHeading11 : IApprovedFileType = 'link';  //Templates
 const pivotHeading12 : string = 'raw';  //Templates
 const pivotHeading13 : string = 'profile';  //Templates
+const pivotHeading14 : string = 'missing';  //Templates
+
+const CheckingSpinner = <Spinner size={SpinnerSize.large} label={"checking ..."} style={{ padding: 30 }} />;
 
 const fileButtonStyles = {
   backgroundColor: 'transparent',
@@ -176,6 +180,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private tagPageNoteLINK = 'Attribute Links';
   private tagPageNoteLOCAL = 'Local Files';
   private tagPageNoteVERIFY = 'Verify Tags';
+  private tagPageNoteMissing = 'Missing 404';
 
 
   private page0 = this.buildTagPage( this.props.fetchInfo.Block, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.Block ) ;
@@ -194,6 +199,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   
   private pageL = this.buildTagPage( this.props.fetchInfo.Local, this.tagPageNoteLOCAL );
   private pageV = this.buildTagPage( this.props.fetchInfo.Verify, this.tagPageNoteVERIFY, [], 'Verify' );
+  // private pageM = this.buildMissingPage( this.props.fetchInfo, this.tagPageNoteMissing, );
 
 
   private pivotBlock = <PivotItem headerText={'Block'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceBlock.icon }/>;
@@ -214,6 +220,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pivotLINK = <PivotItem headerText={ null } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={pivotHeading11} itemIcon={ 'Link' }/>;
   private pivotRAW = <PivotItem headerText={ 'raw' } ariaLabel={'raw'} title={'raw'} itemKey={'raw'} itemIcon={ 'Embed' }/>;
   private pivotPROF = <PivotItem headerText={ null } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={pivotHeading13} itemIcon={ 'BookAnswers' }/>;
+  private pivotMiss = <PivotItem headerText={ null } ariaLabel={pivotHeading14} title={pivotHeading14} itemKey={pivotHeading14} itemIcon={ 'PlugDisconnected' }/>;
 
   /***
  *    d8b   db d88888b  .d8b.  d8888b.      d88888b  .d8b.  d8888b.      d88888b db      d88888b 
@@ -303,6 +310,9 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
       isDialogVisible: false,
       currentlySandbox: false,
+
+      missingPage: CheckingSpinner,
+      missingFetched: false,
 
     };
 
@@ -592,6 +602,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
             { this.getProfilePage() }
           </div> ;
          }
+        let missPage = null;
+        if ( this.state.selectedKey === pivotHeading14 ) { 
+          // thisPage = this.state.missingFetched !== true ? <Spinner size={SpinnerSize.large} label={"checking ..."} /> : this.state.missingPage;
+          thisPage = <div className = { styles.policies } >{ this.state.missingPage }</div>;
+        }
 
         let pivotItems: any [] = [];
 
@@ -611,6 +626,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( fetchInfo.img.length > 0 ) { pivotItems.push( this.pivotIMG ); }
         if ( fetchInfo.link.length > 0 ) { pivotItems.push( this.pivotLINK ); }
         if ( fetchInfo.snippet ) { pivotItems.push( this.pivotRAW ); }
+        if ( fetchInfo.snippet ) { pivotItems.push( this.pivotMiss ); }
 
         pivotItems.push( this.pivotPROF );
 
@@ -623,6 +639,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
           { pivotItems }
         </Pivot>
         { thisPage }
+        { missPage }
       </div>;
 
 
@@ -1074,6 +1091,62 @@ private getProfilePage() {
 }
 
 
+//Sent to @mikezimm/npmfunctions@1.0.226
+// private async _LinkStatus(url)
+// {
+//     //Require this is filled out.
+//     if ( !url ) { return false; }
+
+//     var http = new XMLHttpRequest();
+//     http.open('HEAD', url, false);
+//     let isValid: boolean | number = true;
+//     try {
+//       await http.send();
+//       isValid = http.status;
+
+//     }catch(e) {
+//       isValid = false;
+//     }
+
+//     return isValid;
+// } 
+
+private async buildMissingPage(  fetchInfo: IFetchInfo, message: any, ) {
+  let files = [];
+  files.push(  <tr style={ null }><th style={{ minWidth: '40px' }}>{ 'idx' }</th><th style={{ whiteSpace: 'nowrap'}}>Status</th><th>Type</th><th>Open</th><th>File Name</th></tr> );
+  
+  let tagsInfo = [ ...fetchInfo.js, ...fetchInfo.css , ...fetchInfo.img, ...fetchInfo.link ];
+  
+  for (let i = 0; i < tagsInfo.length; i++) {
+    let tag  = tagsInfo[ i] ;
+    
+    let verifyTag = tag.file && tag.file.length > 0 && tag.file !== '#' && ( tag.file.indexOf('+') < 0 || tag.file.indexOf('+') > 10 ) ? true : false;
+
+    if ( verifyTag === true ) {
+      const canCheckLocation = tag.location === 'Approved' || tag.location === 'Local';
+      // tag.found = tag.found !== undefined  || tag.location === 'Verify' ? tag.found : await this._LinkStatus( tag.file );
+      tag.found = tag.location === 'Verify' ? tag.found : await this._LinkStatus( tag.file );
+      const foundLabel = tag.location === 'Verify' ? 'unkonwn' : tag.found === true ? 'true' : tag.found === false ? 'false' : tag.found;
+      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ { cursor: 'pointer' } } title={`Open file: ${tag.file}`}></Icon>;
+      files.push(  <tr style={ tag.fileStyle }><td>{ i }</td><td style={{ whiteSpace: 'nowrap'}}>{ foundLabel }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr> );
+    }
+
+    // files.push(  <div>test</div> );
+  }
+
+
+  let fileTable = <div>
+    { message }
+    <table className = {styles.secProfile }>{ files }</table>
+    {/* <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+    <ReactJson src={ SourceInfo } name={ 'SourceInfo' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/> */}
+  </div> ;
+
+    return fileTable;
+
+}
+
+
 /***
  *    d8888b. db    db d888888b db      d8888b.      d888888b  .d8b.   d888b       d8888b.  .d8b.   d888b  d88888b 
  *    88  `8D 88    88   `88'   88      88  `8D      `~~88~~' d8' `8b 88' Y8b      88  `8D d8' `8b 88' Y8b 88'     
@@ -1110,7 +1183,7 @@ private getProfilePage() {
         if ( tag.tag.toLowerCase().indexOf( searchValue.toLowerCase() ) === -1 ) {
           return;
         }
-      } 
+      }
       let parts = tag.tag.split( tag.fileOriginal );
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
@@ -1203,15 +1276,30 @@ private getProfilePage() {
  *                                                                                                     
  */
 
-  private _selectedIndex = (item): void => {
+  private _selectedIndex (item) {
     //This sends back the correct pivot category which matches the category on the tile.
-    let e: any = event;
 
-		let itemKey = item.props.itemKey;
+    let itemKey = item.props.itemKey;
 
-		this.setState({ selectedKey: itemKey });
-		
+    this.setState({ selectedKey: itemKey, missingPage: CheckingSpinner });
+
+    if ( itemKey === pivotHeading14 ) {
+      // this.fetchMissingPage();
+      setTimeout(() => this.fetchMissingPage() , 1);
+    }
+
 	}
+
+  private async fetchMissingPage () {
+    //This sends back the correct pivot category which matches the category on the tile.
+
+    let missingPage = null;
+    missingPage = await this.buildMissingPage( this.props.fetchInfo, 'Verifying if these files do exist' );
+
+		this.setState({ missingPage: missingPage, missingFetched: true });
+
+	}
+
 
   /***
  *     .d88b.  d8b   db      d88888b d888888b db      d88888b       .o88b. db      d888888b  .o88b. db   dD 

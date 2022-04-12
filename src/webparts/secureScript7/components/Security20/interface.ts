@@ -39,6 +39,8 @@ export interface ITagInfo {
     flagLevel: IPolicyFlagLevel;
     location: ICDNCheck;
     policyFlags: IPolicyFlag;
+    found?: boolean | number;
+    foundString?: string;
   }
 
   export interface IFileTypeCDN {

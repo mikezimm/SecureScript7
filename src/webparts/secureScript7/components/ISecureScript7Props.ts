@@ -125,5 +125,8 @@ export interface ISecureScript7State {
 
   isDialogVisible: boolean;
   currentlySandbox: boolean;
+
+  missingPage: any;
+  missingFetched: boolean;
   
 }

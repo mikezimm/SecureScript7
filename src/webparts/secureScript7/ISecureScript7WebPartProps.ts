@@ -5,8 +5,10 @@ import { IExpandAudiences } from "@mikezimm/npmfunctions/dist/Services/PropPane/
 
 import { IWebpartHistory, IWebpartHistoryItem2, } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryInterface';
 import { createWebpartHistory, updateWebpartHistory } from '@mikezimm/npmfunctions/dist/Services/PropPane/WebPartHistoryFunctions';
+import { ISupportedHost } from "@mikezimm/npmfunctions/dist/Services/PropPane/FPSInterfaces";
 
 import { IPropertyFieldGroupOrPerson } from "@pnp/spfx-property-controls/lib/PropertyFieldPeoplePicker";
+
 
 import { IAdvancedSecurityProfile, ICacheInfo } from './components/Security20/interface';  //securityProfile: IAdvancedSecurityProfile,
 
@@ -71,6 +73,8 @@ export interface ISecureScript7WebPartProps {
     uniqueId: string;
     showBannerGear: boolean; // Not in Prop Pane
     
+    pageLayout: ISupportedHost // like SinglePageApp etc... this.context[_pageLayout];
+
     //2022-02-17:  Added these for expandoramic mode
     enableExpandoramic: boolean;
     expandoDefault: boolean;
