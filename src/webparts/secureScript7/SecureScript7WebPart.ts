@@ -65,7 +65,7 @@ import { IAdvancedSecurityProfile } from './components/Security20/interface';  /
 import { createAdvSecProfile } from './components/Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
 
 // import { fetchSnippet } from './loadDangerous';
-import { fetchSnippetMike } from './components/Security20/FetchCode';
+import { baseFetchInfo, fetchSnippetMike } from './components/Security20/FetchCode';
 // import { executeScript } from './components/Security20/EvalScripts';
 import { executeScript } from './components/Security20/EvalScripts20';
 import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
@@ -235,6 +235,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
 
         } 
 
+      this.properties.pageLayout =  this.context['_pageLayoutType']?this.context['_pageLayoutType'] : this.context['_pageLayoutType'];
       this.urlParameters = getUrlVars();
 
       // DEFAULTS SECTION:  Performance   <<< ================================================================
@@ -259,7 +260,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       }
 
       let padding = this.properties.expandoPadding ? this.properties.expandoPadding : 20;
-      setExpandoRamicMode( this.context.domElement, this.expandoDefault, expandoStyle,  false, false, padding );
+      setExpandoRamicMode( this.context.domElement, this.expandoDefault, expandoStyle,  false, false, padding, this.properties.pageLayout  );
       this.properties.showRepoLinks = false;
       this.properties.showExport = false;
 
@@ -304,7 +305,14 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       if ( this.properties.htmlCache === undefined ) { this.properties.htmlCache = ''; }
       if ( this.properties.htmlAuthor === undefined ) { this.properties.htmlAuthor = ''; }
       if ( this.properties.libraryItemPickerCache === undefined ) { this.properties.libraryItemPickerCache = ''; }
+      if ( this.properties.webPicker.indexOf('YOURSUBSITE') > 0 
+        && this.context.pageContext.web.serverRelativeUrl.toLowerCase().indexOf('/sites/SecureCDN/'.toLowerCase()) === 0 ) { 
+          this.properties.webPicker = this.context.pageContext.web.serverRelativeUrl + '/'; 
+          // this.webPicker = this.context.pageContext.web.serverRelativeUrl + '/'; 
+          // this.properties.libraryPicker = 'CodeLibrary';
+          // this.libraryPicker  = 'CodeLibrary';
 
+        }
 
     });
   }
@@ -381,7 +389,7 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
           //this. related info
           context: this.context ,
           clientWidth: ( this.domElement.clientWidth - ( this.displayMode === DisplayMode.Edit ? 250 : 0) ),
-          exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl, ),
+          exportProps: buildExportProps( this.properties, this.wpInstanceID, this.context.pageContext.web.serverRelativeUrl ),
 
           //Webpart related info
           panelTitle: 'Secure Script 7 webpart - Script Editor with some controls',
@@ -443,44 +451,48 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { this.cdnValid = true; }
       });
 
-      if ( this.cdnValid !== true ) {
-        this.snippet = '<mark>Web URL is not valid.</mark>';
-      } else {
+      //Logic to test if using htmlCache or loading
+      let htmlCache = this.properties.enableHTMLCache !== true ? false : '';
+      let usedCache = false;
+      let cahceInfo = null;
 
-        //Logic to test if using htmlCache or loading
-        let htmlCache = this.properties.enableHTMLCache !== true ? false : '';
-        let usedCache = false;
-        let cahceInfo = null;
+      if ( this.properties.enableHTMLCache === true && this.properties.htmlCache ) {
+        htmlCache = this.properties.htmlCache;
+        usedCache = true;
+        cahceInfo = this.properties.cache;
+        console.log(`Used Cache in ${this.wpInstanceID}` );
 
-        if ( this.properties.enableHTMLCache === true && this.properties.htmlCache ) {
-          htmlCache = this.properties.htmlCache;
-          usedCache = true;
-          cahceInfo = this.properties.cache;
-          console.log(`Used Cache in ${this.wpInstanceID}` );
-        } else if ( this.properties.enableHTMLCache !== true ) { 
-          this.properties.htmlCache = '' ;
-          this.properties.cache = setCache(); //reset cache info
-          console.log(`Cleared Cache in ${this.wpInstanceID}` );
-        }
-        // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
-        this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache, cahceInfo, this.runSandbox );
-
-        //Update htmlCache on web part properties if that is what is wanted
-        if ( usedCache === false && this.properties.enableHTMLCache === true && this.fetchInfo.snippet && this.fetchInfo.snippet.length > 0 ) {
-          this.properties.htmlCache = this.fetchInfo.snippet.trim();
-          this.properties.cache = this.fetchInfo.cache;
-          console.log(`Saved Cache in ${this.wpInstanceID}` );
-        }
-
-        //Reset fetchInstance which triggers some updates in react component
-        this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
+      } else if ( this.properties.enableHTMLCache !== true ) { 
+        this.properties.htmlCache = '' ;
+        this.properties.cache = setCache(); //reset cache info
+        console.log(`Cleared Cache in ${this.wpInstanceID}` );
 
       }
+      // this.snippet = await fetchSnippetMike( this.context, encodeDecodeString( webPicker, 'decode'), encodeDecodeString(libraryPicker, 'decode'), this.properties.libraryItemPicker );
+      this.fetchInfo = await fetchSnippetMike( this.context, this.webPicker, this.libraryPicker, this.libraryItemPicker , this.securityProfile, this.performance, this.displayMode, htmlCache, cahceInfo, this.runSandbox );
+
+      //Update htmlCache on web part properties if that is what is wanted
+      if ( usedCache === false && this.properties.enableHTMLCache === true && this.fetchInfo.snippet && this.fetchInfo.snippet.length > 0 ) {
+        this.properties.htmlCache = this.fetchInfo.snippet.trim();
+        this.properties.cache = this.fetchInfo.cache;
+        console.log(`Saved Cache in ${this.wpInstanceID}` );
+      }
+
+      //Reset fetchInstance which triggers some updates in react component
+      this.fetchInstance = Math.floor(Math.random() * 79797979 ).toString();
+
+      if ( this.cdnValid !== true && this.runSandbox !== true ) {
+
+        this.fetchInfo.errorHTML = '<mark>CDN is not approved.</mark>';
+        this.fetchInfo.selectedKey = 'Block';
+
+      }
+
       this.fetchInfo.performance.forceReloadScripts = this.properties.forceReloadScripts;
       // bannerProps.exportProps.performance = this.fetchInfo.performance;
 
     } else {
-      
+      console.log('quickRefresh was true in main render');
     }
 
     this.properties.replacePanelHTML = visitorPanelInfo( this.properties, this.fetchInfo.performance ? this.fetchInfo.performance : null );
@@ -949,7 +961,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         if ( this.properties.webPicker.toLowerCase().indexOf( `${site.siteRelativeURL.toLowerCase()}/` ) > -1 ) { isValidCDN = true; this.cdnValid = true; }
       });
 
-      if ( isValidCDN === true ) {
+      //May need to remove this check so you can run in sandbox mode after saving props to invalid CDN
+      if ( isValidCDN === true || this.runSandbox === true || isValidCDN === false ) {
 
         this.getLibrariesList(this.properties.webPicker)
         .then((libraries): void => {
@@ -1009,8 +1022,9 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
         .then(() => this.context.propertyPane.refresh());
 
       } else { //Invalid CDN - clear all other properties
-        this.properties.libraryPicker = null;
-        this.libraryItemsList = [];
+        // Commenting these out so Sandbox Mode runs
+        // this.properties.libraryPicker = null;
+        // this.libraryItemsList = [];
       }
 
     } else { //No web selected, clear all sub properties
@@ -1125,7 +1139,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       this.itemsDropdownDisabled = true;
       this.onPropertyPaneFieldChanged('libraryPicker', previousItem, this.properties.libraryPicker);
       
-      if ( newValue !== '' && newValue.length > 0 ) {
+      //Added last check to only get libraries when the Url ends in /
+      if ( newValue !== '' && newValue.length > 0 && newValue.charAt(newValue.length - 1) === '/' ) {
         this.getLibrariesList(newValue)
         .then((libraries): void => {
 
@@ -1249,7 +1264,8 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                 // }),
 
                 PropertyPaneTextField('webPicker',{
-                  label: 'Approved web url',
+                  label: 'Approved web url - Must end with /',
+                  description: 'Make sure to add / at end!',
                 }),
 
                 PropertyPaneDropdown('libraryPicker', {

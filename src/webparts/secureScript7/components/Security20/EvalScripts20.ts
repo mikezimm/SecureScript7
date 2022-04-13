@@ -1,6 +1,10 @@
 
 import { SPComponentLoader } from '@microsoft/sp-loader';
 
+import { getHelpfullErrorV2, saveThisLogItem } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { _LinkIsValid, _LinkStatus } from "@mikezimm/npmfunctions/dist/Links/AllLinks";
+
 /***
  *    d88888b db    db  .d8b.  db           .d8888.  .o88b. d8888b. d888888b d8888b. d888888b 
  *    88'     88    88 d8' `8b 88           88'  YP d8P  Y8 88  `8D   `88'   88  `8D `~~88~~' 
@@ -36,12 +40,52 @@ export async function evalScript(elem, _unqiueId: string, thisDocument: Document
   } catch (e) {
       // IE has funky script nodes
       scriptTag.text = data;
+      let errMessage = getHelpfullErrorV2( e, true, true, 'evalScript ~ 40' );
+
   }
   console.log('_unqiueId, scriptTag, child:', _unqiueId, scriptTag, headTag.firstChild );
-  headTag.insertBefore(scriptTag, headTag.firstChild);
+
+    try {
+        // doesn't work on ie...
+        headTag.insertBefore(scriptTag, headTag.firstChild);
+    } catch (e) {
+        let errMessage = getHelpfullErrorV2( e, true, true, 'evalScript ~ 40' );
+    }
+
 }
 
+//Sent to @mikezimm/npmfunctions@1.0.226
+// export async function _LinkIsValid(url, consoleLog : boolean = true, extraMessage: string = '' )
+// {
+//     //Require this is filled out.
+//     if ( !url ) { return false; }
 
+//     var http = new XMLHttpRequest();
+//     http.open('HEAD', url, false);
+//     let isValid = true;
+//     let errMessage = '';
+//     try {
+    
+//       await http.send();
+//       isValid = http.status!=404 ? true : false;
+//       if ( isValid === false && consoleLog === true ) {
+//         errMessage = `${extraMessage} Location does not seem to exist ~ 68:  ${url}`;
+//         console.log( errMessage );
+//       }
+
+//     }catch(e) {
+
+//       isValid = false;
+//       errMessage = getHelpfullErrorV2( e, true, true, '_LinkIsValid ~ 75' );
+//       if ( consoleLog === true ) {
+//         console.log( `${extraMessage} Location does not seem to exist:  ${url}` );
+//         console.log( errMessage );
+
+//       }
+//     }
+
+//     return isValid === true ? '' : 'Link is not valid';
+// } 
 /***
  *    d88888b db    db d88888b  .o88b. db    db d888888b d88888b      .d8888.  .o88b. d8888b. d888888b d8888b. d888888b 
  *    88'     `8b  d8' 88'     d8P  Y8 88    88 `~~88~~' 88'          88'  YP d8P  Y8 88  `8D   `88'   88  `8D `~~88~~' 
@@ -113,25 +157,31 @@ export async function executeScript(element: HTMLElement, _unqiueId: string, thi
     for (let i = 0; i < urls.length; i++) {
         let scriptUrl: any = [];
         let prefix = '';
-        try {
-            scriptUrl = urls[i];
 
-            prefix = scriptUrl.indexOf('?') === -1 ? '?' : '&';
+        scriptUrl = urls[i];
 
-            // 2022-04-04:  Added this to try and resolve https://github.com/mikezimm/SecureScript7/issues/72
-            // Add unique param to force load on each run to overcome smart navigation in the browser as needed
-            if ( forceReloadScripts !== false ) { //Using !== false to force same behaviour on prior web part instances
-                scriptUrl += prefix + 'pnp=' + new Date().getTime();
-            } else {
-                // scriptUrl += prefix + 'pnp=' + 'fuzzyPawsSolutions';
-            }
+        prefix = scriptUrl.indexOf('?') === -1 ? '?' : '&';
 
+        // 2022-04-04:  Added this to try and resolve https://github.com/mikezimm/SecureScript7/issues/72
+        // Add unique param to force load on each run to overcome smart navigation in the browser as needed
+        if ( forceReloadScripts !== false ) { //Using !== false to force same behaviour on prior web part instances
+            scriptUrl += prefix + 'pnp=' + new Date().getTime();
+        } else {
+            // scriptUrl += prefix + 'pnp=' + 'fuzzyPawsSolutions';
+        }
+
+        console.log('await SPComponentLoader.loadScript: ', scriptUrl );
+        let errMessage = await _LinkIsValid( scriptUrl, true, 'Can not run SPComponentLoader on...');
+        //Only try to execute script if it exists.
+        if ( errMessage === '' ) {
+            try {
             await SPComponentLoader.loadScript(scriptUrl, { globalExportsName: "ScriptGlobal" });
-        } catch (error) {
-            console.log('Secure trace:  error executeScript-prefix ', prefix);
-            console.log('Secure trace:  error executeScript-scriptUrl ', scriptUrl);
-            if (console.error) {
-                console.error(error);
+            } catch (error) {
+                console.log('Secure trace:  error executeScript-prefix ', prefix);
+                console.log('Secure trace:  error executeScript-scriptUrl ', scriptUrl);
+                if (console.error) {
+                    console.error(error);
+                }
             }
         }
     }
@@ -146,8 +196,9 @@ export async function executeScript(element: HTMLElement, _unqiueId: string, thi
 
     for (let i = 0; scripts[i]; i++) {
         const scriptTag = scripts[i];
-        if (scriptTag.parentNode) { scriptTag.parentNode.removeChild(scriptTag); }
         console.log('Secure trace:  evalScript ' + i, scripts[i]);
+        if (scriptTag.parentNode) { scriptTag.parentNode.removeChild(scriptTag); }
+
 
         evalScript(scripts[i], _unqiueId, thisDocument,  );
     }

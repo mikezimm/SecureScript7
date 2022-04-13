@@ -39,6 +39,8 @@ export interface ITagInfo {
     flagLevel: IPolicyFlagLevel;
     location: ICDNCheck;
     policyFlags: IPolicyFlag;
+    found?: boolean | number;
+    foundString?: string;
   }
 
   export interface IFileTypeCDN {
@@ -116,6 +118,7 @@ export interface ITagInfo {
     NoExecute: string;  //NoExecute
     Comment: string;  //OData__x005f_CheckinComment
     size: number;  //File_x005f_x0020_x005f_Size
+    sizeStr: string;  //File_x005f_x0020_x005f_Size
     FileRef: string;  //FileRef
     FileLeafRef: string;  //FileLeafRef
     Type: string;  //File_x005f_x0020_x005f_Type
@@ -140,6 +143,7 @@ export interface ITagInfo {
       NoExecute: '',  //NoExecute
       Comment: '',  //OData__x005f_CheckinComment
       size: 0,  //File_x005f_x0020_x005f_Size
+      sizeStr: '-',  //File_x005f_x0020_x005f_Size
       FileRef: '',  //FileRef
       FileLeafRef: '',  //FileLeafRef
       Type: '',  //File_x005f_x0020_x005f_Type
@@ -179,6 +183,7 @@ export interface ITagInfo {
     performance: ILoadPerformanceSS7;
 
     runSandbox: boolean;
+
   }
 
   export interface IFetchSummaryStats {

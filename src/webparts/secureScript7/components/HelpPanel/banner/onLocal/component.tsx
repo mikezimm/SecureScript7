@@ -550,7 +550,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 	private _toggleExpando ( )  {
 		const newMode = this.state.expandoramicMode === true ? false : true;
-		setExpandoRamicMode( this.props.domElement, newMode, this.props.expandoStyle,  this.props.expandAlert, this.props.expandConsole, this.props.expandoPadding );
+		setExpandoRamicMode( this.props.domElement, newMode, this.props.expandoStyle,  this.props.expandAlert, this.props.expandConsole, this.props.expandoPadding, this.props.pageLayout );
 		// if ( this.state.expandoramicMode === true ) {
 			this.setState({ expandoramicMode: newMode,});
 		// } else {

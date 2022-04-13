@@ -99,6 +99,57 @@ export const linkOpenCloseRegex = /<a.*?href=.*?>/gi;
  */
 
 
+//This should be moved to npmFunctions once this web part code gets stable
+
+export async function getFileDetails( webUrl: string, FileByServerRelativePath: string ) {
+
+    let thisWebInstance = Web(`${window.location.origin}${webUrl}`);
+    const item = await thisWebInstance.getFileByServerRelativePath(FileByServerRelativePath).getItem();
+    const item2 = await item.fieldValuesAsText(); //OData__x005f_UIVersionString, 'SMTotalFileStreamSize'
+    console.log('snippetFileInfo: ~ 218:', item2 );
+    let size: number = parseInt( item2.File_x005f_x0020_x005f_Size);
+    let sizeStr: string = size.toLocaleString();
+
+    if ( size > 1e9 ) {
+        sizeStr = ( size / 1e9 ).toLocaleString() + ' GB';
+    } else if ( size > 1e6 ) {
+        sizeStr = ( size / 1e6 ).toLocaleString() + ' MB';
+    } else if ( size > 1e3 ) {
+        sizeStr = ( size / 1e3 ).toLocaleString() + ' KB';
+    }
+
+    let newCacheInfo: ICacheInfo = {
+        
+        wasCached: true,
+        enableHTMLCache: true,
+        UIVersion: item2.OData__x005f_UIVersionString,
+        IsCurrentVersion: item2.IsCurrentVersion,
+        ModerationStatus: item2.ModerationStatus,
+        ModerationComments: item2.ModerationComments,
+        ID: item2.ID,
+
+        Modified: item2.Modified,
+        Editor: item2.Editor,
+        Created: item2.Created,
+        Author: item2.Author,
+        EditorName: item2.Modified_x005f_x0020_x005f_By,  //Modified_x005f_x0020_x005f_By
+        ExpirationDate: item2.ExpirationDate, // OData__x005f_ExpirationDate
+
+        NoExecute: item2.NoExecute,  //NoExecute
+        Comment: item2.OData__x005f_CheckinComment,  //OData__x005f_CheckinComment
+
+        FileRef: item2.FileRef,  //FileRef
+        FileLeafRef: item2.FileLeafRef,  //FileRef
+        Type: item2.File_x005f_x0020_x005f_Type,  //File_x005f_x0020_x005f_Type
+
+        size: size,
+        sizeStr: sizeStr,
+    };
+
+    return newCacheInfo;
+
+}
+
 export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecurityProfile, performance: ILoadPerformanceSS7) {
     let base: IFetchInfo = {
         cache: setCache(),
@@ -133,7 +184,7 @@ export function baseFetchInfo( warning: string, securityProfile: IAdvancedSecuri
         securityProfile: securityProfile,
         summary: null,
         performance: performance,
-        runSandbox: true,
+        runSandbox: false,
     };
 
     return base;
@@ -206,38 +257,8 @@ export async function fetchSnippetMike( context: any, webUrl: string, libraryPic
 
         //This is new load with caching enabled... go get cache details from file
         if ( wasCached === false && htmlCache !== false ) {
-            let thisWebInstance = Web(`${window.location.origin}${webUrl}`);
-            const item = await thisWebInstance.getFileByServerRelativePath(libraryItemPicker).getItem();
-            const item2 = await item.fieldValuesAsText(); //OData__x005f_UIVersionString, 'SMTotalFileStreamSize'
-            console.log('snippetFileInfo: ~ 218:', item2 );
-            let newCacheInfo: ICacheInfo = {
-                
-                wasCached: true,
-                enableHTMLCache: true,
-                UIVersion: item2.OData__x005f_UIVersionString,
-                IsCurrentVersion: item2.IsCurrentVersion,
-                ModerationStatus: item2.ModerationStatus,
-                ModerationComments: item2.ModerationComments,
-                ID: item2.ID,
-
-                Modified: item2.Modified,
-                Editor: item2.Editor,
-                Created: item2.Created,
-                Author: item2.Author,
-                EditorName: item2.Modified_x005f_x0020_x005f_By,  //Modified_x005f_x0020_x005f_By
-                ExpirationDate: item2.ExpirationDate, // OData__x005f_ExpirationDate
-
-                NoExecute: item2.NoExecute,  //NoExecute
-                Comment: item2.OData__x005f_CheckinComment,  //OData__x005f_CheckinComment
-
-                FileRef: item2.FileRef,  //FileRef
-                FileLeafRef: item2.FileLeafRef,  //FileRef
-                Type: item2.File_x005f_x0020_x005f_Type,  //File_x005f_x0020_x005f_Type
-
-                size: parseInt( item2.File_x005f_x0020_x005f_Size),
-            };
-
-            result.cache = newCacheInfo;
+ 
+            result.cache = await getFileDetails( webUrl, libraryItemPicker );
 
         } else if ( oldCacheInfo &&  wasCached === true ) {
             //Update fetchInfo with previously stored cache info

@@ -11,6 +11,7 @@ import { Panel, IPanelProps, PanelType } from 'office-ui-fabric-react/lib/Panel'
 
 import { Dialog, DialogFooter, DialogType, DialogContent } from 'office-ui-fabric-react/lib/Dialog';
 import { DefaultButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
+import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
 
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 // import { ISearchQuery, SearchResults, ISearchResult } from "@pnp/sp/search";
@@ -19,17 +20,18 @@ import ReactJson from "react-json-view";
 
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
 import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
+import { _LinkIsValid, _LinkStatus } from "@mikezimm/npmfunctions/dist/Links/AllLinks";
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
-import { IMyDialogProps, buildConfirmDialog } from "./ConfirmSandBox";
+import { IMyBigDialogProps, buildConfirmDialogBig } from "@mikezimm/npmfunctions/dist/Elements/dialogBox";
 
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { approvedSites, SecureProfile, } from './Security20/ApprovedLibraries';
 
 import { createAdvSecProfile } from './Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, IApprovedFileType, ICDNCheck , IPolicyFlag, IPolicyFlagLevel, SourceInfo, IAdvancedSecurityProfile, IFileTypeSecurity, PolicyFlagStyles  } from './Security20/interface';
-import { analyzeShippet  } from './Security20/FetchCode';
+import { IApprovedCDNs, IFetchInfo, ITagInfo, IApprovedFileType, ICDNCheck , IPolicyFlag, IPolicyFlagLevel, SourceInfo, IAdvancedSecurityProfile, IFileTypeSecurity, PolicyFlagStyles, ICacheInfo  } from './Security20/interface';
+import { analyzeShippet, getFileDetails  } from './Security20/FetchCode';
 
 import { simpleParse } from './Security20/Beautify/function';
 import DOMPurify from 'dompurify';
@@ -55,6 +57,7 @@ import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from './Perf
 import { startPerformInit, startPerformOp, updatePerformanceEnd,  } from './Performance/functions';
 import stylesPerform from './Performance/performance.module.scss';
 import { createCacheTableSmall, createPerformanceTableSmall,  } from './Performance/tables';
+import { LimitedWebPartManager } from '@pnp/sp/webparts';
 
 
 
@@ -76,6 +79,9 @@ const pivotHeading10 : IApprovedFileType = 'img';  //Templates
 const pivotHeading11 : IApprovedFileType = 'link';  //Templates
 const pivotHeading12 : string = 'raw';  //Templates
 const pivotHeading13 : string = 'profile';  //Templates
+const pivotHeading14 : string = 'missing';  //Templates
+
+const CheckingSpinner = <Spinner size={SpinnerSize.large} label={"checking ..."} style={{ padding: 30 }} />;
 
 const fileButtonStyles = {
   backgroundColor: 'transparent',
@@ -176,6 +182,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private tagPageNoteLINK = 'Attribute Links';
   private tagPageNoteLOCAL = 'Local Files';
   private tagPageNoteVERIFY = 'Verify Tags';
+  private tagPageNoteMissing = 'Missing 404';
 
 
   private page0 = this.buildTagPage( this.props.fetchInfo.Block, this.tagPageNoteBlocks, this.props.fetchInfo.policyFlags.Block ) ;
@@ -194,6 +201,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   
   private pageL = this.buildTagPage( this.props.fetchInfo.Local, this.tagPageNoteLOCAL );
   private pageV = this.buildTagPage( this.props.fetchInfo.Verify, this.tagPageNoteVERIFY, [], 'Verify' );
+  // private pageM = this.buildMissingPage( this.props.fetchInfo, this.tagPageNoteMissing, );
 
 
   private pivotBlock = <PivotItem headerText={'Block'} ariaLabel={pivotHeading0} title={pivotHeading0} itemKey={pivotHeading0} itemIcon={ SourceBlock.icon }/>;
@@ -214,6 +222,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
   private pivotLINK = <PivotItem headerText={ null } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={pivotHeading11} itemIcon={ 'Link' }/>;
   private pivotRAW = <PivotItem headerText={ 'raw' } ariaLabel={'raw'} title={'raw'} itemKey={'raw'} itemIcon={ 'Embed' }/>;
   private pivotPROF = <PivotItem headerText={ null } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={pivotHeading13} itemIcon={ 'BookAnswers' }/>;
+  private pivotMiss = <PivotItem headerText={ null } ariaLabel={pivotHeading14} title={pivotHeading14} itemKey={pivotHeading14} itemIcon={ 'PlugDisconnected' }/>;
 
   /***
  *    d8b   db d88888b  .d8b.  d8888b.      d88888b  .d8b.  d8888b.      d88888b db      d88888b 
@@ -304,6 +313,10 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       isDialogVisible: false,
       currentlySandbox: false,
 
+      missingPage: CheckingSpinner,
+      missingFetched: false,
+      missing404: false,
+
     };
 
   }
@@ -373,13 +386,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  
     let performance: ILoadPerformanceSS7 = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
 
-
     const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode, false,  );
     performance.fetch = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.fetch ));
     performance.jsEval = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.jsEval ));
 
     fetchInfo.selectedKey = this.state.selectedKey;
     this.setStateFetchInfo( fetchInfo, 'Entire Page', this.state.searchValue, originalShowRaw );
+
   }
 
 
@@ -592,6 +605,11 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
             { this.getProfilePage() }
           </div> ;
          }
+        let missPage = null;
+        if ( this.state.selectedKey === pivotHeading14 ) { 
+          // thisPage = this.state.missingFetched !== true ? <Spinner size={SpinnerSize.large} label={"checking ..."} /> : this.state.missingPage;
+          thisPage = <div className = { styles.policies } >{ this.state.missingPage }</div>;
+        }
 
         let pivotItems: any [] = [];
 
@@ -611,6 +629,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         if ( fetchInfo.img.length > 0 ) { pivotItems.push( this.pivotIMG ); }
         if ( fetchInfo.link.length > 0 ) { pivotItems.push( this.pivotLINK ); }
         if ( fetchInfo.snippet ) { pivotItems.push( this.pivotRAW ); }
+        if ( fetchInfo.snippet ) { pivotItems.push( this.pivotMiss ); }
 
         pivotItems.push( this.pivotPROF );
 
@@ -623,6 +642,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
           { pivotItems }
         </Pivot>
         { thisPage }
+        { missPage }
       </div>;
 
 
@@ -672,12 +692,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         //  </div>;
 
         const isCachedText = fetchInfo.cache.wasCached === true === true ? 'Yep!' : 'Nope';
-        const toggleCache = fetchInfo.cache.wasCached === false ? null :  <Icon iconName='OfflineStorage' onClick={ this.showCacheInfo.bind(this) } style={ { cursor: 'pointer', fontSize: '16px', } } title="Show Cache Info"></Icon>;
+        const toggleCache = fetchInfo.cache.FileRef === '' ? null :  <Icon iconName='OfflineStorage' onClick={ this.showCacheInfo.bind(this) } style={ { cursor: 'pointer', fontSize: '20px', } } title="Show Cache Info"></Icon>;
+        const toggleGetCache = fetchInfo.cache.FileRef !== '' ? null :  <Icon iconName='Download' onClick={ this.getShowCacheInfo.bind(this) } style={ { cursor: 'pointer', fontSize: '20px', } } title="Fetch Cache Info"></Icon>;
 
         const loadTable = this.state.showCacheInfo === false ?  createPerformanceTableSmall( fetchInfo.performance, fetchInfo.cache ) :  createCacheTableSmall( fetchInfo.cache, fetchInfo.cache ) ;
 
          const loadSummary = <div className={ stylesPerform.performance } style={{ paddingLeft: '15px', minWidth: '400px' }}>
-         <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify( fetchInfo.performance.forceReloadScripts )}, &nbsp;&nbsp;&nbsp;&nbsp;cache:  { isCachedText } { toggleCache } </div>
+         <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify( fetchInfo.performance.forceReloadScripts )}, &nbsp;&nbsp;&nbsp;&nbsp;cache:  { isCachedText } { toggleCache } { toggleGetCache } </div>
           { loadTable }
        </div>;
 
@@ -718,7 +739,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
        }
        buttons.push( <span style={{ padding: '0 20px' }}>{this.state.scope}</span> );
 
-       if ( fetchInfo.selectedKey === 'Block' ) { //Only add Sandbox if the code has block material
+       if ( fetchInfo.selectedKey === 'Block' || this.props.cdnValid !== true ) { //Only add Sandbox if the code has block material
         buttons.push( fetchInfo.runSandbox === true ? this.toggleStopSandbox : this.toggleRunSandbox );
        }
 
@@ -782,6 +803,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       // Adding this to adjust expected width for when prop pane could be opened
       bannerWidth={ ( bannerProps.bannerWidth ) }
       pageContext={ bannerProps.pageContext }
+      pageLayout={ bannerProps.pageLayout }
       title ={ bannerTitle }
       panelTitle = { bannerProps.panelTitle }
       infoElement = { bannerProps.infoElement }
@@ -952,7 +974,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         <div style={{fontSize: 'normal', color: 'black', fontWeight: 600, paddingBottom: '20px'  }}>If you do not know what this means, press Cancel :)</div>
       </div>;
 
-      const ThisDialogProps : IMyDialogProps = {
+      const ThisDialogProps : IMyBigDialogProps = {
         title: 'Do you REALLY WANT to run in Sandbox?  ',
         // dialogMessage: 'If you do not know what this means, press Cancel :)',
         dialogElement: dialogElement,
@@ -962,7 +984,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         _closeDialog: this.cancelSandBoxMode.bind( this ),
       };
 
-      const SandboxDialog = this.state.isDialogVisible !== true ? null : buildConfirmDialog( ThisDialogProps ) ;
+      const SandboxDialog = this.state.isDialogVisible !== true ? null : buildConfirmDialogBig( ThisDialogProps ) ;
 
 /***
  *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -1074,6 +1096,76 @@ private getProfilePage() {
 }
 
 
+//Sent to @mikezimm/npmfunctions@1.0.226
+// private async _LinkStatus(url)
+// {
+//     //Require this is filled out.
+//     if ( !url ) { return false; }
+
+//     var http = new XMLHttpRequest();
+//     http.open('HEAD', url, false);
+//     let isValid: boolean | number = true;
+//     try {
+//       await http.send();
+//       isValid = http.status;
+
+//     }catch(e) {
+//       isValid = false;
+//     }
+
+//     return isValid;
+// } 
+
+private async buildMissingPage(  fetchInfo: IFetchInfo, message: any, ) {
+  let files = [];
+  let missing404 = false;
+  files.push(  <tr style={ null }><th style={{ minWidth: '40px' }}>{ 'idx' }</th><th style={{ whiteSpace: 'nowrap'}}>Status</th><th>Type</th><th>Open</th><th>File Name</th></tr> );
+  
+  let tagsInfo = [ ...fetchInfo.js, ...fetchInfo.css , ...fetchInfo.img, ...fetchInfo.link ];
+  
+  for (let i = 0; i < tagsInfo.length; i++) {
+    let tag  = tagsInfo[ i] ;
+    
+    let verifyTag = tag.file && tag.file.length > 0 && tag.file !== '#' && ( tag.file.indexOf('+') < 0 || tag.file.indexOf('+') > 10 ) ? true : false;
+
+    if ( verifyTag === true ) {
+      const canCheckLocation = tag.location === 'Approved' || tag.location === 'Local';
+      // tag.found = tag.found !== undefined  || tag.location === 'Verify' ? tag.found : await this._LinkStatus( tag.file );
+      tag.found = tag.location === 'Verify' ? tag.found : await _LinkStatus( tag.file );
+      if ( tag.found === 404 && tag.file.indexOf('.') === 0 ) {
+        missing404 = true;
+      }
+      const foundLabel = tag.location === 'Verify' ? 'unkonwn' : tag.found === true ? 'true' : tag.found === false ? 'false' : tag.found;
+      let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ { cursor: 'pointer' } } title={`Open file: ${tag.file}`}></Icon>;
+      files.push(  <tr style={ tag.fileStyle }><td>{ i }</td><td style={{ whiteSpace: 'nowrap'}}>{ foundLabel }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr> );
+    }
+
+    // files.push(  <div>test</div> );
+  }
+
+  const onCodeSite = window.location.href.toLowerCase().indexOf( this.props.webPicker.toLowerCase()) > -1 ? true : false;
+  const missing404Ele = missing404 === false ? null : <div style={{ fontWeight: 600, paddingBottom: '10px' }}><mark>NOTICE:</mark> Some of your 404s have ..local references.</div>;
+  const onCodeMessage = onCodeSite === true ? null : <div style={{ fontSize: 'larger', color: 'red', fontWeight: 600, paddingBottom: '10px' }}>You realize your code library is on a different site right???</div>;
+  const libLocation = onCodeSite === true ? null : <div style={{ display: 'flex', flexWrap: 'nowrap' }}><div style={{minWidth: '100px', fontWeight: 600 }}>CODE is on</div><div>{ this.props.webPicker  } </div></div>;
+  const currentLocation = onCodeSite === true ? null : <div style={{ display: 'flex', flexWrap: 'nowrap'}}><div style={{minWidth: '100px', fontWeight: 600}}>YOU are on</div><div>{ window.location.pathname.split( '/SitePages/')[0] }</div> </div>;
+
+  let fileTable = <div>
+    <div style={{ fontSize: 'larger', fontWeight: 600, textDecoration: 'underline', paddingBottom: '15px' }}>{ message }</div>
+    { missing404Ele }
+    { onCodeMessage }
+    { libLocation }
+    { currentLocation }
+
+    <table className = {styles.secProfile }>{ files }</table>
+    {/* <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
+    <ReactJson src={ SourceInfo } name={ 'SourceInfo' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/> */}
+  </div> ;
+
+    return fileTable;
+
+}
+
+
 /***
  *    d8888b. db    db d888888b db      d8888b.      d888888b  .d8b.   d888b       d8888b.  .d8b.   d888b  d88888b 
  *    88  `8D 88    88   `88'   88      88  `8D      `~~88~~' d8' `8b 88' Y8b      88  `8D d8' `8b 88' Y8b 88'     
@@ -1110,7 +1202,7 @@ private getProfilePage() {
         if ( tag.tag.toLowerCase().indexOf( searchValue.toLowerCase() ) === -1 ) {
           return;
         }
-      } 
+      }
       let parts = tag.tag.split( tag.fileOriginal );
       let tagCell = <td>{`${ parts[0] }`}<b>{`${ tag.fileOriginal }`}</b>{`${ parts[1] }`}</td>;
       let level = special === 'Verify' ? tag.policyFlags.Verify.join(' ') : tag.policyFlags.level;
@@ -1203,15 +1295,30 @@ private getProfilePage() {
  *                                                                                                     
  */
 
-  private _selectedIndex = (item): void => {
+  private _selectedIndex (item) {
     //This sends back the correct pivot category which matches the category on the tile.
-    let e: any = event;
 
-		let itemKey = item.props.itemKey;
+    let itemKey = item.props.itemKey;
 
-		this.setState({ selectedKey: itemKey });
-		
+    this.setState({ selectedKey: itemKey, missingPage: CheckingSpinner });
+
+    if ( itemKey === pivotHeading14 ) {
+      // this.fetchMissingPage();
+      setTimeout(() => this.fetchMissingPage() , 1);
+    }
+
 	}
+
+  private async fetchMissingPage () {
+    //This sends back the correct pivot category which matches the category on the tile.
+
+    let missingPage = null;
+    missingPage = await this.buildMissingPage( this.props.fetchInfo, 'Checking if these references do exist' );
+
+		this.setState({ missingPage: missingPage, missingFetched: true });
+
+	}
+
 
   /***
  *     .d88b.  d8b   db      d88888b d888888b db      d88888b       .o88b. db      d888888b  .o88b. db   dD 
@@ -1285,6 +1392,19 @@ private getProfilePage() {
     let newSetting = this.state.showCacheInfo === true ? false : true;
     this.setState( { showCacheInfo: newSetting } );
   }
+  
+  private async getShowCacheInfo( ) {
+    let fetchInfo : IFetchInfo = this.state.fetchInfo;
+    //Get cache info if it's not available
+    if ( this.state.fetchInfo.cache.FileRef === '' ) {
+      fetchInfo = JSON.parse(JSON.stringify( fetchInfo ));
+      fetchInfo.cache = await getFileDetails( this.props.webPicker, this.props.libraryItemPicker );
+      fetchInfo.cache.wasCached = this.props.fetchInfo.cache.wasCached;
+      fetchInfo.cache.enableHTMLCache = this.props.fetchInfo.cache.enableHTMLCache;
+    }
+
+    this.setState( { showCacheInfo: true, fetchInfo: fetchInfo } );
+  }
 
   
    private toggleClassicWarnHeight( ) : void {
@@ -1318,9 +1438,19 @@ private getProfilePage() {
     this.setState( { fullBlockedHeight: newSetting } );
   }
 
-  private toggleOriginal( ) : void {
+  private async toggleOriginal( ) {
     let newSetting = this.state.showOriginalHtml === true ? false : true;
-    this.setState( { showOriginalHtml: newSetting } );
+    let fetchInfo : IFetchInfo = this.state.fetchInfo;
+
+    //Get cache info if it's not available
+    if ( this.state.fetchInfo.cache.FileRef === '' ) {
+      fetchInfo = JSON.parse(JSON.stringify( fetchInfo ));
+      fetchInfo.cache = await getFileDetails( this.props.webPicker, this.props.libraryItemPicker );
+      fetchInfo.cache.wasCached = this.props.fetchInfo.cache.wasCached;
+      fetchInfo.cache.enableHTMLCache = this.props.fetchInfo.cache.enableHTMLCache;
+    }
+
+    this.setState( { showOriginalHtml: newSetting, fetchInfo: fetchInfo  } );
   }
 
   private toggleLogic( ) : void {

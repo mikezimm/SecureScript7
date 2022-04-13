@@ -125,5 +125,9 @@ export interface ISecureScript7State {
 
   isDialogVisible: boolean;
   currentlySandbox: boolean;
+
+  missingPage: any;
+  missingFetched: boolean;
+  missing404: boolean; //Tells whether or not the tested references have any 404 and .. references in tags
   
 }
