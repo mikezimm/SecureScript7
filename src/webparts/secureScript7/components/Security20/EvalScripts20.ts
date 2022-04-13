@@ -2,6 +2,9 @@
 import { SPComponentLoader } from '@microsoft/sp-loader';
 
 import { getHelpfullErrorV2, saveThisLogItem } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { _LinkIsValid, _LinkStatus } from "@mikezimm/npmfunctions/dist/Links/AllLinks";
+
 /***
  *    d88888b db    db  .d8b.  db           .d8888.  .o88b. d8888b. d888888b d8888b. d888888b 
  *    88'     88    88 d8' `8b 88           88'  YP d8P  Y8 88  `8D   `88'   88  `8D `~~88~~' 

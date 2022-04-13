@@ -9,7 +9,7 @@ import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 import { convertIssuesMarkdownStringToSpan } from '@mikezimm/npmfunctions/dist/Elements/Markdown';
 
-export const panelVersionNumber = '2022-04-12 -  1.0.1.20'; //Added to show in panel
+export const panelVersionNumber = '2022-04-13 -  1.0.1.21'; //Added to show in panel
 
 export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
 
@@ -20,7 +20,7 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
     };
 
     /**
-     * Security update log
+     * Security update log 
      * 
      * converting all links and cdns to lower case so casing does miss a flag
      * standardizing all cdn links to start with /sites/ if on tenant
@@ -32,6 +32,8 @@ export function aboutTable( repoLinks: IRepoLinks, showRepoLinks: boolean ) {
      * WARNING:  DO NOT add any CDNs to Global Warn or Approve unless you want it to apply to JS as well.
      */
 
+
+    table.rows.push( createAboutRow('2022-04-13',"1.0.1.21","#101, #103, #104, #105, #106 - Improvements to Code Pane, defaults and Debugging", showRepoLinks === true ? repoLinks : null ) );
 
     table.rows.push( createAboutRow('2022-04-12',"1.0.1.20","#100 - Add Sandbox mode", showRepoLinks === true ? repoLinks : null ) );
 

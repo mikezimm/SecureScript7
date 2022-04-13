@@ -20,17 +20,18 @@ import ReactJson from "react-json-view";
 
 import WebpartBanner from "./HelpPanel/banner/onLocal/component";
 import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
+import { _LinkIsValid, _LinkStatus } from "@mikezimm/npmfunctions/dist/Links/AllLinks";
 import { encodeDecodeString, } from "@mikezimm/npmfunctions/dist/Services/Strings/urlServices";
 
-import { IMyDialogProps, buildConfirmDialog } from "./ConfirmSandBox";
+import { IMyBigDialogProps, buildConfirmDialogBig } from "@mikezimm/npmfunctions/dist/Elements/dialogBox";
 
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { approvedSites, SecureProfile, } from './Security20/ApprovedLibraries';
 
 import { createAdvSecProfile } from './Security20/functions';  //securityProfile: IAdvancedSecurityProfile,
 
-import { IApprovedCDNs, IFetchInfo, ITagInfo, IApprovedFileType, ICDNCheck , IPolicyFlag, IPolicyFlagLevel, SourceInfo, IAdvancedSecurityProfile, IFileTypeSecurity, PolicyFlagStyles  } from './Security20/interface';
-import { analyzeShippet  } from './Security20/FetchCode';
+import { IApprovedCDNs, IFetchInfo, ITagInfo, IApprovedFileType, ICDNCheck , IPolicyFlag, IPolicyFlagLevel, SourceInfo, IAdvancedSecurityProfile, IFileTypeSecurity, PolicyFlagStyles, ICacheInfo  } from './Security20/interface';
+import { analyzeShippet, getFileDetails  } from './Security20/FetchCode';
 
 import { simpleParse } from './Security20/Beautify/function';
 import DOMPurify from 'dompurify';
@@ -56,6 +57,7 @@ import { IPerformanceOp, ILoadPerformanceSS7, IHistoryPerformance } from './Perf
 import { startPerformInit, startPerformOp, updatePerformanceEnd,  } from './Performance/functions';
 import stylesPerform from './Performance/performance.module.scss';
 import { createCacheTableSmall, createPerformanceTableSmall,  } from './Performance/tables';
+import { LimitedWebPartManager } from '@pnp/sp/webparts';
 
 
 
@@ -313,6 +315,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
 
       missingPage: CheckingSpinner,
       missingFetched: false,
+      missing404: false,
 
     };
 
@@ -383,13 +386,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
  
     let performance: ILoadPerformanceSS7 = startPerformInit( propsPerformance.spPageContextInfoClassic, propsPerformance.spPageContextInfoModern, propsPerformance.forceReloadScripts, this.props.displayMode, false );
 
-
     const fetchInfo: IFetchInfo = await analyzeShippet( htmlFragment , times, times, securityProfile, performance, this.props.displayMode, false,  );
     performance.fetch = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.fetch ));
     performance.jsEval = JSON.parse(JSON.stringify( this.props.fetchInfo.performance.jsEval ));
 
     fetchInfo.selectedKey = this.state.selectedKey;
     this.setStateFetchInfo( fetchInfo, 'Entire Page', this.state.searchValue, originalShowRaw );
+
   }
 
 
@@ -689,12 +692,13 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         //  </div>;
 
         const isCachedText = fetchInfo.cache.wasCached === true === true ? 'Yep!' : 'Nope';
-        const toggleCache = fetchInfo.cache.wasCached === false ? null :  <Icon iconName='OfflineStorage' onClick={ this.showCacheInfo.bind(this) } style={ { cursor: 'pointer', fontSize: '16px', } } title="Show Cache Info"></Icon>;
+        const toggleCache = fetchInfo.cache.FileRef === '' ? null :  <Icon iconName='OfflineStorage' onClick={ this.showCacheInfo.bind(this) } style={ { cursor: 'pointer', fontSize: '20px', } } title="Show Cache Info"></Icon>;
+        const toggleGetCache = fetchInfo.cache.FileRef !== '' ? null :  <Icon iconName='Download' onClick={ this.getShowCacheInfo.bind(this) } style={ { cursor: 'pointer', fontSize: '20px', } } title="Fetch Cache Info"></Icon>;
 
         const loadTable = this.state.showCacheInfo === false ?  createPerformanceTableSmall( fetchInfo.performance, fetchInfo.cache ) :  createCacheTableSmall( fetchInfo.cache, fetchInfo.cache ) ;
 
          const loadSummary = <div className={ stylesPerform.performance } style={{ paddingLeft: '15px', minWidth: '400px' }}>
-         <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify( fetchInfo.performance.forceReloadScripts )}, &nbsp;&nbsp;&nbsp;&nbsp;cache:  { isCachedText } { toggleCache } </div>
+         <div style={{paddingBottom: '8px'}}>forceReloadScripts: { JSON.stringify( fetchInfo.performance.forceReloadScripts )}, &nbsp;&nbsp;&nbsp;&nbsp;cache:  { isCachedText } { toggleCache } { toggleGetCache } </div>
           { loadTable }
        </div>;
 
@@ -799,6 +803,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
       // Adding this to adjust expected width for when prop pane could be opened
       bannerWidth={ ( bannerProps.bannerWidth ) }
       pageContext={ bannerProps.pageContext }
+      pageLayout={ bannerProps.pageLayout }
       title ={ bannerTitle }
       panelTitle = { bannerProps.panelTitle }
       infoElement = { bannerProps.infoElement }
@@ -969,7 +974,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         <div style={{fontSize: 'normal', color: 'black', fontWeight: 600, paddingBottom: '20px'  }}>If you do not know what this means, press Cancel :)</div>
       </div>;
 
-      const ThisDialogProps : IMyDialogProps = {
+      const ThisDialogProps : IMyBigDialogProps = {
         title: 'Do you REALLY WANT to run in Sandbox?  ',
         // dialogMessage: 'If you do not know what this means, press Cancel :)',
         dialogElement: dialogElement,
@@ -979,7 +984,7 @@ export default class SecureScript7 extends React.Component<ISecureScript7Props, 
         _closeDialog: this.cancelSandBoxMode.bind( this ),
       };
 
-      const SandboxDialog = this.state.isDialogVisible !== true ? null : buildConfirmDialog( ThisDialogProps ) ;
+      const SandboxDialog = this.state.isDialogVisible !== true ? null : buildConfirmDialogBig( ThisDialogProps ) ;
 
 /***
  *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -1113,6 +1118,7 @@ private getProfilePage() {
 
 private async buildMissingPage(  fetchInfo: IFetchInfo, message: any, ) {
   let files = [];
+  let missing404 = false;
   files.push(  <tr style={ null }><th style={{ minWidth: '40px' }}>{ 'idx' }</th><th style={{ whiteSpace: 'nowrap'}}>Status</th><th>Type</th><th>Open</th><th>File Name</th></tr> );
   
   let tagsInfo = [ ...fetchInfo.js, ...fetchInfo.css , ...fetchInfo.img, ...fetchInfo.link ];
@@ -1125,7 +1131,10 @@ private async buildMissingPage(  fetchInfo: IFetchInfo, message: any, ) {
     if ( verifyTag === true ) {
       const canCheckLocation = tag.location === 'Approved' || tag.location === 'Local';
       // tag.found = tag.found !== undefined  || tag.location === 'Verify' ? tag.found : await this._LinkStatus( tag.file );
-      tag.found = tag.location === 'Verify' ? tag.found : await this._LinkStatus( tag.file );
+      tag.found = tag.location === 'Verify' ? tag.found : await _LinkStatus( tag.file );
+      if ( tag.found === 404 && tag.file.indexOf('.') === 0 ) {
+        missing404 = true;
+      }
       const foundLabel = tag.location === 'Verify' ? 'unkonwn' : tag.found === true ? 'true' : tag.found === false ? 'false' : tag.found;
       let openIcon = <Icon iconName={ 'OpenFile' } onClick={ () => { window.open( tag.file, '_none') ; } } style={ { cursor: 'pointer' } } title={`Open file: ${tag.file}`}></Icon>;
       files.push(  <tr style={ tag.fileStyle }><td>{ i }</td><td style={{ whiteSpace: 'nowrap'}}>{ foundLabel }</td><td>{ tag.type }</td><td>{ openIcon }</td><td>{ tag.file }</td></tr> );
@@ -1134,9 +1143,19 @@ private async buildMissingPage(  fetchInfo: IFetchInfo, message: any, ) {
     // files.push(  <div>test</div> );
   }
 
+  const onCodeSite = window.location.href.toLowerCase().indexOf( this.props.webPicker.toLowerCase()) > -1 ? true : false;
+  const missing404Ele = missing404 === false ? null : <div style={{ fontWeight: 600, paddingBottom: '10px' }}><mark>NOTICE:</mark> Some of your 404s have ..local references.</div>;
+  const onCodeMessage = onCodeSite === true ? null : <div style={{ fontSize: 'larger', color: 'red', fontWeight: 600, paddingBottom: '10px' }}>You realize your code library is on a different site right???</div>;
+  const libLocation = onCodeSite === true ? null : <div style={{ display: 'flex', flexWrap: 'nowrap' }}><div style={{minWidth: '100px', fontWeight: 600 }}>CODE is on</div><div>{ this.props.webPicker  } </div></div>;
+  const currentLocation = onCodeSite === true ? null : <div style={{ display: 'flex', flexWrap: 'nowrap'}}><div style={{minWidth: '100px', fontWeight: 600}}>YOU are on</div><div>{ window.location.pathname.split( '/SitePages/')[0] }</div> </div>;
 
   let fileTable = <div>
-    { message }
+    <div style={{ fontSize: 'larger', fontWeight: 600, textDecoration: 'underline', paddingBottom: '15px' }}>{ message }</div>
+    { missing404Ele }
+    { onCodeMessage }
+    { libLocation }
+    { currentLocation }
+
     <table className = {styles.secProfile }>{ files }</table>
     {/* <ReactJson src={ this.props.securityProfile } name={ 'Security Profile' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
     <ReactJson src={ SourceInfo } name={ 'SourceInfo' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/> */}
@@ -1294,7 +1313,7 @@ private async buildMissingPage(  fetchInfo: IFetchInfo, message: any, ) {
     //This sends back the correct pivot category which matches the category on the tile.
 
     let missingPage = null;
-    missingPage = await this.buildMissingPage( this.props.fetchInfo, 'Verifying if these files do exist' );
+    missingPage = await this.buildMissingPage( this.props.fetchInfo, 'Checking if these references do exist' );
 
 		this.setState({ missingPage: missingPage, missingFetched: true });
 
@@ -1373,6 +1392,19 @@ private async buildMissingPage(  fetchInfo: IFetchInfo, message: any, ) {
     let newSetting = this.state.showCacheInfo === true ? false : true;
     this.setState( { showCacheInfo: newSetting } );
   }
+  
+  private async getShowCacheInfo( ) {
+    let fetchInfo : IFetchInfo = this.state.fetchInfo;
+    //Get cache info if it's not available
+    if ( this.state.fetchInfo.cache.FileRef === '' ) {
+      fetchInfo = JSON.parse(JSON.stringify( fetchInfo ));
+      fetchInfo.cache = await getFileDetails( this.props.webPicker, this.props.libraryItemPicker );
+      fetchInfo.cache.wasCached = this.props.fetchInfo.cache.wasCached;
+      fetchInfo.cache.enableHTMLCache = this.props.fetchInfo.cache.enableHTMLCache;
+    }
+
+    this.setState( { showCacheInfo: true, fetchInfo: fetchInfo } );
+  }
 
   
    private toggleClassicWarnHeight( ) : void {
@@ -1406,9 +1438,19 @@ private async buildMissingPage(  fetchInfo: IFetchInfo, message: any, ) {
     this.setState( { fullBlockedHeight: newSetting } );
   }
 
-  private toggleOriginal( ) : void {
+  private async toggleOriginal( ) {
     let newSetting = this.state.showOriginalHtml === true ? false : true;
-    this.setState( { showOriginalHtml: newSetting } );
+    let fetchInfo : IFetchInfo = this.state.fetchInfo;
+
+    //Get cache info if it's not available
+    if ( this.state.fetchInfo.cache.FileRef === '' ) {
+      fetchInfo = JSON.parse(JSON.stringify( fetchInfo ));
+      fetchInfo.cache = await getFileDetails( this.props.webPicker, this.props.libraryItemPicker );
+      fetchInfo.cache.wasCached = this.props.fetchInfo.cache.wasCached;
+      fetchInfo.cache.enableHTMLCache = this.props.fetchInfo.cache.enableHTMLCache;
+    }
+
+    this.setState( { showOriginalHtml: newSetting, fetchInfo: fetchInfo  } );
   }
 
   private toggleLogic( ) : void {

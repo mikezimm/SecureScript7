@@ -305,7 +305,14 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
       if ( this.properties.htmlCache === undefined ) { this.properties.htmlCache = ''; }
       if ( this.properties.htmlAuthor === undefined ) { this.properties.htmlAuthor = ''; }
       if ( this.properties.libraryItemPickerCache === undefined ) { this.properties.libraryItemPickerCache = ''; }
+      if ( this.properties.webPicker.indexOf('YOURSUBSITE') > 0 
+        && this.context.pageContext.web.serverRelativeUrl.toLowerCase().indexOf('/sites/SecureCDN/'.toLowerCase()) === 0 ) { 
+          this.properties.webPicker = this.context.pageContext.web.serverRelativeUrl + '/'; 
+          // this.webPicker = this.context.pageContext.web.serverRelativeUrl + '/'; 
+          // this.properties.libraryPicker = 'CodeLibrary';
+          // this.libraryPicker  = 'CodeLibrary';
 
+        }
 
     });
   }

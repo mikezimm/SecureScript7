@@ -73,7 +73,7 @@ export interface ISecureScript7WebPartProps {
     uniqueId: string;
     showBannerGear: boolean; // Not in Prop Pane
     
-    pageLayout: ISupportedHost // like SinglePageApp etc... this.context[_pageLayout];
+    pageLayout: ISupportedHost ;// like SinglePageApp etc... this.context[_pageLayout];
 
     //2022-02-17:  Added these for expandoramic mode
     enableExpandoramic: boolean;

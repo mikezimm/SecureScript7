@@ -10,6 +10,8 @@ import { RefinerRulesStrs, RefinerRulesInts, RefinerRulesNums, RefinerRulesTime,
 
 import { gitRepoDrillDownSmall, gitRepoSecureScript7Small } from '@mikezimm/npmfunctions/dist/Links/LinksRepos';
 
+import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/onNpm/defaults";
+
 import styles from './PropPanelHelp.module.scss';
 
 import ReactJson from "react-json-view";
@@ -97,7 +99,9 @@ const RequestStorageHere = <span>Please request storage <a href={tenantServiceRe
 
 const LinkFindInternalName = <a href="https://tomriha.com/what-is-sharepoint-column-internal-name-and-where-to-find-it/" target="_blank">Finding Internal Name of a column</a>;
 
-const ShowCodeIcon = <Icon iconName={ 'Code' } title='ShowCode icon'></Icon>;
+const ShowCodeIcon = <Icon iconName={ 'Code' } title='ShowCode icon' style={ defaultBannerCommandStyles }></Icon>;
+const CheckReferences = <Icon iconName={ 'PlugDisconnected' } title='Check Files' style={ defaultBannerCommandStyles }></Icon>;
+const ShowRawHTML = <Icon iconName={ 'FileCode' } title='Show Raw HTML here' style={ defaultBannerCommandStyles }></Icon>;
 
 const padRight15: React.CSSProperties = { paddingRight: '15px' };
 const padRight40: React.CSSProperties = { paddingRight: '40px' };
@@ -216,10 +220,10 @@ export const WebPartHelpElement = <div>
 
           <div className={ styles.topic} style={{ textDecoration: 'underline' }}>FPS Banner - Navigation</div>
           <div className={ styles.topic}>Show 'Go to Home Page' <Icon iconName='Home'></Icon> Icon</div>
-          <div>Displays the <Icon iconName='Home'></Icon> when you are not on the site's home page.</div>
+          <div>Displays the <Icon iconName='Home' style={ defaultBannerCommandStyles }></Icon> when you are not on the site's home page.</div>
 
           <div className={ styles.topic}>Show 'Go to Parent Site' <Icon iconName='Up'></Icon> Icon</div>
-          <div>Displays the <Icon iconName='Up'></Icon> when you are not on the site's home page.</div>
+          <div>Displays the <Icon iconName='Up' style={ defaultBannerCommandStyles }></Icon> when you are not on the site's home page.</div>
 
           <div className={ styles.topic}>Gear, Go to Home, Parent audience</div>
           <div>Minimum permissions requied to see the Home and Parent site icons.</div>
@@ -349,7 +353,7 @@ export const WebPartHelpElement = <div>
             <div>To Export web part settings</div>
             <ol>
               <li>Click on 'More Information' in the Web Part Banner</li>
-              <li>Click the Export tab <Icon iconName='Export'></Icon> (last tab in the Help Panel)</li>
+              <li>Click the Export tab <Icon iconName='Export' style={ defaultBannerCommandStyles }></Icon> (last tab in the Help Panel)</li>
               <li>Hover over Export Properties row</li>
               <li>Click the blue paper/arrow icon on the right side of the row to 'Export' the properties</li>
               <li>Edit this page and web part</li>
@@ -359,6 +363,19 @@ export const WebPartHelpElement = <div>
         </div>
       </PivotItem>
 
+      <PivotItem headerText={ 'Debugging' } > 
+        <div className={ styles.helpContent}>
+            <div className={ styles.topic}>Are your js/css references showing 404?</div>
+            <div>Make sure any ../SiteAssets/.. type of references are pointing the correct site.</div>
+            <div>The code is no longer stored on the same site you may be running the web part on.</div>
+            <div>In the Code Pane { ShowCodeIcon }, click { ShowRawHTML } and then check Connections tab { CheckReferences } to do a quick test :)</div>
+
+            <div className={ styles.topic}>Does javascript just not seem to execute?  Especially in Sandbox Mode?</div>
+            <div>Try setting <b>Force reload scripts every page refresh</b> = <b>TRUE</b> in Script Editor Properties (below Show Code Audience)</div>
+            <div>This does increase load time but may be required due to SharePoint 'Smart Navigation' caching :(</div>
+
+        </div>
+      </PivotItem>
       {/* <PivotItem headerText={ 'Refiner Rules' } > 
         <div className={ styles.helpContent}>
             <div className={ styles.topic}></div>

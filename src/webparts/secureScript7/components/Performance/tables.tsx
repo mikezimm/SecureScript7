@@ -47,7 +47,7 @@ export function createCacheRows( cacheInfo: ICacheInfo ) {
     </tr>
   ];
 
-  const skipProps: string[] = [ 'wasCached', 'enableHTMLCache', 'EditorName', 'FileRef' ];
+  const skipProps: string[] = [ 'wasCached', 'enableHTMLCache', 'EditorName', 'FileRef', 'size' ];
   Object.keys( cacheInfo ).map( part => {
 
     if ( skipProps.indexOf( part ) < 0 && cacheInfo[ part ] ) {
