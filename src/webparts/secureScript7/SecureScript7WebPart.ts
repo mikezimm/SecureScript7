@@ -1337,10 +1337,10 @@ export default class SecureScript7WebPart extends BaseClientSideWebPart<ISecureS
                   description: 'Optional:  Text user sees as the clickable documentation link',
                 }),
 
-                // PropertyPaneTextField('supportContacts',{
-                //   label: 'Support Contacts',
-                //   description: 'REQUIRED:  Contact information for issues '
-                // }),
+                PropertyPaneTextField('panelMessageIfYouStill',{
+                  label: 'If you still have... message',
+                  description: 'If you have more than one contact, explain who to call for what'
+                }),
 
                 PropertyFieldPeoplePicker('supportContacts', {
                   label: 'Support Contacts',
